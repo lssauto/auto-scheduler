@@ -1,6 +1,6 @@
 # LSS Session Scheduler
 
-## Deployment Link: tbd
+## Deployment Link: https://lssauto.github.io/auto-scheduler/
 
 An automation tool for the Learning Support Services at UC Santa Cruz.
 
