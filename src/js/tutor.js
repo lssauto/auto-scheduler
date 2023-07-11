@@ -76,7 +76,7 @@ class Tutor {
 
             // session times
             for (let time of course.times) {
-                let error = this.schedule.addTime(time.time, id, "session");
+                let error = this.schedule.addTime(time.time, id, "session", null, time.schedule);
                 if (error != null) this.conflicts.push(error);
             }
         }
