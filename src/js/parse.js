@@ -75,7 +75,7 @@ function BuildJSON(columns, data) {
             } else { // session times
                 if ( !(data[i][j] == "" || data[i][j] == "N/A") ) {
                     let schedule = true;
-                    if (data[i][j + 1].trim().toLowerCase().includes("i'll book my own space")) {
+                    if (data[i][j + 1].trim().toLowerCase().includes("i'll book my own space") && obj.position == "SGT") { // only SGT can reserve their own rooms
                         schedule = false;
                     }
                     obj.times.push({time: data[i][j], schedule: schedule});
