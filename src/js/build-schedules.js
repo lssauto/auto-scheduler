@@ -1,16 +1,19 @@
 // * Assign rooms to tutor's requested session times
 
 function BuildSchedules() {
-    console.log("creating schedules...");
+
+    clearConsole();
 
     if (tutors == null) {
-        console.log("Tutor data must be parsed");
+        output({type: "error", message: "Tutor data must be parsed before building schedules."});
         return;
     }
     if (rooms == null) {
-        console.log("Rooms data must be parsed");
+        output({type: "error", message: "Room data must be parsed before building schedules."});
         return;
     }
+
+    output({type: "info", message: "creating schedules.."});
 
     // * for each tutor
     for (let tutorID in tutors) {
@@ -97,4 +100,6 @@ function BuildSchedules() {
 
     displayTutors(true);
     displayRooms();
+
+    output({type: "success", message: "schedules created!"});
 }

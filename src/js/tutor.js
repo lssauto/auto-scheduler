@@ -59,25 +59,65 @@ class Tutor {
             // lecture times
             for (let lecture of course.lectures) {
                 let error = this.schedule.addTime(lecture, id, "lecture");
-                if (error != null) this.conflicts.push(error);
+                if (error != null) {
+                    if (error.error == "no-time") {
+                        output({
+                            type: "warning", 
+                            tutor: this.name + " (" + this.email + ")", 
+                            message: "Lecture time could not be recognized: " + lecture
+                        });
+                    } else {
+                        this.conflicts.push(error);
+                    }
+                }
             }
 
             // office hours
             for (let officeHour of course.officeHours) {
                 let error = this.schedule.addTime(officeHour, id, "office hours");
-                if (error != null) this.conflicts.push(error);
+                if (error != null) {
+                    if (error.error == "no-time") {
+                        output({
+                            type: "warning", 
+                            tutor: this.name + " (" + this.email + ")", 
+                            message: "Office Hours time could not be recognized: " + officeHour
+                        });
+                    } else {
+                        this.conflicts.push(error);
+                    }
+                }
             }
 
             // discord hours
             for (let discordHour of course.discordHours) {
                 let error = this.schedule.addTime(discordHour, id, "discord");
-                if (error != null) this.conflicts.push(error);
+                if (error != null) {
+                    if (error.error == "no-time") {
+                        output({
+                            type: "warning", 
+                            tutor: this.name + " (" + this.email + ")", 
+                            message: "Discord support time could not be recognized: " + discordHour
+                        });
+                    } else {
+                        this.conflicts.push(error);
+                    }
+                }
             }
 
             // session times
             for (let time of course.times) {
                 let error = this.schedule.addTime(time.time, id, "session", null, time.schedule);
-                if (error != null) this.conflicts.push(error);
+                if (error != null) {
+                    if (error.error == "no-time") {
+                        output({
+                            type: "warning", 
+                            tutor: this.name + " (" + this.email + ")", 
+                            message: "Session time could not be recognized: " + time.time
+                        });
+                    } else {
+                        this.conflicts.push(error);
+                    }
+                }
             }
         }
     }

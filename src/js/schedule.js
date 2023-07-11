@@ -25,6 +25,14 @@ class Schedule {
 
         let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
         let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)*/g); // get all hours
+
+        if (hours == null) {
+            return {
+                day: "N/A",
+                time: { tutor: tutor, course: course, tag: tag, start: null, end: null },
+                error: "no-time"
+            }
+        }
         
         // if there are no days, then this is a Sun time
         if (days == null) { days = ["Sun"]; }

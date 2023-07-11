@@ -6,6 +6,9 @@ function handleRoomSubmit(event) {
     field.value = ""; // clear
     autoResize("RoomInput");
 
+    clearConsole();
+    output({type: "info", message: "Parsing Room Data..."});
+
     // build matrix
     let matrix = inputText.split("\n");
     for (let i = 0; i < matrix.length; i++) {
@@ -20,6 +23,8 @@ function handleRoomSubmit(event) {
     rooms = BuildRooms(matrix); // ? global variable for containing Rooms
 
     displayRooms(); // ? function located in display.js
+
+    output({type: "success", message: "Room Data parsed successfully!"});
 }
 
 // * =================================================================
@@ -33,6 +38,9 @@ function handleTutorSubmit(event) {
     let inputText = field.value;
     field.value = ""; // clear
     autoResize("TutorInput");
+
+    clearConsole();
+    output({type: "info", message: "Parsing Tutor Data..."});
     
     // find column titles
     let columnTitles = [];
@@ -52,6 +60,7 @@ function handleTutorSubmit(event) {
     let matrix = [];
     buffer = ""; i++; // reset buffer and skip over first /n
     columnCount = 1;  // makes sure all column fields are filled per row
+    rowCount = 1;
     errors = []; // index list of flagged errors in input
     while (i < inputText.length) {
         if (inputText[i] == '\n' && columnCount >= columnTitles.length) {
@@ -59,9 +68,15 @@ function handleTutorSubmit(event) {
             matrix.push(buffer);
             buffer = "";
             columnCount = 1;
+            rowCount++;
             i++;
         }
         if (inputText[i] == '\t') columnCount++;
+        if (columnCount > columnTitles.length) {
+            output({type: "error", 
+                message: `Too many columns counted in row: ${rowCount}. A tab character was likely input in a response. Remove the tab, and try again.`});
+            return;
+        }
 
         buffer += inputText[i];
         i++;
@@ -71,15 +86,15 @@ function handleTutorSubmit(event) {
         matrix[j] = matrix[j].split('\t');
     }
     console.log('Tutors Input:\n', matrix);
-
-    // TODO: test for invalid input
     
     // ? functions located in parse.js
     const jsonObjs = BuildJSON(columnTitles, matrix);
-    console.log("Tutors JSON:\n", jsonObjs);
+    output({type: "info", message: "Building initial tutor schedules..."});
     tutors = BuildTutors(jsonObjs); // ? global variable for containing Tutors
 
     displayTutors(); // ? function located in display.js
+
+    output({type: "success", message: "Tutor Data parsed successfully!"});
 }
 
 // * =================================================================
@@ -102,3 +117,5 @@ RoomSubmitButton.addEventListener('click', handleRoomSubmit);
 
 let ScheduleButton = document.getElementById('ScheduleButton');
 ScheduleButton.addEventListener('click', BuildSchedules);
+
+consoleDiv = document.getElementById('console');

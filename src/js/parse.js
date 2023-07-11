@@ -56,14 +56,14 @@ function BuildJSON(columns, data) {
                 }
 
             } else if (title.includes("office hours")) {
-                if (data[i][j] == "" || data[i][j] == "N/A") {
+                if (data[i][j] == "" || data[i][j].includes("N/A")) {
                     obj.officeHours = [];
                 } else {
                     obj.officeHours = data[i][j].split(",");
                 }
 
             } else if (title.includes("discord support")) {
-                if (data[i][j] == "" || data[i][j] == "N/A") {
+                if (data[i][j] == "" || data[i][j].includes("N/A")) {
                     obj.discord = [];
                 } else {
                     obj.discord = data[i][j].split(",");
@@ -73,7 +73,7 @@ function BuildJSON(columns, data) {
                 obj.comments = data[i][j];
 
             } else { // session times
-                if ( !(data[i][j] == "" || data[i][j] == "N/A") ) {
+                if ( !(data[i][j] == "" || data[i][j].includes("N/A")) ) {
                     let schedule = true;
                     if (data[i][j + 1].trim().toLowerCase().includes("i'll book my own space") && obj.position == "SGT") { // only SGT can reserve their own rooms
                         schedule = false;
