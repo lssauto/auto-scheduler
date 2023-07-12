@@ -124,7 +124,7 @@ class Schedule {
                 let body = "";
                 if (time.tutor != null) {
                     if (time.tutor in tutors) {
-                        body = tutors[time.tutor].name + " / " + time.tutor;
+                        body = time.course + " , " + tutors[time.tutor].name + " / " + time.tutor + " , ";
                     } else {
                         body = time.tutor;
                     }
@@ -141,6 +141,44 @@ class Schedule {
             }
 
             output += "<b>|</b></br></br>";
+        }
+
+        return output;
+    }
+
+    // return a string representation of the schedule that will paste into a spreadsheet
+    Copy(assigned=false) {
+        let output = "";
+
+        for (let day in this.week) {
+            output += day + "\t";
+
+            const times = this.week[day];
+
+            for (let time of times) {
+                if (assigned) {
+                    if (!("room" in time)) continue;
+                }
+                
+                let body = "";
+                if (time.tutor != null) {
+                    if (time.tutor in tutors) {
+                        body = time.course + " , " + tutors[time.tutor].name + " (" + time.tutor + ") , ";
+                    } else {
+                        body = time.course + " , " + " (" + time.tutor + ") , ";
+                    }
+                } else {
+                    if ("room" in time) {
+                        body = time.course + " , " + time.room + " , ";
+                    } else {
+                        body = time.course;
+                    }
+                }
+                output += body;
+                output += `${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}\t`;
+            }
+
+            output += "\n";
         }
 
         return output;

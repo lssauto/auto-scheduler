@@ -101,5 +101,7 @@ function BuildSchedules() {
     displayTutors(true);
     displayRooms();
 
+    schedulesCompleted = true;
+
     output({type: "success", message: "schedules created!"});
 }
