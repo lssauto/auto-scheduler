@@ -85,8 +85,18 @@ class Schedule {
             }
         }
 
-        // add new time to schedule
+        
         for (let day of days) {
+            // check if day has too many sessions already
+            if (tag == "session" && this.week[day].length >= 5 && tutor != null) {
+                return {
+                    day: days[day],
+                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                    error: "over-booked"
+                };
+            }
+
+            // add new time to schedule
             this.week[day].push({
                 tutor: tutor, 
                 course: course,
@@ -112,7 +122,7 @@ class Schedule {
         let output = "";
 
         for (let day in this.week) {
-            output += `<b>${day}: |</b>`;
+            output += `<b>${day}: </br>|</b>`;
 
             const times = this.week[day];
 
@@ -135,12 +145,13 @@ class Schedule {
                         body = time.course;
                     }
                 }
-                output += ` (${body}`;
+                output += (time.tutor != null ? "|" : "") + ` (${body}`;
                 output += ` ${time.tag}: ${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}) `;
-                output += time == times.at(-1) ? "" : "<b>|</b>";
+                output += "|";
+                output += time.tutor != null ? "</br>" : "" ;
             }
 
-            output += "<b>|</b></br></br>";
+            output += "</br></br>";
         }
 
         return output;
