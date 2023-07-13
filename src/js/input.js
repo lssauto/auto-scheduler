@@ -119,3 +119,9 @@ let ScheduleButton = document.getElementById('ScheduleButton');
 ScheduleButton.addEventListener('click', BuildSchedules);
 
 consoleDiv = document.getElementById('console');
+
+headerDiv = document.getElementById('header');
+contentDiv = document.getElementById('content');
+
+
+SearchBar = document.getElementById('SearchBar');

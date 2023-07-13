@@ -39,6 +39,11 @@ function BuildSchedules() {
             let sessionsThisDay = 0; // number of sessions assigned to this day
             for (let i = 0; i < day.length; i++) {
                 if (day[i].tag != "session") continue;
+                if (day[i].room != null) { // skip if room is already assigned, // ! not redundant to similar check made in addTime()
+                    sessionsThisDay++;
+                    sessions++;
+                    continue;
+                }
                 if (sessionsThisDay >= 2) break; // skip days with more than assigned 2 sessions
 
                 console.log("finding space for: " + dayName + " " + convertTimeToString(day[i].start));
@@ -85,6 +90,11 @@ function BuildSchedules() {
                         sessionsThisDay++;
                         sessions++;
                         break;
+                    } else if (response.error == "replaced") {
+                        console.log("Session already scheduled in: " + room.name);
+                        sessionsThisDay++;
+                        sessions++;
+                        break;
                     }
                 }
 
@@ -96,6 +106,8 @@ function BuildSchedules() {
                 }
             }
         }
+
+        tutor.scheduled = true;
     }
 
     displayTutors(true);

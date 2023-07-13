@@ -7,6 +7,7 @@ class Tutor {
         this.email = obj.email;
         this.name = obj.name;
         this.returnee = obj.returnee;
+        this.scheduled = false;
 
         // courses map key-value pairs are ("course id": Course object) Course is defined in course.js
         this.courses = {};
@@ -141,10 +142,15 @@ class Tutor {
         str += this.schedule.Display(assigned);
 
         str += "<b>Errors:</b></br>";
-        for (let conflict of this.conflicts) {
+        for (let i = 0; i < this.conflicts.length; i++) {
+            const conflict = this.conflicts[i];
             str += `${conflict.time.course} ${conflict.time.tag}: `;
             str += `${conflict.day} ${convertTimeToString(conflict.time.start)} - ${convertTimeToString(conflict.time.end)} , `
-            str += `error: ${conflict.error}</br>`;
+            str += `error: ${conflict.error} - `;
+            // ? functions in ignore-errors.js
+            str += `<button type='submit' onclick="ignoreError('${this.email}', '${i}')">Ignore</button> `;
+            str += `<button type='submit' onclick="removeError('${this.email}', '${i}')">Remove</button>`;
+            str += "</br>";
         }
         if (this.conflicts.length == 0) { str += "No Errors.</br>"; }
 

@@ -47,8 +47,8 @@ class Schedule {
         const start = convertTimeToInt(hours[0]);
         const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
 
-        // check if time is valid if it is a session
-        if (tag == "session") {
+        // check if time is valid if it is a session and schedule is for a tutor
+        if (tag == "session" && tutor == null) {
             for (const day of days) {
                 if (day == "Sun" || day == "Sat") { continue; }
 
@@ -56,7 +56,7 @@ class Schedule {
                 if (!isValidSessionTime(day, start)) {
                     return {
                         day: day,
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
                         error: "invalid"
                     };
                 }
@@ -67,12 +67,32 @@ class Schedule {
         for (let i = 0; i < days.length; i++) {
             for (let j = 0; j < this.week[days[i]].length; j++) {
                 if (start >= this.week[days[i]][j].start && start <= this.week[days[i]][j].end) {
-                    //console.log("Overlapping time");
+                    if (this.week[days[i]][j].tutor == tutor && tutor != null) { // if this is the same session time for the same tutor, just replace it
+                        // add new time to schedule
+                        this.week[days[i]][j] = {
+                            tutor: tutor, 
+                            course: course,
+                            tag: tag,
+                            start: start,
+                            end: end
+                        };
+                        if (tag == "session") {
+                            this.week[days[i]][j].scheduleByLSS = scheduleByLSS;
+                        }
+
+                        return {
+                            day: days[i],
+                            time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                            error: "replaced"
+                        };
+                    }
+
                     return {
                         day: days[i],
                         time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
                         error: "conflict"
                     };
+                    
                 }
                 if (end >= this.week[days[i]][j].start && end <= this.week[days[i]][j].end) {
                     //console.log("Overlapping time");
