@@ -24,10 +24,12 @@ function BuildSchedules() {
 
         let sessions = 0; // number of sessions assigned to this tutor
         let maxSessions = 0; // maximum number of sessions assigned to this tutor
+        let sessionCount = {}; // max sessions for each course
         // calc max sessions
         for (const courseID in tutor.courses) {
             const course = tutor.courses[courseID];
             maxSessions += course.position == "LGT" ? 5 : 4;
+            sessionCount[courseID] = course.position == "LGT" ? 5 : 4;
         }
 
         // * for each day of the week
@@ -42,6 +44,7 @@ function BuildSchedules() {
                 if (day[i].room != null) { // skip if room is already assigned, // ! not redundant to similar check made in addTime()
                     sessionsThisDay++;
                     sessions++;
+                    sessionCount[day[i].course]--;
                     continue;
                 }
                 if (sessionsThisDay >= 2) break; // skip days with more than assigned 2 sessions
@@ -77,6 +80,7 @@ function BuildSchedules() {
 
                 // * for each room
                 for (let roomID in rooms) {
+                    if (sessionCount[day[i].course] <= 2) break; // no more sessions to assign, will default to "Request From Registrar"
                     let room = rooms[roomID];
                     if (room.type != tutor.courses[day[i].course].position) continue; // only match tutors to rooms for their position
 
@@ -89,11 +93,13 @@ function BuildSchedules() {
                         tutor.schedule.week[dayName][i].room = room.name;
                         sessionsThisDay++;
                         sessions++;
+                        sessionCount[day[i].course]--;
                         break;
                     } else if (response.error == "replaced") {
                         console.log("Session already scheduled in: " + room.name);
                         sessionsThisDay++;
                         sessions++;
+                        sessionCount[day[i].course]--;
                         break;
                     }
                 }
@@ -103,6 +109,7 @@ function BuildSchedules() {
                     tutor.schedule.week[dayName][i].room = "Request From Registrar";
                     sessionsThisDay++;
                     sessions++;
+                    sessionCount[day[i].course]--;
                 }
             }
         }
