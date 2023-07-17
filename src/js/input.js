@@ -6,6 +6,24 @@ function handleRoomSubmit(event) {
     field.value = ""; // clear
     autoResize("RoomInput");
 
+    // load buildings first
+    if (buildings == null) {
+        clearConsole();
+        output({type: "info", message: "Parsing Building Data..."});
+
+        if (inputText.includes("\t")) {
+            output({type: "error", message: "Buildings should be separated by row."});
+            return;
+        }
+
+        buildings = inputText.split("\n");
+        displayBuildings(); // ? function located in display.js
+
+        output({type: "success", message: "Buildings loaded successfully!"});
+        
+        return;
+    }
+
     clearConsole();
     output({type: "info", message: "Parsing Room Data..."});
 
@@ -40,6 +58,10 @@ function handleTutorSubmit(event) {
     autoResize("TutorInput");
 
     clearConsole();
+
+    if (buildings == null) output({type: "error", message: "Building Data must be parsed before parsing tutor data."});
+    if (rooms == null) output({type: "error", message: "Room data must be parsed before parsing tutor data."});
+
     output({type: "info", message: "Parsing Tutor Data..."});
     
     // find column titles

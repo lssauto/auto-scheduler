@@ -48,3 +48,18 @@ function removeError(email, i) {
     clearConsole();
     output({type: "success", message: `${conflict.error} error for ${tutor.name} (${email}) has been removed.`});
 }
+
+function setBuildingPreference(email, course) {
+    if (!(email in tutors)) {
+        output({type: "error", message: `${email} does not exit in tutor list.`});
+        return;
+    }
+
+    let dropdown = document.getElementById(email + "-preference");
+    let selection = dropdown.options[dropdown.selectedIndex].value;
+
+    tutors[email].courses[course].preference = selection;
+
+    clearConsole();
+    output({type: "success", message: `${tutors[email].name}'s preferred building for sessions supporting ${course} has been set to ${selection}.`});
+}

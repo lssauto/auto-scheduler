@@ -47,6 +47,18 @@
         <hr>
     </div>
     <div class="content" id="content">
+        <div id="rooms">
+            <h1>Room & Building Data</h1>
+            <form>
+                <textarea type="text" id="RoomInput" rows="3" cols="100" oninput="autoResize('RoomInput')" placeholder="Enter raw spread sheet data here"></textarea>
+                </br>
+                <button type="submit" id="RoomSubmitButton">Parse Data</button>
+                <button type="submit" id="RoomCopyButton">Copy Schedules</button>
+            </form>
+            <div id="buildingContainer"></div>
+            <hr>
+            <div id="roomContainer"></div>
+        </div>
         <div id="tutors">
             <h1>Tutor Data</h1>
             <form>
@@ -57,17 +69,6 @@
             </form>
             <hr>
             <div id="tutorContainer"></div>
-        </div>
-        <div id="rooms">
-            <h1>Room Data</h1>
-            <form>
-                <textarea type="text" id="RoomInput" rows="3" cols="100" oninput="autoResize('RoomInput')" placeholder="Enter raw spread sheet data here"></textarea>
-                </br>
-                <button type="submit" id="RoomSubmitButton">Parse Data</button>
-                <button type="submit" id="RoomCopyButton">Copy Schedules</button>
-            </form>
-            <hr>
-            <div id="roomContainer"></div>
         </div>
     </div>
     <script src="src/js/section-switch.js"></script>

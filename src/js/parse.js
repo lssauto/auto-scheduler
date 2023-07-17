@@ -43,7 +43,7 @@ function BuildJSON(columns, data) {
                 obj.returnee = data[i][j] == "Yes"? true: false;
 
             } else if (title.includes("what class are you submitting this availability form for")) {
-                obj.class = data[i][j].trim();
+                obj.class = data[i][j].trim().replace("–", "-"); // replace strange hyphen characters with dashes
 
             } else if (title.includes("lss position")) {
                 obj.position = data[i][j].includes("Large") ? "LGT" : "SGT";

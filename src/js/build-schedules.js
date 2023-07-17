@@ -29,7 +29,7 @@ function BuildSchedules() {
         for (const courseID in tutor.courses) {
             const course = tutor.courses[courseID];
             maxSessions += course.position == "LGT" ? 5 : 4;
-            sessionCount[courseID] = course.position == "LGT" ? 5 : 4;
+            sessionCount[courseID] = {position: course.position, count: course.position == "LGT" ? 5 : 4};
         }
 
         // * for each day of the week
@@ -44,7 +44,7 @@ function BuildSchedules() {
                 if (day[i].room != null) { // skip if room is already assigned, // ! not redundant to similar check made in addTime()
                     sessionsThisDay++;
                     sessions++;
-                    sessionCount[day[i].course]--;
+                    sessionCount[day[i].course].count--;
                     continue;
                 }
                 if (sessionsThisDay >= 2) break; // skip days with more than assigned 2 sessions
@@ -76,31 +76,80 @@ function BuildSchedules() {
                     sessionsThisDay++;
                     sessions++;
                     continue;
-                } 
+                }
 
-                // * for each room
-                for (let roomID in rooms) {
-                    if (sessionCount[day[i].course] <= 2) break; // no more sessions to assign, will default to "Request From Registrar"
-                    let room = rooms[roomID];
-                    if (room.type != tutor.courses[day[i].course].position) continue; // only match tutors to rooms for their position
-
-                    // check if the room is available for that time
-                    let response = room.addTime(dayName + " " + convertTimeToString(day[i].start), day[i].course, tutorID);
-                    
-                    // if response is null, space was found
-                    if (response == null) {
-                        console.log("Room found: " + room.name);
-                        tutor.schedule.week[dayName][i].room = room.name;
+                if (tutor.courses[day[i].course].preference != "any") {
+                    // check if preferred building has any rooms available
+                    let buildingExists = false;
+                    for (let roomID in rooms) {
+                        if (roomID.toUpperCase().includes(tutor.courses[day[i].course].preference.toUpperCase())) {
+                            buildingExists = true;
+                            break;
+                        }
+                    }
+                    if (!buildingExists) {
+                        console.log("Tutor requesting specific building: " + tutor.courses[day[i].course].preference);
+                        tutor.schedule.week[dayName][i].room = "Request Room In " + tutor.courses[day[i].course].preference;
                         sessionsThisDay++;
                         sessions++;
-                        sessionCount[day[i].course]--;
-                        break;
-                    } else if (response.error == "replaced") {
-                        console.log("Session already scheduled in: " + room.name);
-                        sessionsThisDay++;
-                        sessions++;
-                        sessionCount[day[i].course]--;
-                        break;
+                        continue;
+                    }
+
+                    // * for each room with preference
+                    for (let roomID in rooms) {
+                        if (sessionCount[day[i].course].count <= (sessionCount[day[i].course].position == "LGT" ? 2 : 1)) break; // no more sessions to assign, will default to "Request From Registrar"
+                        let room = rooms[roomID];
+                        if (room.type != tutor.courses[day[i].course].position) continue; // only match tutors to rooms for their position
+                        if (room.building != tutor.courses[day[i].course].preference) continue; // skip rooms that aren't in the preferred building
+
+                        // check if the room is available for that time
+                        let response = room.addTime(dayName + " " + convertTimeToString(day[i].start), day[i].course, tutorID);
+
+                        // if response is null, space was found
+                        if (response == null) {
+                            console.log("Room found: " + room.name);
+                            tutor.schedule.week[dayName][i].room = room.name;
+                            sessionsThisDay++;
+                            sessions++;
+                            sessionCount[day[i].course].count--;
+                            break;
+                        } else if (response.error == "replaced") {
+                            console.log("Session already scheduled in: " + room.name);
+                            tutor.schedule.week[dayName][i].room = room.name;
+                            sessionsThisDay++;
+                            sessions++;
+                            sessionCount[day[i].course].count--;
+                            break;
+                        }
+                    }
+                }
+
+                // * for each room without preference
+                if (!("room" in tutor.schedule.week[dayName][i])) {
+                    for (let roomID in rooms) {
+                        if (sessionCount[day[i].course].count <= (sessionCount[day[i].course].position == "LGT" ? 2 : 1)) break; // no more sessions to assign, will default to "Request From Registrar"
+                        let room = rooms[roomID];
+                        if (room.type != tutor.courses[day[i].course].position) continue; // only match tutors to rooms for their position
+
+                        // check if the room is available for that time
+                        let response = room.addTime(dayName + " " + convertTimeToString(day[i].start), day[i].course, tutorID);
+
+                        // if response is null, space was found
+                        if (response == null) {
+                            console.log("Room found: " + room.name);
+                            tutor.schedule.week[dayName][i].room = room.name;
+                            sessionsThisDay++;
+                            sessions++;
+                            sessionCount[day[i].course].count--;
+                            break;
+                        } else if (response.error == "replaced") {
+                            console.log("Session already scheduled in: " + room.name);
+                            tutor.schedule.week[dayName][i].room = room.name;
+                            sessionsThisDay++;
+                            sessions++;
+                            sessionCount[day[i].course].count--;
+                            break;
+                        }
                     }
                 }
 

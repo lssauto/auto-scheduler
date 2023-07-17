@@ -4,6 +4,7 @@
 
 let tutors = null;
 let rooms = null;
+let buildings = null;
 let schedulesCompleted = false;
 
 // * console div used to output diagnostic messages

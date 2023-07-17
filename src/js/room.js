@@ -5,6 +5,14 @@ class Room {
         this.name = name;
         this.type = name.includes("Large") ? "LGT" : "SGT";
         this.schedule = new Schedule(this);
+
+        this.building = null; // null to designate room is not part of a building
+        for (const building of buildings) {
+            if (name.toUpperCase().includes(building.toUpperCase())) {
+                this.building = building;
+            }
+        }
+
         return this;
     }
 
@@ -17,7 +25,7 @@ class Room {
     Display() {
         let str = "";
 
-        str += `<b>Room: ${this.name}</b></br></br>`;
+        str += `<b>Room: ${this.name} ; Building: ${this.building == null ? "not recognized" : this.building}</b></br></br>`;
         str += this.schedule.Display();
 
         return str;

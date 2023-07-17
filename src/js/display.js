@@ -31,3 +31,15 @@ function displayRooms() {
         roomContainer.innerHTML += ("=".repeat(50)) + "</br>";
     }
 }
+
+function displayBuildings() {
+    console.log("Buildings:\n", buildings);
+
+    let buildingContainer = document.getElementById("buildingContainer");
+    buildingContainer.innerHTML = "";
+
+    for (const building of buildings) {
+        buildingContainer.innerHTML += building + " | ";
+    }
+    buildingContainer.innerHTML += "</br>";
+}

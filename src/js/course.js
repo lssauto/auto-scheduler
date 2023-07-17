@@ -43,4 +43,9 @@ class Course {
         this.comments = comments;
         return this;
     }
+
+    setPreference(preference) {
+        this.preference = preference;
+        return this;
+    }
 }

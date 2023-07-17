@@ -28,7 +28,8 @@ class Tutor {
             .setOfficeHours(obj.officeHours)
             .setDiscordHours(obj.discord)
             .setTimes(obj.times)
-            .setComments(obj.comments);
+            .setComments(obj.comments)
+            .setPreference("any");
 
         this.courses[course.id] = course;
         
@@ -130,11 +131,22 @@ class Tutor {
         str += `<b>Name: ${this.name} ; `;
         str += `Email: ${this.email}</b></br>`;
 
+        
+
         str += "<b>Courses:</b></br>";
         for (let id in this.courses) {
             let dateObject = new Date(this.courses[id].timestamp);
             let date = dateObject.toLocaleString();
-            str += `${id}: ${date} ; ${this.courses[id].position}</br>`;
+
+            let options = `<select id="${this.email + "-preference"}">`;
+            options += `<option value="any">Any</option>`;
+            for (const building of buildings) {
+                options += `<option value="${building}" ${this.courses[id].preference == building ? "selected" : "" }>${building}</option>`;
+            }
+            options += `</select>`;
+            options += ` <button type='submit' onclick="setBuildingPreference('${this.email}', '${id}')">Set Preference</button>`;
+            
+            str += `${id}: ${date} ; ${this.courses[id].position} - ${options}</br>`;
             str += this.courses[id].comments != "" ? `${this.courses[id].comments}</br></br>` : "";
         }
 

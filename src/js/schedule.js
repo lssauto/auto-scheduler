@@ -153,7 +153,7 @@ class Schedule {
                 
                 let body = "";
                 if (time.tutor != null) {
-                    if (time.tutor in tutors) {
+                    if (tutors != null && time.tutor in tutors) {
                         body = time.course + " , " + tutors[time.tutor].name + " / " + time.tutor + " , ";
                     } else {
                         body = time.tutor;
