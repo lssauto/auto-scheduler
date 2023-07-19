@@ -39,6 +39,7 @@
         <button type="submit" id="RoomSwitchButton">Rooms</button>
         <button type="submit" id="ScheduleButton">Create Schedules</button>
         <button type="submit" onclick="clearConsole()">Clear Console</button>
+        <button type="submit" id="ConsoleHideButton" onclick="hideConsole()">Hide Console</button>
         <input type="text" id="SearchBar" placeholder="Tutor name or ID">
         <button type="submit" onclick="searchTutors()">Search</button>
         </br>
@@ -69,6 +70,7 @@
             </form>
             <hr>
             <div id="tutorContainer"></div>
+            <div id="expectedTutorContainer"></div>
         </div>
     </div>
     <script src="src/js/section-switch.js"></script>

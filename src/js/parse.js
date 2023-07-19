@@ -1,5 +1,108 @@
 // * contains functions for parsing raw table data into easier to use formats.
 
+// ensures that course IDs follow specific formatting so that they can be matched against each other
+function formatCourseID(courseStr) {
+    let courseId = courseStr.trim().replace("–", "-"); // replace strange hyphen characters with dashes
+
+    let departments = courseId.match(/[A-Z]{2,4}/g);
+    let sections = courseId.match(/[0-9]{1,3}[A-Z]*([\s]*-[\s]*([0-9]{1,3}|\(All Sections\)))?/g);
+    
+    if (departments == null || sections == null) {
+        return null;
+    }
+
+    let course = "";
+    for (let i = 0; i < sections.length; i++) {
+        if (i > 0) course += "/";
+
+        course += departments[i] + " ";
+
+        courseNums = sections[i].split("-");
+
+        course += courseNums[0].trim().replace(/^0+/, '') + "-";
+
+        if (courseNums.length == 1) {
+            course += "001";
+        } else if (courseNums[1].match(/[a-z]/g) != null) { // if the section # contains letters, it's "All Sections"
+            course += "(All Sections)";
+        } else {
+            courseNums[1] = courseNums[1].trim();
+            course += "0".repeat(3 - courseNums[1].length) + courseNums[1];
+        }  
+    }
+
+    return course;
+}
+
+// * parses expected tutors, course and position
+
+// ? each expected tutor will be in the form:
+/* 
+{ email: "string" , courses: {
+        "ABC 123D-001": "position",
+        ...
+    }
+}
+*/
+
+function parseExpectedTutors(matrix) {
+
+    let obj = {};
+
+    for (let r = 0; r < matrix.length; r++) {
+        const row = matrix[r];
+
+        // get email
+        let email = row[0].match(/^([a-zA-Z0-9]+@ucsc.edu)/g);
+        if (email == null) {
+            output({
+                type: "warning", 
+                message: `No email found, contains: ${row[0]}. Skipping to next row.`,
+                row: r + 1
+            });
+            continue;
+        }
+
+        email = email[0]; // set email to just the string, not a list
+
+        if (email != row[0]) {
+            output({
+                type: "warning", 
+                message: `Email was found, but is not exact contents: ${row[0]}. Email found: ${email}. Continuing with found email.`,
+                row: r + 1
+            });
+        }
+
+        let tutor = null;
+        if (email in obj) {
+            tutor = obj[email];
+        } else {
+            tutor = { email: email, name: row[1], courses: {} };
+        }
+
+        // ensure course id follows specific formatting
+        let course = formatCourseID(row[2]);
+        if (course == null) {
+            output({
+                type: "warning", 
+                message: `Course could not be recognized, contents: ${row[2]}. Belonged to: ${row[1]} (${email}). Skipping to next row.`,
+                row: r + 1
+            });
+            continue;
+        }
+        //console.log(course);
+
+        let position = row[3].includes("Large") ? "LGT" : "SGT"; // TODO: add writing and study hall tutors
+
+        tutor.courses[course] = position;
+        obj[email] = tutor;
+    }
+
+    return obj;
+}
+
+// * ====================================================================
+
 // * separate raw data into json objects to make building Tutor class instances easier
 // ? json objects will have fields:
 // ?  1. stamp - timestamp for when the response was submitted
@@ -14,7 +117,7 @@
 // ?  10. discord - list of discord times, split by ","
 // ?  11. times - list of sessions times in format {time: "response string", schedule: bool}, schedule says whether lss needs to schedule the session
 
-function BuildJSON(columns, data) {
+function BuildJSON(titles, data) {
     let objs = [];
 
     for (let i = 0; i < data.length; i++) {
@@ -23,14 +126,22 @@ function BuildJSON(columns, data) {
         };
 
         // iterate through each column and fill obj with corresponding data
-        for (let j = 0; j < columns.length; j++) {
-            const title = columns[j].trim().toLowerCase();
+        for (let j = 0; j < titles.length; j++) {
+            const title = titles[j].trim().toLowerCase();
 
             // column titles must include specific text to be recognized
             if (title.includes("timestamp")) {
                 obj.timestamp = data[i][j].trim();
 
             } else if (title.includes("email address")) {
+                if (!(data[i][j].trim() in expectedTutors)) {
+                    output({
+                        type: "warning", 
+                        message: `${data[i][j].trim()} is not a recognized email within the expected tutors list. 
+                        This tutor will be included, but not checked for correct course ID and position.`,
+                        row: i + 2
+                    });
+                }
                 obj.email = data[i][j].trim();
 
             } else if (title.includes("your name")) {
@@ -43,10 +154,24 @@ function BuildJSON(columns, data) {
                 obj.returnee = data[i][j] == "Yes"? true: false;
 
             } else if (title.includes("what class are you submitting this availability form for")) {
-                obj.class = data[i][j].trim().replace("–", "-"); // replace strange hyphen characters with dashes
+                let course = formatCourseID(data[i][j]);
+                if ((obj.email in expectedTutors) && !(course in expectedTutors[obj.email].courses)) {
+                    output({
+                        type: "warning", 
+                        message: `${data[i][j]} is not a recognized course for ${obj.name} (${obj.email}), or is incorrectly formatted. 
+                            Expected one of these options: ${Object.keys(expectedTutors[obj.email].courses)}. Skipping row, submission will be ignored.`,
+                        row: i + 2
+                    });
+                    break;
+                }
+                obj.class = course == null ? data[i][j].trim().replace("–", "-").toUpperCase() : course;
 
             } else if (title.includes("lss position")) {
-                obj.position = data[i][j].includes("Large") ? "LGT" : "SGT";
+                if (obj.email in expectedTutors) {
+                    obj.position = expectedTutors[obj.email].courses[obj.class];
+                } else {
+                    obj.position = data[i][j].includes("Large") ? "LGT" : "SGT";
+                }
 
             } else if (title.includes("class meeting days and times")) {
                 if (data[i][j] == "asynchronous") {
@@ -83,7 +208,9 @@ function BuildJSON(columns, data) {
                 j++;
             }
         }
-        objs.push(obj);
+        if ("comments" in obj) { // only add the object if 
+            objs.push(obj);
+        }
     }
 
     return objs;

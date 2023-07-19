@@ -3,6 +3,7 @@
 // * and will be used to create complete schedules in build-schedules.js
 
 let tutors = null;
+let expectedTutors = null;
 let rooms = null;
 let buildings = null;
 let schedulesCompleted = false;
@@ -32,6 +33,22 @@ function output(msg) {
 function clearConsole() {
     consoleDiv.innerHTML = "";
 
+    // resize header
+    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
+}
+
+let hidden = false;
+function hideConsole() {
+    let button = document.getElementById("ConsoleHideButton");
+    if (!hidden) {
+        consoleDiv.style.display = "none";
+        hidden = true;
+        button.innerHTML = "Show Console";
+    } else {
+        consoleDiv.style.display = "block";
+        hidden = false;
+        button.innerHTML = "Hide Console";
+    }
     // resize header
     contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
 }

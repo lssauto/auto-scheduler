@@ -59,8 +59,33 @@ function handleTutorSubmit(event) {
 
     clearConsole();
 
-    if (buildings == null) output({type: "error", message: "Building Data must be parsed before parsing tutor data."});
-    if (rooms == null) output({type: "error", message: "Room data must be parsed before parsing tutor data."});
+    // fill expected tutor data first
+    if (expectedTutors == null) {
+        output({type: "info", message: "Parsing Expected Tutor Data..."});
+
+        // build matrix
+        let matrix = inputText.split("\n");
+        for (let i = 0; i < matrix.length; i++) {
+            matrix[i] = matrix[i].split("\t");
+            for (let j = 0; j < matrix[i].length; j++) {
+                matrix[i][j] = matrix[i][j].trim();
+            }
+        }
+        console.log("Expected Tutor Input:\n", matrix);
+
+        if (matrix[0].length != 4) {
+            output({type: "error", message: "Expected tutor data should contain 4 rows: email, name, course, position"});
+            return;
+        }
+
+        expectedTutors = parseExpectedTutors(matrix); // ? located in parse.js
+        displayExpectedTutors(); // ? located in display.js
+        output({type: "success", message: "Successfully parsed expected tutor data!"});
+        return;
+    }
+
+    // if (buildings == null) output({type: "error", message: "Building Data must be parsed before parsing tutor data."});
+    // if (rooms == null) output({type: "error", message: "Room data must be parsed before parsing tutor data."});
 
     output({type: "info", message: "Parsing Tutor Data..."});
     
@@ -104,6 +129,8 @@ function handleTutorSubmit(event) {
         i++;
         
     }
+    matrix.push(buffer);
+    
     for (let j = 0; j < matrix.length; j++) {
         matrix[j] = matrix[j].split('\t');
     }

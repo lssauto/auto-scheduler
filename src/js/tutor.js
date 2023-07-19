@@ -53,7 +53,7 @@ class Tutor {
 
     // add times to schedule from courses
     FillSchedule() {
-        this.schedule = new Schedule();
+        this.schedule = new Schedule(this);
         this.conflicts = [];
         for (let id in this.courses) {
             const course = this.courses[id];
@@ -140,8 +140,10 @@ class Tutor {
 
             let options = `<select id="${this.email + "-preference"}">`;
             options += `<option value="any">Any</option>`;
-            for (const building of buildings) {
-                options += `<option value="${building}" ${this.courses[id].preference == building ? "selected" : "" }>${building}</option>`;
+            if (buildings != null) {
+                for (const building of buildings) {
+                    options += `<option value="${building}" ${this.courses[id].preference == building ? "selected" : "" }>${building}</option>`;
+                }
             }
             options += `</select>`;
             options += ` <button type='submit' onclick="setBuildingPreference('${this.email}', '${id}')">Set Preference</button>`;

@@ -48,7 +48,7 @@ class Schedule {
         const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
 
         // check if time is valid if it is a session and schedule is for a tutor
-        if (tag == "session" && tutor == null) {
+        if (this.container instanceof Tutor && tag == "session") {
             for (const day of days) {
                 if (day == "Sun" || day == "Sat") { continue; }
 
@@ -67,7 +67,7 @@ class Schedule {
         for (let i = 0; i < days.length; i++) {
             for (let j = 0; j < this.week[days[i]].length; j++) {
                 if (start >= this.week[days[i]][j].start && start <= this.week[days[i]][j].end) {
-                    if (this.week[days[i]][j].tutor == tutor && tutor != null) { // if this is the same session time for the same tutor, just replace it
+                    if (this.container instanceof Room && this.week[days[i]][j].tutor == tutor) { // if this is the same session time for the same tutor, just replace it
                         // add new time to schedule
                         this.week[days[i]][j] = {
                             tutor: tutor, 
@@ -108,7 +108,7 @@ class Schedule {
         
         for (let day of days) {
             // check if day has too many sessions already for room schedules
-            if (tag == "session" && this.week[day].length >= 5 && tutor != null) {
+            if (this.container instanceof Room && tag == "session" && this.week[day].length >= 5) {
                 return {
                     day: days[day],
                     time: { tutor: tutor, course: course, tag: tag, start: start, end: end },

@@ -1,3 +1,35 @@
+// displays all tutor's expected courses and positions
+function displayExpectedTutors() {
+    console.log("Expected Tutors Map:\n", expectedTutors);
+    let tutorContainer = document.getElementById('expectedTutorContainer');
+    tutorContainer.innerHTML = "";
+
+    if (tutors != null) {
+        tutorContainer.innerHTML += "<hr><hr><h1>Missing Tutors:</h1></br>";
+    } else {
+        tutorContainer.innerHTML += "<h1>Expected Tutor Courses and Positions:</h1></br>";
+    }
+
+    let str = "";
+
+    for (const email in expectedTutors) {
+        if (tutors != null && email in tutors) continue;
+        const expectedTutor = expectedTutors[email];
+        
+        str += `<b>Name: ${expectedTutor.name} ; `;
+        str += `Email: ${expectedTutor.email}</b></br>`;
+        str += "<b>Courses:</b></br>";
+
+        for (const id in expectedTutor.courses) {
+            str += `${id}: ${expectedTutor.courses[id]}</br>`;
+        }
+        str += "</br>";
+        str += ("=".repeat(50)) + "</br>";
+    }
+
+    tutorContainer.innerHTML += str;
+}
+
 // display tutors by adding their display string to the page
 function displayTutors(assigned=false) {
     console.log("Tutors Map:\n", tutors);
@@ -17,6 +49,7 @@ function displayTutors(assigned=false) {
     }
 
     tutorContainer.innerHTML += errors;
+    displayExpectedTutors();
 }
 
 // display rooms by adding their display string to the page
@@ -36,10 +69,14 @@ function displayBuildings() {
     console.log("Buildings:\n", buildings);
 
     let buildingContainer = document.getElementById("buildingContainer");
-    buildingContainer.innerHTML = "";
+    buildingContainer.innerHTML = "</br>Buildings: ";
 
     for (const building of buildings) {
         buildingContainer.innerHTML += building + " | ";
     }
     buildingContainer.innerHTML += "</br>";
+
+    if (tutors != null) {
+        displayTutors();
+    }
 }
