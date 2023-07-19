@@ -32,16 +32,29 @@
     <script src="src/js/build-schedules.js"></script>
     <script src="src/js/ignore-errors.js"></script>
     <script src="src/js/search.js"></script>
+    <script src="src/js/filter.js"></script>
 </head>
 <body id="body" style="display: none">
     <div class="header" id="header">
         <button type="submit" id="TutorSwitchButton">Tutors</button> 
         <button type="submit" id="RoomSwitchButton">Rooms</button>
+
         <button type="submit" id="ScheduleButton">Create Schedules</button>
+
         <button type="submit" onclick="clearConsole()">Clear Console</button>
         <button type="submit" id="ConsoleHideButton" onclick="hideConsole()">Hide Console</button>
+
         <input type="text" id="SearchBar" placeholder="Tutor name or ID">
         <button type="submit" onclick="searchTutors()">Search</button>
+
+        <select id="filterOptions">
+            <option value="all">All Tutors</option>
+            <option value="errors">Tutors with Errors</option>
+            <option value="expected">Expected/Missing Tutors</option>
+            <option value="comments">Tutors With Comments</option>
+            <option value="registrar">Tutors With Registrar Requests</option>
+        </select>
+        <button type="submit" id="filterTutorsButton" onclick="filterTutors()">Filter</button>
         </br>
         <h3>Console:</h3>
         <div id="console" style="color:white;"></div>

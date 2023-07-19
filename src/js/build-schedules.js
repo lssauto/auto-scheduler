@@ -98,7 +98,7 @@ function BuildSchedules() {
 
                     // * for each room with preference
                     for (let roomID in rooms) {
-                        if (sessionCount[session.course].count <= (sessionCount[session.course].position == "LGT" ? 2 : 1)) break; // no more sessions to assign, will default to "Request From Registrar"
+                        if (sessionCount[session.course].count <= (sessionCount[session.course].position == "LGT" ? 0 : 1)) break; // no more sessions to assign, will default to "Request From Registrar"
                         let room = rooms[roomID];
                         if (room.type != tutor.courses[session.course].position) continue; // only match tutors to rooms for their position
                         if (room.building != tutor.courses[session.course].preference) continue; // skip rooms that aren't in the preferred building

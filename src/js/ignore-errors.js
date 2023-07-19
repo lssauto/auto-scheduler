@@ -26,7 +26,7 @@ function ignoreError(email, i) {
     tutor.conflicts.splice(i, 1);
 
     // re-display tutors
-    displayTutors();
+    filterTutors();
 
     clearConsole();
     output({type: "success", message: `${conflict.error} error for ${tutor.name} (${email}) has been ignored.`});
@@ -43,7 +43,7 @@ function removeError(email, i) {
     tutors[email].conflicts.splice(i, 1);
 
     // re-display tutors
-    displayTutors();
+    filterTutors();
 
     clearConsole();
     output({type: "success", message: `${conflict.error} error for ${tutor.name} (${email}) has been removed.`});

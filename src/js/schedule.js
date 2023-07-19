@@ -108,7 +108,7 @@ class Schedule {
         
         for (let day of days) {
             // check if day has too many sessions already for room schedules
-            if (this.container instanceof Room && tag == "session" && this.week[day].length >= 5) {
+            if (this.container instanceof Room && tag == "session" && this.week[day].length >= 4) {
                 return {
                     day: days[day],
                     time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
