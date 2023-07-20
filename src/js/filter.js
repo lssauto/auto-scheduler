@@ -105,5 +105,5 @@ function filterTutors() {
             break;
     }
 
-    output({type: "success", message: "Successfully filtered tutors!"});
+    output({type: "success", message: "Successfully filtered tutors based on " + selection});
 }
