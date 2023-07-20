@@ -61,26 +61,21 @@
         <hr>
     </div>
     <div class="content" id="content">
+        <h1>Input Field</h1>
+        <form>
+            <textarea type="text" id="InputField" rows="3" cols="100" oninput="autoResize('InputField')" placeholder="Enter raw spread sheet data here"></textarea>
+            </br>
+            <button type="submit" id="InputSubmitButton">Parse Building Data</button>
+        </form>
         <div id="rooms">
             <h1>Room & Building Data</h1>
-            <form>
-                <textarea type="text" id="RoomInput" rows="3" cols="100" oninput="autoResize('RoomInput')" placeholder="Enter raw spread sheet data here"></textarea>
-                </br>
-                <button type="submit" id="RoomSubmitButton">Parse Data</button>
-                <button type="submit" id="RoomCopyButton">Copy Schedules</button>
-            </form>
+            <button type="submit" id="RoomCopyButton">Copy Room Schedules</button>
             <div id="buildingContainer"></div>
             <hr>
             <div id="roomContainer"></div>
         </div>
         <div id="tutors">
             <h1>Tutor Data</h1>
-            <form>
-                <textarea type="text" id="TutorInput" rows="3" cols="100" oninput="autoResize('TutorInput')" placeholder="Enter raw spread sheet data here"></textarea>
-                </br>
-                <button type="submit" id="TutorSubmitButton">Parse Data</button>
-                <button type="submit" id="TutorCopyButton">Copy Schedules</button>
-            </form>
             <hr>
             <div id="tutorContainer"></div>
             <div id="expectedTutorContainer"></div>

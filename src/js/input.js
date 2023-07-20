@@ -1,30 +1,22 @@
-// Reads raw spreadsheet data from text field, and separates it into a matrix to create Room objects
-function handleRoomSubmit(event) {
-    event.preventDefault(); // Prevents the form from submitting and refreshing the page
-    let field = document.getElementById('RoomInput');
-    let inputText = field.value;
-    field.value = ""; // clear
-    autoResize("RoomInput");
+// fill buildings array
+function handleBuildingsSubmit(inputText) {
+    output({type: "info", message: "Parsing Building Data..."});
 
-    // load buildings first
-    if (buildings == null) {
-        clearConsole();
-        output({type: "info", message: "Parsing Building Data..."});
-
-        if (inputText.includes("\t")) {
-            output({type: "error", message: "Buildings should be separated by row."});
-            return;
-        }
-
-        buildings = inputText.split("\n");
-        displayBuildings(); // ? function located in display.js
-
-        output({type: "success", message: "Buildings loaded successfully!"});
-        
+    if (inputText.includes("\t")) {
+        output({type: "error", message: "Buildings should be separated by row."});
         return;
     }
 
-    clearConsole();
+    buildings = inputText.split("\n");
+    displayBuildings(); // ? function located in display.js
+
+    output({type: "success", message: "Buildings loaded successfully!"});
+}
+
+// * =================================================================
+
+// Reads raw spreadsheet data from text field, and separates it into a matrix to create Room objects
+function handleRoomSubmit(inputText) {
     output({type: "info", message: "Parsing Room Data..."});
 
     // build matrix
@@ -47,46 +39,33 @@ function handleRoomSubmit(event) {
 
 // * =================================================================
 
-// * =================================================================
+function handleExpectedTutorsSubmit(inputText) {
+    output({type: "info", message: "Parsing Expected Tutor Data..."});
 
-// Reads raw spreadsheet data from text field, and separates it into a matrix to create Tutor objects
-function handleTutorSubmit(event) {
-    event.preventDefault(); // Prevents the form from submitting and refreshing the page
-    let field = document.getElementById('TutorInput');
-    let inputText = field.value;
-    field.value = ""; // clear
-    autoResize("TutorInput");
-
-    clearConsole();
-
-    // fill expected tutor data first
-    if (expectedTutors == null) {
-        output({type: "info", message: "Parsing Expected Tutor Data..."});
-
-        // build matrix
-        let matrix = inputText.split("\n");
-        for (let i = 0; i < matrix.length; i++) {
-            matrix[i] = matrix[i].split("\t");
-            for (let j = 0; j < matrix[i].length; j++) {
-                matrix[i][j] = matrix[i][j].trim();
-            }
+    // build matrix
+    let matrix = inputText.split("\n");
+    for (let i = 0; i < matrix.length; i++) {
+        matrix[i] = matrix[i].split("\t");
+        for (let j = 0; j < matrix[i].length; j++) {
+            matrix[i][j] = matrix[i][j].trim();
         }
-        console.log("Expected Tutor Input:\n", matrix);
+    }
+    console.log("Expected Tutor Input:\n", matrix);
 
-        if (matrix[0].length != 4) {
-            output({type: "error", message: "Expected tutor data should contain 4 rows: email, name, course, position"});
-            return;
-        }
-
-        expectedTutors = parseExpectedTutors(matrix); // ? located in parse.js
-        displayExpectedTutors(); // ? located in display.js
-        output({type: "success", message: "Successfully parsed expected tutor data!"});
+    if (matrix[0].length != 4) {
+        output({type: "error", message: "Expected tutor data should contain 4 rows: email, name, course, position"});
         return;
     }
 
-    // if (buildings == null) output({type: "error", message: "Building Data must be parsed before parsing tutor data."});
-    // if (rooms == null) output({type: "error", message: "Room data must be parsed before parsing tutor data."});
+    expectedTutors = parseExpectedTutors(matrix); // ? located in parse.js
+    displayExpectedTutors(); // ? located in display.js
+    output({type: "success", message: "Successfully parsed expected tutor data!"});
+}
 
+// * =================================================================
+
+// Reads raw spreadsheet data from text field, and separates it into a matrix to create Tutor objects
+function handleTutorSubmit(inputText) {
     output({type: "info", message: "Parsing Tutor Data..."});
     
     // find column titles
@@ -130,7 +109,7 @@ function handleTutorSubmit(event) {
         
     }
     matrix.push(buffer);
-    
+
     for (let j = 0; j < matrix.length; j++) {
         matrix[j] = matrix[j].split('\t');
     }
@@ -148,6 +127,32 @@ function handleTutorSubmit(event) {
 
 // * =================================================================
 
+function handleInputSubmit(event) {
+    event.preventDefault(); // prevents the form from submitting and refreshing the page
+    let field = document.getElementById('InputField');
+    let inputText = field.value;
+    field.value = ""; // clear
+    autoResize("InputField");
+
+    clearConsole();
+
+    if (buildings == null) {
+        handleBuildingsSubmit(inputText);
+        InputSubmitButton.innerHTML = "Parse Room Schedules";
+    } else if (rooms == null) {
+        handleRoomSubmit(inputText);
+        InputSubmitButton.innerHTML = "Parse Expected Tutor Courses and Positions";
+    } else if (expectedTutors == null) {
+        handleExpectedTutorsSubmit(inputText);
+        InputSubmitButton.innerHTML = "Parse Tutor Form Responses";
+    } else if (tutors == null) {
+        handleTutorSubmit(inputText);
+        field.style.display = "none";
+        InputSubmitButton.style.display = "none";
+        output({type: "success", message: "All data loaded successfully!"});
+    }
+}
+
 // * =================================================================
 
 // resizes the text area to show all contents
@@ -158,11 +163,8 @@ function autoResize(elementID) {
 }
 
 // submit button event listener
-let TutorSubmitButton = document.getElementById('TutorSubmitButton');
-TutorSubmitButton.addEventListener('click', handleTutorSubmit);
-
-let RoomSubmitButton = document.getElementById('RoomSubmitButton');
-RoomSubmitButton.addEventListener('click', handleRoomSubmit);
+let InputSubmitButton = document.getElementById('InputSubmitButton');
+InputSubmitButton.addEventListener('click', handleInputSubmit);
 
 let ScheduleButton = document.getElementById('ScheduleButton');
 ScheduleButton.addEventListener('click', BuildSchedules);

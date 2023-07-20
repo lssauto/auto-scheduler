@@ -1,6 +1,6 @@
 // * functions for copying tutor and room schedules in format that will paste into a spreadsheet
 // * rows separated by newlines, columns separated by tabs
-
+/*
 function CopyTutorSchedules(event) {
     event.preventDefault(); // Prevents the form from submitting and refreshing the page
 
@@ -38,7 +38,7 @@ function CopyTutorSchedules(event) {
     TutorCopyButton.innerHTML = "Copied!";
 
     output({type: "success", message: "Tutor schedules copied to clipboard!"});
-}
+}*/
 
 function CopyRoomSchedules(event) {
     event.preventDefault(); // Prevents the form from submitting and refreshing the page
@@ -66,9 +66,9 @@ function CopyRoomSchedules(event) {
     output({type: "success", message: "Room schedules copied to clipboard!"});
 }
 
-
+/*
 let TutorCopyButton = document.getElementById('TutorCopyButton');
-TutorCopyButton.addEventListener('click', CopyTutorSchedules);
+TutorCopyButton.addEventListener('click', CopyTutorSchedules);*/
 
 let RoomCopyButton = document.getElementById('RoomCopyButton');
 RoomCopyButton.addEventListener('click', CopyRoomSchedules);
