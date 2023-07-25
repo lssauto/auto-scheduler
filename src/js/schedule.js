@@ -29,7 +29,7 @@ class Schedule {
         if (hours == null) {
             return {
                 day: "N/A",
-                time: { tutor: tutor, course: course, tag: tag, start: null, end: null },
+                time: { tutor: tutor, course: course, tag: tag, start: null, end: null, scheduleByLSS: scheduleByLSS },
                 error: "no-time"
             }
         }
@@ -82,14 +82,14 @@ class Schedule {
 
                         return {
                             day: days[i],
-                            time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                            time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
                             error: "replaced"
                         };
                     }
 
                     return {
                         day: days[i],
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
                         error: "conflict"
                     };
                     
@@ -98,7 +98,7 @@ class Schedule {
                     //console.log("Overlapping time");
                     return {
                         day: days[i],
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
                         error: "conflict"
                     };
                 }
@@ -111,7 +111,7 @@ class Schedule {
             if (this.container instanceof Room && tag == "session" && this.week[day].length >= 4) {
                 return {
                     day: days[day],
-                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end },
+                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
                     error: "over-booked"
                 };
             }

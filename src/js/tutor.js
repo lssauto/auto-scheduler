@@ -30,7 +30,8 @@ class Tutor {
             .setComments(obj.comments)
             .setPreference("any")
             .setRow(obj.row)
-            .setStatus(obj.status);
+            .setStatus(obj.status)
+            .setScheduler(obj.scheduler);
 
         this.courses[course.id] = course;
         
@@ -145,8 +146,9 @@ class Tutor {
         errors = [];
         for (const courseID in this.courses) {
             const course = this.courses[courseID];
-            console.log(course.errors);
-            errors = errors.concat(course.errors);
+            for (const error of course.errors) {
+                errors.push(error);
+            }
         }
         return errors;
     }
@@ -161,16 +163,15 @@ class Tutor {
         
 
         str += "<b>Courses:</b></br>";
-        for (let id in this.courses) {
-            let dateObject = new Date(this.courses[id].timestamp);
-            let date = dateObject.toLocaleString();
+        for (const id in this.courses) {
+            const course = this.courses[id];
 
             // building preference
             let options = `<select id="${this.email + "-" + id + "-preference"}">`;
             options += `<option value="any">Any</option>`;
             if (buildings != null) {
                 for (const building of buildings) {
-                    options += `<option value="${building}" ${this.courses[id].preference == building ? "selected" : "" }>${building}</option>`;
+                    options += `<option value="${building}" ${course.preference == building ? "selected" : "" }>${building}</option>`;
                 }
             }
             options += `</select>`;
@@ -180,15 +181,20 @@ class Tutor {
             let statusStr = `<select id="${this.email + "-" + id + "-status"}">`;
             for (const statusID in StatusOptions) {
                 const status = StatusOptions[statusID];
-                statusStr += `<option value="${status}" ${this.courses[id].status == status ? "selected" : "" }>${status}</option>`;
+                statusStr += `<option value="${status}" ${course.status == status ? "selected" : "" }>${status}</option>`;
             }
             statusStr += `</select>`;
             statusStr += ` <button type='submit' onclick="setStatus('${this.email}', '${id}')">Set Status</button>`;
 
             let deleteButton = `<button type='submit' onclick="removeCourse('${this.email}', '${id}')">Remove</button>`;
 
-            str += `${id}: ${date} ; ${this.courses[id].position} - ${options} - ${statusStr} - ${deleteButton}</br>`;
-            str += this.courses[id].comments != "" ? `${this.courses[id].comments}</br></br>` : "";
+            let slackButton = "";
+            if (FinishedStatus.includes(course.status)) {
+                slackButton = `- <button type='submit' onclick="copySlackNote('${this.name}', '${id}')">Copy Slack Note</button> `;
+            }
+
+            str += `${id}: ${course.position}; ${options} - ${statusStr} - ${deleteButton} ${slackButton}- Scheduler: ${course.scheduler}</br>`;
+            str += course.comments != "" ? `${course.comments}</br></br>` : "";
         }
 
         str += "</br><b>Schedule:</b></br>";

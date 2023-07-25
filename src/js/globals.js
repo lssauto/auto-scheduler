@@ -2,6 +2,8 @@
 // * these will contain all the Tutor and Room objects created in parse.js,
 // * and will be used to create complete schedules in build-schedules.js
 
+let scheduler = null;
+
 let tutors = null;
 let expectedTutors = null;
 let rooms = null;

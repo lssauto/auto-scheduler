@@ -6,20 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scheduler</title>
     <link rel="stylesheet" href="src/css/style.css">
-    <script type="text/javascript">
-        function password() {
-            key = "lss";
-            pend = window.prompt("Password","");
-        
-            if(pend != key) {
-                history.go(-1);
-            } else {
-                document.getElementById("body").style.display = "block";
-            }
-        }
-
-        window.onload = password;
-    </script>
     <script src="src/js/globals.js"></script>
     <script src="src/js/time-convert.js"></script>
     <script src="src/js/session-times.js"></script>
@@ -37,6 +23,8 @@
 </head>
 <body id="body" style="display: none">
     <div class="header" id="header">
+        <p id="schedulerName">name</p>
+        
         <button type="submit" id="TutorSwitchButton">Tutors</button> 
         <button type="submit" id="RoomSwitchButton">Rooms</button>
 

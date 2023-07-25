@@ -136,3 +136,11 @@ function removeCourse(email, course) {
     }
     updateTutorDisplay(email);
 }
+
+
+
+function copySlackNote(name, courseID) {
+    let message = `Hi @${name} This is a notification that your sessions for *${courseID}* have been posted on TutorHub. Please review the session days/times, and either let us know immediately if you need to make scheduling changes by thread replying to this note, or if you have a question that you'd like to keep private please direct message a coordinator. If you do not need to make changes, please confirm that your schedule works, as is, by replying with a thumbs-up to this note.`;
+    navigator.clipboard.writeText(message);
+    output({type: "success", message: `Slack message to ${name} for their ${courseID} sessions has been copied to your clipboard.`});
+}

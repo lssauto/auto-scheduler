@@ -227,6 +227,21 @@ function BuildJSON(titles, data) {
             } else if (title.includes("anything else you want to let lss know?")) {
                 obj.comments = data[i][j];
 
+            } else if (title.includes("scheduler")) {
+                obj.scheduler = data[i][j];
+
+            } else if (title.includes("status")) {
+                if (obj.status == StatusOptions.InProgress && data[i][j] != "") {
+                    obj.status = data[i][j];
+                } else if (obj.status != StatusOptions.InProgress) {
+                    output({
+                        type: "warning", 
+                        message: `Status of '${data[i][j]}' found in data, but an error was encountered 
+                        at a different cell, so status will be replaced with '${obj.status}'.`,
+                        row: i + 2
+                    });
+                }
+
             } else { // session times
                 if ( !(data[i][j] == "" || data[i][j].includes("N/A")) ) {
                     let schedule = true;

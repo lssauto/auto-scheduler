@@ -73,7 +73,7 @@ function BuildSchedules() {
                 }
 
                 // check if tutor wants this session scheduled
-                if (!session.scheduleByLSS) {
+                if (session.scheduleByLSS === false) {
                     console.log("Tutor Scheduling Session: " + dayName + " " + convertTimeToString(session.start));
                     tutor.schedule.week[dayName][i].room = "Scheduled By Tutor";
                     sessionsThisDay++;

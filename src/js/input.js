@@ -214,5 +214,23 @@ consoleDiv = document.getElementById('console');
 headerDiv = document.getElementById('header');
 contentDiv = document.getElementById('content');
 
-
 SearchBar = document.getElementById('SearchBar');
+
+function getSchedulerName() {
+    scheduler = window.prompt("Scheduler Name:","");
+    document.getElementById('schedulerName').innerHTML = "Scheduler: " + scheduler;
+}
+
+function password() {
+    key = "lss";
+    pend = window.prompt("Password","");
+
+    if(pend != key) {
+        history.go(-1);
+    } else {
+        document.getElementById("body").style.display = "block";
+        getSchedulerName();
+    }
+}
+
+window.onload = password;

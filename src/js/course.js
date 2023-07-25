@@ -90,4 +90,9 @@ class Course {
         this.preference = preference;
         return this;
     }
+
+    setScheduler(name="") {
+        this.scheduler = name == "" ? scheduler : name;
+        return this;
+    }
 }
