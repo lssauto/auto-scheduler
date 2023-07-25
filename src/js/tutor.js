@@ -7,7 +7,6 @@ class Tutor {
         this.email = obj.email;
         this.name = obj.name;
         this.returnee = obj.returnee;
-        this.scheduled = false;
 
         // courses map key-value pairs are ("course id": Course object) Course is defined in course.js
         this.courses = {};
@@ -21,7 +20,7 @@ class Tutor {
 
     // wrapper around process for adding a course
     AddCourse(obj) {
-        let course = new Course(obj.class);
+        let course = new Course(this, obj.class);
         course.setTimestamp(obj.timestamp)
             .setPosition(obj.position)
             .setLectures(obj.lectures)
@@ -29,7 +28,9 @@ class Tutor {
             .setDiscordHours(obj.discord)
             .setTimes(obj.times)
             .setComments(obj.comments)
-            .setPreference("any");
+            .setPreference("any")
+            .setRow(obj.row)
+            .setStatus(obj.status);
 
         this.courses[course.id] = course;
         
@@ -42,7 +43,7 @@ class Tutor {
         if (obj.class in this.courses) {
             if (obj.timestamp < this.courses[obj.class].timestamp) return;
         }
-
+        
         // update courses
         this.AddCourse(obj);
 
@@ -54,9 +55,9 @@ class Tutor {
     // add times to schedule from courses
     FillSchedule() {
         this.schedule = new Schedule(this);
-        this.conflicts = [];
         for (let id in this.courses) {
-            const course = this.courses[id];
+            let course = this.courses[id];
+            course.errors = [];
 
             // lecture times
             for (let lecture of course.lectures) {
@@ -69,7 +70,7 @@ class Tutor {
                             message: "Lecture time could not be recognized: " + lecture
                         });
                     } else {
-                        this.conflicts.push(error);
+                        course.errors.push(error);
                     }
                 }
             }
@@ -85,7 +86,7 @@ class Tutor {
                             message: "Office Hours time could not be recognized: " + officeHour
                         });
                     } else {
-                        this.conflicts.push(error);
+                        course.errors.push(error);
                     }
                 }
             }
@@ -101,7 +102,7 @@ class Tutor {
                             message: "Discord support time could not be recognized: " + discordHour
                         });
                     } else {
-                        this.conflicts.push(error);
+                        course.errors.push(error);
                     }
                 }
             }
@@ -117,15 +118,41 @@ class Tutor {
                             message: "Session time could not be recognized: " + time.time
                         });
                     } else {
-                        this.conflicts.push(error);
+                        course.errors.push(error);
                     }
                 }
             }
+
+            if (course.errors.length > 0) {
+                course.setStatus(StatusOptions.SchedulingError);
+
+            }
+            this.courses[id] = course;
         }
     }
 
+    hasErrors() {
+        for (const courseID in this.courses) {
+            const course = this.courses[courseID];
+            if (ErrorStatus.includes(course.status)) {
+                return true;
+            }
+        } 
+        return false;
+    }
+
+    getErrors() {
+        errors = [];
+        for (const courseID in this.courses) {
+            const course = this.courses[courseID];
+            console.log(course.errors);
+            errors = errors.concat(course.errors);
+        }
+        return errors;
+    }
+
     // return a string representation of the tutor
-    Display(assigned=false) {
+    Display() {
         let str = "";
 
         str += `<b>Name: ${this.name} ; `;
@@ -138,7 +165,8 @@ class Tutor {
             let dateObject = new Date(this.courses[id].timestamp);
             let date = dateObject.toLocaleString();
 
-            let options = `<select id="${this.email + "-preference"}">`;
+            // building preference
+            let options = `<select id="${this.email + "-" + id + "-preference"}">`;
             options += `<option value="any">Any</option>`;
             if (buildings != null) {
                 for (const building of buildings) {
@@ -148,25 +176,41 @@ class Tutor {
             options += `</select>`;
             options += ` <button type='submit' onclick="setBuildingPreference('${this.email}', '${id}')">Set Preference</button>`;
             
-            str += `${id}: ${date} ; ${this.courses[id].position} - ${options}</br>`;
+            // schedule status
+            let statusStr = `<select id="${this.email + "-" + id + "-status"}">`;
+            for (const statusID in StatusOptions) {
+                const status = StatusOptions[statusID];
+                statusStr += `<option value="${status}" ${this.courses[id].status == status ? "selected" : "" }>${status}</option>`;
+            }
+            statusStr += `</select>`;
+            statusStr += ` <button type='submit' onclick="setStatus('${this.email}', '${id}')">Set Status</button>`;
+
+            let deleteButton = `<button type='submit' onclick="removeCourse('${this.email}', '${id}')">Remove</button>`;
+
+            str += `${id}: ${date} ; ${this.courses[id].position} - ${options} - ${statusStr} - ${deleteButton}</br>`;
             str += this.courses[id].comments != "" ? `${this.courses[id].comments}</br></br>` : "";
         }
 
         str += "</br><b>Schedule:</b></br>";
-        str += this.schedule.Display(assigned);
+        str += this.schedule.Display();
 
         str += "<b>Errors:</b></br>";
-        for (let i = 0; i < this.conflicts.length; i++) {
-            const conflict = this.conflicts[i];
-            str += `${conflict.time.course} ${conflict.time.tag}: `;
-            str += `${conflict.day} ${convertTimeToString(conflict.time.start)} - ${convertTimeToString(conflict.time.end)} , `
-            str += `error: ${conflict.error} - `;
-            // ? functions in ignore-errors.js
-            str += `<button type='submit' onclick="ignoreError('${this.email}', '${i}')">Ignore</button> `;
-            str += `<button type='submit' onclick="removeError('${this.email}', '${i}')">Remove</button>`;
-            str += "</br>";
+        let errorCount = 0;
+        for (const courseID in this.courses) {
+            const course = this.courses[courseID];
+            errorCount += course.errors.length;
+            for (let i = 0; i < course.errors.length; i++) {
+                const error = course.errors[i];
+                str += `${error.time.course} ${error.time.tag}: `;
+                str += `${error.day} ${convertTimeToString(error.time.start)} - ${convertTimeToString(error.time.end)} , `
+                str += `error: ${error.error} - `;
+                // ? functions in ignore-errors.js
+                str += `<button type='submit' onclick="ignoreError('${this.email}', '${courseID}', '${i}')">Ignore</button> `;
+                str += `<button type='submit' onclick="removeError('${this.email}', '${courseID}', '${i}')">Remove</button>`;
+                str += "</br>";
+            }
         }
-        if (this.conflicts.length == 0) { str += "No Errors.</br>"; }
+        if (errorCount == 0) { str += "No Errors.</br>"; }
 
         return str;
     }

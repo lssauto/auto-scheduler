@@ -18,7 +18,7 @@ function BuildSchedules() {
     // * for each tutor
     for (let tutorID in tutors) {
         let tutor = tutors[tutorID];
-        if (tutor.conflicts.length > 0) continue; // skip tutors with errors
+        if (tutor.hasErrors()) continue; // skip tutors with errors
 
         console.log("creating schedule for: " + tutor.name + " (" + tutor.email + ")");
 
@@ -49,6 +49,8 @@ function BuildSchedules() {
                     continue;
                 }
                 if (sessionsThisDay >= 2) break; // skip days with more than assigned 2 sessions
+
+                if (tutor.courses[session.course].status != StatusOptions.InProgress) continue;
 
                 console.log("finding space for: " + dayName + " " + convertTimeToString(session.start));
 
@@ -164,10 +166,12 @@ function BuildSchedules() {
             }
         }
 
-        tutor.scheduled = true;
+        for (const courseID in tutor.courses) {
+            tutor.courses[courseID].setStatus(StatusOptions.SessionsScheduled);
+        }
     }
 
-    displayTutors(true);
+    displayAllTutors();
     displayRooms();
 
     schedulesCompleted = true;

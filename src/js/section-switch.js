@@ -2,16 +2,24 @@
 
 function setTutorActive() {
     let tutorDiv = document.getElementById('tutors');
+    let tutorTools = document.getElementById('tutorTools');
     let roomDiv = document.getElementById('rooms');
-    tutorDiv.style.display = 'block';
+    let roomTools = document.getElementById('roomTools');
+    tutorDiv.style.display = 'inline';
+    tutorTools.style.display = 'inline';
     roomDiv.style.display = 'none';
+    roomTools.style.display = 'none';
 }
 
 function setRoomActive() {
     let tutorDiv = document.getElementById('tutors');
+    let tutorTools = document.getElementById('tutorTools');
     let roomDiv = document.getElementById('rooms');
+    let roomTools = document.getElementById('roomTools');
     tutorDiv.style.display = 'none';
-    roomDiv.style.display = 'block';
+    tutorTools.style.display = 'none';
+    roomDiv.style.display = 'inline';
+    roomTools.style.display = 'inline';
 }
 
 // button event listener

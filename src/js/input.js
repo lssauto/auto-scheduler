@@ -7,8 +7,22 @@ function handleBuildingsSubmit(inputText) {
         return;
     }
 
-    buildings = inputText.split("\n");
+    if (buildings == null) {
+        buildings = inputText.split("\n");
+    } else {
+        let newBuildings = inputText.split("\n");
+        buildings = Array.from( new Set( buildings.concat(newBuildings) ) );
+    }
+    
     displayBuildings(); // ? function located in display.js
+
+    // check if any rooms can have buildings assigned to them
+    if (rooms != null) {
+        for (let roomID in rooms) {
+            rooms[roomID].CheckForBuilding();
+        }
+        displayRooms();
+    }
 
     output({type: "success", message: "Buildings loaded successfully!"});
 }
@@ -27,10 +41,10 @@ function handleRoomSubmit(inputText) {
             matrix[i][j] = matrix[i][j].trim();
         }
     }
-    console.log("Rooms Input:\n", matrix)
+    console.log("Rooms Input:\n", matrix);
 
     // ? function located in parse.js
-    rooms = BuildRooms(matrix); // ? global variable for containing Rooms
+    BuildRooms(matrix);
 
     displayRooms(); // ? function located in display.js
 
@@ -57,7 +71,7 @@ function handleExpectedTutorsSubmit(inputText) {
         return;
     }
 
-    expectedTutors = parseExpectedTutors(matrix); // ? located in parse.js
+    parseExpectedTutors(matrix); // ? located in parse.js
     displayExpectedTutors(); // ? located in display.js
     output({type: "success", message: "Successfully parsed expected tutor data!"});
 }
@@ -117,10 +131,11 @@ function handleTutorSubmit(inputText) {
     
     // ? functions located in parse.js
     const jsonObjs = BuildJSON(columnTitles, matrix);
+    console.log('jsonObjs:\n', jsonObjs);
     output({type: "info", message: "Building initial tutor schedules..."});
-    tutors = BuildTutors(jsonObjs); // ? global variable for containing Tutors
+    BuildTutors(jsonObjs);
 
-    displayTutors(); // ? function located in display.js
+    displayAllTutors(); // ? function located in display.js
 
     output({type: "success", message: "Tutor Data parsed successfully!"});
 }
@@ -136,20 +151,33 @@ function handleInputSubmit(event) {
 
     clearConsole();
 
-    if (buildings == null) {
+    if (buildings == null || event.srcElement.id == 'BuildingSubmitButton') {
+        if (buildings == null) {
+            InputSubmitButton.innerHTML = "Parse Room Schedules";
+            BuildingSubmitButton.style.display = "inline";
+        }
         handleBuildingsSubmit(inputText);
-        InputSubmitButton.innerHTML = "Parse Room Schedules";
-    } else if (rooms == null) {
+
+    } else if (rooms == null || event.srcElement.id == 'RoomSubmitButton') {
+        if (rooms == null) {
+            InputSubmitButton.innerHTML = "Parse Expected Tutors";
+            RoomSubmitButton.style.display = "inline";
+        }
         handleRoomSubmit(inputText);
-        InputSubmitButton.innerHTML = "Parse Expected Tutor Courses and Positions";
-    } else if (expectedTutors == null) {
+
+    } else if (expectedTutors == null || event.srcElement.id == 'ExpectedSubmitButton') {
+        if (expectedTutors == null) {
+            InputSubmitButton.innerHTML = "Parse Tutor Responses";
+            ExpectedSubmitButton.style.display = "inline";
+        }
         handleExpectedTutorsSubmit(inputText);
-        InputSubmitButton.innerHTML = "Parse Tutor Form Responses";
-    } else if (tutors == null) {
+
+    } else if (tutors == null || event.srcElement.id == 'TutorSubmitButton') {
+        if (tutors == null) {
+            TutorSubmitButton.style.display = "inline";
+            InputSubmitButton.style.display = "none";
+        }
         handleTutorSubmit(inputText);
-        field.style.display = "none";
-        InputSubmitButton.style.display = "none";
-        output({type: "success", message: "All data loaded successfully!"});
     }
 }
 
@@ -165,6 +193,18 @@ function autoResize(elementID) {
 // submit button event listener
 let InputSubmitButton = document.getElementById('InputSubmitButton');
 InputSubmitButton.addEventListener('click', handleInputSubmit);
+
+let BuildingSubmitButton = document.getElementById('BuildingSubmitButton');
+BuildingSubmitButton.addEventListener('click', handleInputSubmit);
+
+let RoomSubmitButton = document.getElementById('RoomSubmitButton');
+RoomSubmitButton.addEventListener('click', handleInputSubmit);
+
+let ExpectedSubmitButton = document.getElementById('ExpectedSubmitButton');
+ExpectedSubmitButton.addEventListener('click', handleInputSubmit);
+
+let TutorSubmitButton = document.getElementById('TutorSubmitButton');
+TutorSubmitButton.addEventListener('click', handleInputSubmit);
 
 let ScheduleButton = document.getElementById('ScheduleButton');
 ScheduleButton.addEventListener('click', BuildSchedules);

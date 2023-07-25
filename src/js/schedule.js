@@ -137,8 +137,28 @@ class Schedule {
         return null;
     }
 
+    // returns the time that was removed
+    removeTime(day, tag, startTime) {
+
+        for (let i = 0;  i < this.week[day].length; i++) {
+            const time = this.week[day][i];
+            if (time.start == startTime && time.tag == tag) {
+                return this.week[day].splice(i, 1)[0];
+            }
+        }
+    }
+
+    getTime(day, tag, startTime) {
+        for (let i = 0;  i < this.week[day].length; i++) {
+            let time = this.week[day][i];
+            if (time.start == startTime && time.tag == tag) {
+                return time;
+            }
+        }
+    }
+
     // returns the schedule formatted as a string
-    Display(assigned=false) {
+    Display() {
         let output = "";
 
         for (let day in this.week) {
@@ -146,29 +166,42 @@ class Schedule {
 
             const times = this.week[day];
 
-            for (let time of times) {
-                if (assigned) {
+            for (let i = 0; i < times.length; i++) {
+                const time = times[i];
+
+                // if displaying schedule for tutor with assigned sessions
+                if (this.container instanceof Tutor && FinishedStatus.includes(this.container.courses[time.course].status)) {
                     if (!("room" in time)) continue;
                 }
                 
                 let body = "";
-                if (time.tutor != null) {
+                if (this.container instanceof Room) {
                     if (tutors != null && time.tutor in tutors) {
                         body = time.course + " , " + tutors[time.tutor].name + " / " + time.tutor + " , ";
                     } else {
                         body = time.tutor;
                     }
                 } else {
-                    if ("room" in time) {
+                    if ("room" in time && time.room != null) {
                         body = time.course + " / <b>" + time.room + "</b>";
                     } else {
                         body = time.course;
                     }
                 }
-                output += (time.tutor != null ? "|" : "") + ` (${body}`;
+                output += "|" + ` (${body}`;
                 output += ` ${time.tag}: ${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}) `;
                 output += "|";
-                output += time.tutor != null ? "</br>" : "" ;
+
+                // remove time button
+                output += ` <button type='submit' onclick="removeTime(`;
+                if (this.container instanceof Room) {
+                    output += `'${this.container.name}', `;
+                } else {
+                    output += `'${this.container.email}', `;
+                }
+                output += `'${day}', '${time.tag}', '${time.start}')">Remove</button>`
+
+                output += "</br>";
             }
 
             output += "</br></br>";

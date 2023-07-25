@@ -1,29 +1,38 @@
 // * used to filter which tutors are displayed
 
 function filterErrors() {
-    console.log("Tutors Map:\n", tutors);
-    let tutorContainer = document.getElementById('tutorContainer');
-    tutorContainer.innerHTML = "";
+    document.getElementById('tutorContainer').style.display = "none";
+    document.getElementById('expectedTutorContainer').style.display = "block";
+
+    let errorsContainer = document.getElementById('errorsContainer');
+    errorsContainer.style.display = "block";
+    errorsContainer.innerHTML = "";
+
     let errors = "<h1>Tutors With Errors:</h1></br>";
-    for (let tutor in tutors) {
-        if (tutors[tutor].conflicts.length > 0) {
+    for (const tutor in tutors) {
+        if (tutors[tutor].hasErrors()) {
+            errors += `<p id='${tutor}'>`;
             errors += tutors[tutor].Display();
             errors += "</br>";
-            errors += ("=".repeat(50)) + "</br>";
+            errors += ("=".repeat(50)) + "</br></p>";
             continue;
         }
     }
-    tutorContainer.innerHTML += errors;
+    errorsContainer.innerHTML += errors;
 }
 
 function filterComments() {
-    console.log("Tutors Map:\n", tutors);
+    document.getElementById('errorsContainer').style.display = "none";
+    document.getElementById('expectedTutorContainer').style.display = "none";
+
     let tutorContainer = document.getElementById('tutorContainer');
+    tutorContainer.style.display = "block";
     tutorContainer.innerHTML = "";
+
     let str = "<h1>Tutors With Comments:</h1></br>";
-    for (let tutor in tutors) {
+    for (const tutor in tutors) {
         let hasComments = false;
-        for (let course in tutors[tutor].courses) {
+        for (const course in tutors[tutor].courses) {
             if (tutors[tutor].courses[course].comments != "") {
                 hasComments = true;
                 break;
@@ -31,9 +40,10 @@ function filterComments() {
         }
 
         if (hasComments) {
+            str += `<p id='${tutor}'>`;
             str += tutors[tutor].Display();
             str += "</br>";
-            str += ("=".repeat(50)) + "</br>";
+            str += ("=".repeat(50)) + "</br></p>";
             continue;
         }
     }
@@ -41,9 +51,13 @@ function filterComments() {
 }
 
 function filterRegistrar() {
-    console.log("Tutors Map:\n", tutors);
+    document.getElementById('errorsContainer').style.display = "none";
+    document.getElementById('expectedTutorContainer').style.display = "none";
+
     let tutorContainer = document.getElementById('tutorContainer');
+    tutorContainer.style.display = "block";
     tutorContainer.innerHTML = "";
+
     let str = "<h1>Tutors With Registrar Requests:</h1></br>";
     for (const email in tutors) {
         const tutor = tutors[email];
@@ -60,9 +74,10 @@ function filterRegistrar() {
         }
 
         if (hasRequest) {
-            str += tutor.Display(true);
+            str += `<p id='${tutor}'>`;
+            str += tutors[tutor].Display();
             str += "</br>";
-            str += ("=".repeat(50)) + "</br>";
+            str += ("=".repeat(50)) + "</br></p>";
             continue;
         }
     }
@@ -84,7 +99,8 @@ function filterTutors() {
             break;
 
         case "expected":
-            document.getElementById('tutorContainer').innerHTML = "";
+            document.getElementById('tutorContainer').style.display = "none";
+            document.getElementById('errorsContainer').style.display = "none";
             displayExpectedTutors();
             break;
 
@@ -101,7 +117,7 @@ function filterTutors() {
             break;
 
         default:
-            displayTutors(schedulesCompleted);
+            displayAllTutors(schedulesCompleted);
             break;
     }
 

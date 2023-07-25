@@ -30,7 +30,8 @@
     <script src="src/js/parse.js"></script>
     <script src="src/js/display.js"></script>
     <script src="src/js/build-schedules.js"></script>
-    <script src="src/js/ignore-errors.js"></script>
+    <script src="src/js/tutor-actions.js"></script>
+    <script src="src/js/schedule-actions.js"></script>
     <script src="src/js/search.js"></script>
     <script src="src/js/filter.js"></script>
 </head>
@@ -41,20 +42,26 @@
 
         <button type="submit" id="ScheduleButton">Create Schedules</button>
 
+        <div id="tutorTools" style="display: none">
+            <input type="text" id="SearchBar" placeholder="Tutor name or ID">
+            <button type="submit" onclick="searchTutors()">Search</button>
+
+            <select id="filterOptions">
+                <option value="all">All Tutors</option>
+                <option value="errors">Tutors with Errors</option>
+                <option value="expected">Expected/Missing Tutors</option>
+                <option value="comments">Tutors With Comments</option>
+                <option value="registrar">Tutors With Registrar Requests</option>
+            </select>
+            <button type="submit" id="filterTutorsButton" onclick="filterTutors()">Filter</button>
+        </div>
+
+        <div id="roomTools" style="display: inline">
+            <button type="submit" id="RoomCopyButton">Copy Room Schedules</button>
+        </div>
+        <hr>
         <button type="submit" onclick="clearConsole()">Clear Console</button>
         <button type="submit" id="ConsoleHideButton" onclick="hideConsole()">Hide Console</button>
-
-        <input type="text" id="SearchBar" placeholder="Tutor name or ID">
-        <button type="submit" onclick="searchTutors()">Search</button>
-
-        <select id="filterOptions">
-            <option value="all">All Tutors</option>
-            <option value="errors">Tutors with Errors</option>
-            <option value="expected">Expected/Missing Tutors</option>
-            <option value="comments">Tutors With Comments</option>
-            <option value="registrar">Tutors With Registrar Requests</option>
-        </select>
-        <button type="submit" id="filterTutorsButton" onclick="filterTutors()">Filter</button>
         </br>
         <h3>Console:</h3>
         <div id="console" style="color:white;"></div>
@@ -65,19 +72,23 @@
         <form>
             <textarea type="text" id="InputField" rows="3" cols="100" oninput="autoResize('InputField')" placeholder="Enter raw spread sheet data here"></textarea>
             </br>
-            <button type="submit" id="InputSubmitButton">Parse Building Data</button>
+            <button type="submit" id="InputSubmitButton" style="background-color: rgb(160, 218, 160)">Parse Building Data</button>
+            <button type="submit" id="BuildingSubmitButton" style="display: none">Add Buildings</button>
+            <button type="submit" id="RoomSubmitButton" style="display: none">Add Rooms</button>
+            <button type="submit" id="ExpectedSubmitButton" style="display: none">Add Expected Tutor Responses</button>
+            <button type="submit" id="TutorSubmitButton" style="display: none">Add Tutor Responses</button>
         </form>
+        </br>
         <div id="rooms">
             <h1>Room & Building Data</h1>
-            <button type="submit" id="RoomCopyButton">Copy Room Schedules</button>
             <div id="buildingContainer"></div>
             <hr>
             <div id="roomContainer"></div>
         </div>
-        <div id="tutors">
-            <h1>Tutor Data</h1>
+        <div id="tutors" style="display: none">
             <hr>
             <div id="tutorContainer"></div>
+            <div id="errorsContainer"></div>
             <div id="expectedTutorContainer"></div>
         </div>
     </div>

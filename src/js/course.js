@@ -1,8 +1,50 @@
 // * Course class to hold session times for an individual course. One tutor can have multiple courses.
 
 class Course {
-    constructor(id) {
+    constructor(tutor, id) {
+        this.tutor = tutor;
         this.id = id;
+        this.status = StatusOptions.InProgress;
+        this.errors = [];
+        return this;
+    }
+
+    setStatus(status) {
+        // forcefully remove errors if course no longer has an error status
+        if (ErrorStatus.includes(this.status) && !ErrorStatus.includes(status)) {
+            this.errors = [];
+            output({type: "info", 
+            message: `Since status is being changed to a non-error status, all errors will be removed.`});
+        }
+
+        // if schedule was complete, but want to redo schedule, remove all rooms from sessions
+        if (FinishedStatus.includes(this.status) && !FinishedStatus.includes(status)) {
+            for (const day in this.tutor.schedule.week) {
+                let times = this.tutor.schedule.week[day];
+                for (let time of times) {
+                    if (!("room" in time)) continue;
+
+                    // remove time from assigned room
+                    if (time.room in rooms) {
+                        removeTime(time.room, day, time.tag, time.start);
+                    }
+                    
+
+                    delete time["room"]; // remove room from time
+                }
+            }
+            clearConsole();
+            output({type: "info", 
+            message: `Since status is being changed to an 'incomplete' status, all room assignments will be removed.`});
+        }
+
+        this.status = status;
+
+        return this;
+    }
+
+    setRow(row) {
+        this.row = row;
         return this;
     }
 

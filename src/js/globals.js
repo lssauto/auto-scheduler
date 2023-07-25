@@ -8,6 +8,27 @@ let rooms = null;
 let buildings = null;
 let schedulesCompleted = false;
 
+const StatusOptions = {
+    PastSubmission: "Past Submission",
+    WrongCourse: "Incorrect Course ID or Position",
+    SchedulingError: "Invalid Time or Conflicts",
+    Missing: "Email Not In Expected Tutors List",
+    InProgress: "Scheduling In Progress",
+    SessionsScheduled: "Sessions Scheduled",
+    ScheduleConfirmed: "Schedule Confirmed"
+}
+
+const ErrorStatus = [
+    StatusOptions.WrongCourse,
+    StatusOptions.SchedulingError,
+    StatusOptions.Missing
+]
+
+const FinishedStatus = [
+    StatusOptions.SessionsScheduled,
+    StatusOptions.ScheduleConfirmed
+]
+
 // * console div used to output diagnostic messages
 let consoleDiv;
 const consoleColors = { // use to set the color of the console messages based on message type
