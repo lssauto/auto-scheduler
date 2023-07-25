@@ -2,6 +2,11 @@
 
 let SearchBar;
 
+function scrollToTutor(email) {
+    const tutor = document.getElementById(email);
+    tutor.scrollIntoView({ behavior: 'smooth' });
+}
+
 function searchTutors() {
     let key = SearchBar.value;
 
@@ -10,10 +15,12 @@ function searchTutors() {
         return;
     }
 
+    displayAllTutors();
+
     let value = tutors[key + "@ucsc.edu"];
 
     if (value !== undefined && value !== null) {
-        output({ type: "info", message: value.Display(value.scheduled)});
+        scrollToTutor(key + "@ucsc.edu");
         return;
     }
 
@@ -21,14 +28,14 @@ function searchTutors() {
     value = tutors[key];
 
     if (value !== undefined && value !== null) {
-        output({ type: "info", message: value.Display(value.scheduled)});
+        scrollToTutor(key);
         return;
     }
 
     // if input isn't tutor ID, search tutors by name
     for (let tutor in tutors) {
         if (tutors[tutor].name === key) {
-            output({ type: "info", message: tutors[tutor].Display(tutors[tutor].scheduled)});
+            scrollToTutor(tutors[tutor].email);
             return;
         }
     }

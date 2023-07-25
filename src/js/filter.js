@@ -117,7 +117,7 @@ function filterTutors() {
             break;
 
         default:
-            displayAllTutors(schedulesCompleted);
+            displayAllTutors();
             break;
     }
 
