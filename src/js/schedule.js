@@ -162,7 +162,7 @@ class Schedule {
         let output = "";
 
         for (let day in this.week) {
-            output += `<b>${day}: </br>|</b>`;
+            output += `<b>${day}:</b></br>`;
 
             const times = this.week[day];
 
@@ -173,11 +173,17 @@ class Schedule {
                 if (this.container instanceof Tutor && FinishedStatus.includes(this.container.courses[time.course].status)) {
                     if (!("room" in time)) continue;
                 }
+
+                let confirmed = false;
+                if (this.container instanceof Tutor) {
+                    confirmed = (this.container.courses[time.course].status == StatusOptions.ScheduleConfirmed);
+                }
                 
                 let body = "";
                 if (this.container instanceof Room) {
                     if (tutors != null && time.tutor in tutors) {
                         body = time.course + " , " + tutors[time.tutor].name + " / " + time.tutor + " , ";
+                        confirmed = (tutors[time.tutor].courses[time.course].status == StatusOptions.ScheduleConfirmed);
                     } else {
                         body = time.tutor;
                     }
@@ -188,20 +194,24 @@ class Schedule {
                         body = time.course;
                     }
                 }
-                output += "|" + ` (${body}`;
+                let tag = time.tag == "office hours" ? "office-hours" : (confirmed ? "confirmed" : time.tag);
+                output += `<div class='time ${tag}'>|` + ` (${body}`;
                 output += ` ${time.tag}: ${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}) `;
                 output += "|";
 
                 // remove time button
-                output += ` <button type='submit' onclick="removeTime(`;
-                if (this.container instanceof Room) {
-                    output += `'${this.container.name}', `;
-                } else {
-                    output += `'${this.container.email}', `;
+                if (!confirmed) {
+                    output += ` <button type='submit' onclick="removeTime(`;
+                    if (this.container instanceof Room) {
+                        output += `'${this.container.name}', `;
+                    } else {
+                        output += `'${this.container.email}', `;
+                    }
+                    output += `'${day}', '${time.tag}', '${time.start}')">Remove</button>`;
                 }
-                output += `'${day}', '${time.tag}', '${time.start}')">Remove</button>`
+                
 
-                output += "</br>";
+                output += "</div></br>";
             }
 
             output += "</br></br>";

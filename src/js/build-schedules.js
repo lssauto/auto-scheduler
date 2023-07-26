@@ -167,7 +167,9 @@ function BuildSchedules() {
         }
 
         for (const courseID in tutor.courses) {
-            tutor.courses[courseID].setStatus(StatusOptions.SessionsScheduled);
+            if (tutor.courses[courseID].status == StatusOptions.InProgress) {
+                tutor.courses[courseID].setStatus(StatusOptions.SessionsScheduled);
+            }
         }
     }
 

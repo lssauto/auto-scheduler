@@ -1,11 +1,100 @@
 .header {
     position: fixed;
-    top: 10;
+    top: 0px;
     left: 10;
     width: 100%;
     background-color: white;
 }
 
+.console {
+    width: 95%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
 .content {
     padding-top: 200px;
+}
+
+.time {
+    display: inline-block;
+    padding: 3px;
+    border-style: solid;
+    border-width: 1px;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+.session {
+    background-color: #A4D0F1;
+    border-color: #2583C7;
+}
+
+.lecture {
+    background-color: #FFBEEC;
+    border-color: #A83E89;
+}
+
+.discord {
+    background-color: #CEB6EB;
+    border-color: #753ABC;
+}
+
+.office-hours {
+    background-color: #EBD5B6;
+    border-color: #F39B1E;
+}
+
+.invalid {
+    background-color: #E6BBC1;
+    border-color: #D31F38;
+}
+
+.conflict {
+    background-color: #E6BBC1;
+    border-color: #D31F38;
+}
+
+.course {
+    display: inline-block;
+    padding: 7px;
+    border-style: solid;
+    border-width: 1px;
+    margin: 3px;
+    border-radius: 5px;
+}
+
+.old {
+    background-color: #CFCFCF;
+    border-color: #4F4F4F;
+}
+
+.wrong-course {
+    background-color: #E6BBC1;
+    border-color: #D31F38;
+}
+
+.scheduling-error {
+    background-color: #E6BBC1;
+    border-color: #D31F38;
+}
+
+.missing {
+    background-color: #E6BBC1;
+    border-color: #D31F38;
+}
+
+.in-progress {
+    background-color: #F6FFBA;
+    border-color: #CCDD55;
+}
+
+.scheduled {
+    background-color: #A4D0F1;
+    border-color: #2583C7;
+}
+
+.confirmed {
+    background-color: #90E7BC;
+    border-color: #23BC71;
 }

@@ -193,8 +193,10 @@ class Tutor {
                 slackButton = `- <button type='submit' onclick="copySlackNote('${this.name}', '${id}')">Copy Slack Note</button> `;
             }
 
-            str += `${id}: ${course.position}; ${options} - ${statusStr} - ${deleteButton} ${slackButton}- Scheduler: ${course.scheduler}</br>`;
-            str += course.comments != "" ? `${course.comments}</br></br>` : "";
+            str += `<div class='course ${StatusClass[course.status]}'>`
+            str += `<b>${id}: ${course.position}</b> || ${options} - ${statusStr} - ${deleteButton} ${slackButton}- Scheduler: ${course.scheduler}</br>`;
+            str += course.comments != "" ? `${course.comments}` : "";
+            str += "</div></br>";
         }
 
         str += "</br><b>Schedule:</b></br>";
@@ -207,13 +209,14 @@ class Tutor {
             errorCount += course.errors.length;
             for (let i = 0; i < course.errors.length; i++) {
                 const error = course.errors[i];
+                str += `<div class='time ${error.error}'>`;
                 str += `${error.time.course} ${error.time.tag}: `;
                 str += `${error.day} ${convertTimeToString(error.time.start)} - ${convertTimeToString(error.time.end)} , `
                 str += `error: ${error.error} - `;
                 // ? functions in ignore-errors.js
                 str += `<button type='submit' onclick="ignoreError('${this.email}', '${courseID}', '${i}')">Ignore</button> `;
                 str += `<button type='submit' onclick="removeError('${this.email}', '${courseID}', '${i}')">Remove</button>`;
-                str += "</br>";
+                str += "</div></br>";
             }
         }
         if (errorCount == 0) { str += "No Errors.</br>"; }

@@ -11,10 +11,10 @@ function filterErrors() {
     let errors = "<h1>Tutors With Errors:</h1></br>";
     for (const tutor in tutors) {
         if (tutors[tutor].hasErrors()) {
-            errors += `<p id='${tutor}'>`;
+            errors += `<div id='${tutor}'>`;
             errors += tutors[tutor].Display();
             errors += "</br>";
-            errors += ("=".repeat(50)) + "</br></p>";
+            errors += ("=".repeat(50)) + "</br></div>";
             continue;
         }
     }
@@ -22,14 +22,18 @@ function filterErrors() {
 }
 
 function filterComments() {
-    document.getElementById('errorsContainer').style.display = "none";
     document.getElementById('expectedTutorContainer').style.display = "none";
 
     let tutorContainer = document.getElementById('tutorContainer');
     tutorContainer.style.display = "block";
     tutorContainer.innerHTML = "";
 
+    let errorsContainer = document.getElementById('errorsContainer');
+    errorsContainer.style.display = "block";
+    errorsContainer.innerHTML = "";
+
     let str = "<h1>Tutors With Comments:</h1></br>";
+    let errStr = "<hr><h1>Tutors With Comments And Errors:</h1></br>";
     for (const tutor in tutors) {
         let hasComments = false;
         for (const course in tutors[tutor].courses) {
@@ -40,14 +44,21 @@ function filterComments() {
         }
 
         if (hasComments) {
-            str += `<p id='${tutor}'>`;
-            str += tutors[tutor].Display();
-            str += "</br>";
-            str += ("=".repeat(50)) + "</br></p>";
-            continue;
+            if (tutors[tutor].hasErrors()) {
+                errStr += `<div id='${tutor}'>`;
+                errStr += tutors[tutor].Display();
+                errStr += "</br>";
+                errStr += ("=".repeat(50)) + "</br></div>";
+            } else {
+                str += `<div id='${tutor}'>`;
+                str += tutors[tutor].Display();
+                str += "</br>";
+                str += ("=".repeat(50)) + "</br></div>";
+            }
         }
     }
     tutorContainer.innerHTML += str;
+    errorsContainer.innerHTML += errStr;
 }
 
 function filterRegistrar() {
@@ -74,10 +85,10 @@ function filterRegistrar() {
         }
 
         if (hasRequest) {
-            str += `<p id='${tutor}'>`;
+            str += `<div id='${tutor}'>`;
             str += tutors[tutor].Display();
             str += "</br>";
-            str += ("=".repeat(50)) + "</br></p>";
+            str += ("=".repeat(50)) + "</br></div>";
             continue;
         }
     }

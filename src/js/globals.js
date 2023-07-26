@@ -20,6 +20,15 @@ const StatusOptions = {
     ScheduleConfirmed: "Schedule Confirmed"
 }
 
+const StatusClass = {};
+StatusClass[StatusOptions.PastSubmission] = "old";
+StatusClass[StatusOptions.WrongCourse] = "wrong-course";
+StatusClass[StatusOptions.SchedulingError] = "scheduling-error";
+StatusClass[StatusOptions.Missing] = "missing";
+StatusClass[StatusOptions.InProgress] = "in-progress";
+StatusClass[StatusOptions.SessionsScheduled] = "scheduled";
+StatusClass[StatusOptions.ScheduleConfirmed] = "confirmed";
+
 const ErrorStatus = [
     StatusOptions.WrongCourse,
     StatusOptions.SchedulingError,

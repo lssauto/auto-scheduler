@@ -38,7 +38,23 @@ class Course {
             message: `Since status is being changed to an 'incomplete' status, all room assignments will be removed.`});
         }
 
+        // set status
+        let prevStatus = this.status;
         this.status = status;
+
+        // update room schedule display to reflect changed styling
+        if (status == StatusOptions.ScheduleConfirmed || (status != StatusOptions.ScheduleConfirmed && prevStatus == StatusOptions.ScheduleConfirmed)) {
+            for (const day in this.tutor.schedule.week) {
+                let times = this.tutor.schedule.week[day];
+                for (let time of times) {
+                    if (!("room" in time)) continue;
+
+                    if (time.room in rooms) {
+                        updateRoomDisplay(time.room);
+                    }
+                }
+            }
+        }
 
         return this;
     }

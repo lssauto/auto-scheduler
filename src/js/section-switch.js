@@ -9,6 +9,11 @@ function setTutorActive() {
     tutorTools.style.display = 'inline';
     roomDiv.style.display = 'none';
     roomTools.style.display = 'none';
+    window.scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+    });
 }
 
 function setRoomActive() {
@@ -20,6 +25,11 @@ function setRoomActive() {
     tutorTools.style.display = 'none';
     roomDiv.style.display = 'inline';
     roomTools.style.display = 'inline';
+    window.scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+    });
 }
 
 // button event listener

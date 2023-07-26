@@ -43,10 +43,12 @@ function updateTutorDisplay(email) {
         } else {
             container = document.getElementById('tutorContainer');
         }
-        container.innerHTML += `<p id='${email}'>`;
-        container.innerHTML += tutors[email].Display();
-        container.innerHTML += "</br>";
-        container.innerHTML += ("=".repeat(50)) + "</br></p>";
+        str = "";
+        str += `<div id='${email}'>`;
+        str += tutors[email].Display();
+        str += "</br>";
+        str += ("=".repeat(50)) + "</br></div>";
+        container.innerHTML += str;
     } else {
         para.innerHTML = tutors[email].Display() + "</br>" + ("=".repeat(50)) + "</br>";
     }
@@ -61,10 +63,10 @@ function displayErrors() {
     let errors = "</br><hr><hr><h1>Tutors With Errors:</h1></br>";
     for (let tutor in tutors) {
         if (!tutors[tutor].hasErrors()) continue;
-        errors += `<p id='${tutor}'>`;
+        errors += `<div id='${tutor}'>`;
         errors += tutors[tutor].Display();
         errors += "</br>";
-        errors += ("=".repeat(50)) + "</br></p>";
+        errors += ("=".repeat(50)) + "</br></div>";
     }
 
     errorsContainer.innerHTML = errors;
@@ -80,10 +82,10 @@ function displayTutors() {
     let str = "<h1>Tutor Schedules:</h1></br>";
     for (let tutor in tutors) {
         if (tutors[tutor].hasErrors()) continue;
-        str += `<p id='${tutor}'>`;
+        str += `<div id='${tutor}'>`;
         str += tutors[tutor].Display();
         str += "</br>";
-        str += ("=".repeat(50)) + "</br></p>";
+        str += ("=".repeat(50)) + "</br></div>";
     }
 
     tutorContainer.innerHTML = str;
@@ -112,10 +114,10 @@ function displayRooms() {
     let str = "";
 
     for (let room in rooms) {
-        str += `<p id='${room}'>'`;
+        str += `<div id='${room}'>`;
         str += rooms[room].Display();
         str += "</br>";
-        str += ("=".repeat(50)) + "</br></p>";
+        str += ("=".repeat(50)) + "</br></div>";
     }
 
     roomContainer.innerHTML = str;
