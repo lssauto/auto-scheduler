@@ -5,6 +5,9 @@
 let scheduler = null;
 
 let tutors = null;
+let tutorJSONObjs = null;
+let tutorMatrix = null;
+let responseColumnTitles = null;
 let expectedTutors = null;
 let rooms = null;
 let buildings = null;

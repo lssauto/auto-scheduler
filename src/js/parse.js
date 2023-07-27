@@ -242,13 +242,22 @@ function BuildJSON(titles, data) {
                     });
                 }
 
-            } else { // session times
+            } else if (title.includes("session option")) { // session times
                 if ( !(data[i][j] == "" || data[i][j].includes("N/A")) ) {
                     let schedule = true;
-                    if (data[i][j + 1].trim().toLowerCase().includes("i'll book my own space") && obj.position == "SGT") { // only SGT can reserve their own rooms
+                    let field = data[i][j + 1].trim().toLowerCase();
+
+                    let time = {time: data[i][j], schedule: schedule, room: null};
+
+                    if (( field.includes("i'll book my own space") || field.includes("scheduled by tutor") ) && obj.position == "SGT") { // only SGT can reserve their own rooms
                         schedule = false;
+                        if (field.includes("scheduled by tutor")) time.room = data[i][j + 1];
+                        
+                    } else if (!field.includes("lss will book me space") && !field.includes("i'll book my own space") && !field.includes("n/a")) {
+                        time.room = data[i][j + 1];
                     }
-                    obj.times.push({time: data[i][j], schedule: schedule});
+                    time.schedule = schedule;
+                    obj.times.push(time);
                 }
                 j++;
             }

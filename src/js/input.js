@@ -95,6 +95,8 @@ function handleTutorSubmit(inputText) {
         i++;
     }
     columnTitles.push(buffer); // flush buffer
+
+    responseColumnTitles = columnTitles;
     
     // build data field matrix
     let matrix = [];
@@ -128,14 +130,18 @@ function handleTutorSubmit(inputText) {
         matrix[j] = matrix[j].split('\t');
     }
     console.log('Tutors Input:\n', matrix);
+
+    tutorMatrix = matrix;
     
     // ? functions located in parse.js
     const jsonObjs = BuildJSON(columnTitles, matrix);
     console.log('jsonObjs:\n', jsonObjs);
+    tutorJSONObjs = jsonObjs;
     output({type: "info", message: "Building initial tutor schedules..."});
     BuildTutors(jsonObjs);
 
     displayAllTutors(); // ? function located in display.js
+    displayRooms();
 
     output({type: "success", message: "Tutor Data parsed successfully!"});
 }

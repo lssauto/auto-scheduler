@@ -121,6 +121,12 @@ class Tutor {
                     } else {
                         course.errors.push(error);
                     }
+                } else if (time.room != null) {
+                    let scheduleTime = this.schedule.getTimeByStr(time.time);
+                    scheduleTime.room = time.room;
+                    if (time.room in rooms /*&& rooms[time.room].schedule.getTimeByStr(time.time) == null*/) {
+                        rooms[time.room].addTime(time.time, id, this.email);
+                    }
                 }
             }
 
@@ -221,6 +227,15 @@ class Tutor {
         }
         if (errorCount == 0) { str += "No Errors.</br>"; }
 
+        return str;
+    }
+
+    CreateDiv() {
+        let str = "";
+        str += `<div id='${this.email}'>`;
+        str += this.Display();
+        str += "</br>";
+        str += ("=".repeat(50)) + "</br></div>";
         return str;
     }
 }

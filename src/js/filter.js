@@ -11,10 +11,7 @@ function filterErrors() {
     let errors = "<h1>Tutors With Errors:</h1></br>";
     for (const tutor in tutors) {
         if (tutors[tutor].hasErrors()) {
-            errors += `<div id='${tutor}'>`;
-            errors += tutors[tutor].Display();
-            errors += "</br>";
-            errors += ("=".repeat(50)) + "</br></div>";
+            errors += tutors[tutor].CreateDiv();
             continue;
         }
     }
@@ -45,15 +42,9 @@ function filterComments() {
 
         if (hasComments) {
             if (tutors[tutor].hasErrors()) {
-                errStr += `<div id='${tutor}'>`;
-                errStr += tutors[tutor].Display();
-                errStr += "</br>";
-                errStr += ("=".repeat(50)) + "</br></div>";
+                errStr += tutors[tutor].CreateDiv();
             } else {
-                str += `<div id='${tutor}'>`;
-                str += tutors[tutor].Display();
-                str += "</br>";
-                str += ("=".repeat(50)) + "</br></div>";
+                str += tutors[tutor].CreateDiv();
             }
         }
     }
@@ -85,10 +76,7 @@ function filterRegistrar() {
         }
 
         if (hasRequest) {
-            str += `<div id='${tutor}'>`;
-            str += tutors[tutor].Display();
-            str += "</br>";
-            str += ("=".repeat(50)) + "</br></div>";
+            str += tutors[tutor].CreateDiv();
             continue;
         }
     }

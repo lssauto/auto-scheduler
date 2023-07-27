@@ -155,6 +155,24 @@ class Schedule {
                 return time;
             }
         }
+        return null;
+    }
+
+    // expects string formatted as "DAY ##:## AM/PM"
+    getTimeByStr(timeStr, tag="session") {
+        let halves = timeStr.split(":");
+        let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
+        let day = days == null ? "Sun" : days[0];
+
+        let formattedDate = (days == null ? "SUN" : "") + timeStr.trim().toUpperCase().replace(/ /g, "");
+
+        for (const time of this.week[day]) {
+            console.log("time: ", `${day} ${convertTimeToString(time.start)}`.toUpperCase().replace(/ /g, ""));
+            if (formattedDate == `${day} ${convertTimeToString(time.start)}`.toUpperCase().replace(/ /g, "") && time.tag == tag) {
+                return time;
+            }
+        }
+        return null;
     }
 
     // returns the schedule formatted as a string
@@ -235,8 +253,8 @@ class Schedule {
                 }
                 
                 let body = "";
-                if (time.tutor != null) {
-                    if (time.tutor in tutors) {
+                if (this.container instanceof Room) {
+                    if (tutors != null && time.tutor in tutors) {
                         body = time.course + " , " + tutors[time.tutor].name + " (" + time.tutor + ") , ";
                     } else {
                         body = time.course + " , " + " (" + time.tutor + ") , ";

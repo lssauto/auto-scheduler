@@ -44,10 +44,7 @@ function updateTutorDisplay(email) {
             container = document.getElementById('tutorContainer');
         }
         str = "";
-        str += `<div id='${email}'>`;
-        str += tutors[email].Display();
-        str += "</br>";
-        str += ("=".repeat(50)) + "</br></div>";
+        str += tutors[email].CreateDiv();
         container.innerHTML += str;
     } else {
         para.innerHTML = tutors[email].Display() + "</br>" + ("=".repeat(50)) + "</br>";
@@ -61,12 +58,9 @@ function displayErrors() {
     errorsContainer.style.display = "block";
     errorsContainer.innerHTML = "";
     let errors = "</br><hr><hr><h1>Tutors With Errors:</h1></br>";
-    for (let tutor in tutors) {
+    for (const tutor in tutors) {
         if (!tutors[tutor].hasErrors()) continue;
-        errors += `<div id='${tutor}'>`;
-        errors += tutors[tutor].Display();
-        errors += "</br>";
-        errors += ("=".repeat(50)) + "</br></div>";
+        errors += tutors[tutor].CreateDiv();
     }
 
     errorsContainer.innerHTML = errors;
@@ -80,12 +74,9 @@ function displayTutors() {
     tutorContainer.innerHTML = "";
 
     let str = "<h1>Tutor Schedules:</h1></br>";
-    for (let tutor in tutors) {
+    for (const tutor in tutors) {
         if (tutors[tutor].hasErrors()) continue;
-        str += `<div id='${tutor}'>`;
-        str += tutors[tutor].Display();
-        str += "</br>";
-        str += ("=".repeat(50)) + "</br></div>";
+        str += tutors[tutor].CreateDiv();
     }
 
     tutorContainer.innerHTML = str;
