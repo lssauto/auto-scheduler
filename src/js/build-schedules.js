@@ -94,7 +94,7 @@ function BuildSchedules() {
                         let building = buildings[tutor.courses[session.course].preference];
                         if (!building.days.includes(dayName)) continue;
                         if (session.start < building.start || building.end < session.end) continue;
-                        
+
                         console.log("Tutor requesting specific building: " + tutor.courses[session.course].preference);
                         tutor.schedule.week[dayName][i].room = "Request Room In " + tutor.courses[session.course].preference;
                         sessionsThisDay++;
@@ -170,6 +170,36 @@ function BuildSchedules() {
                     sessionCount[session.course]--;
                 }
             }
+        }
+
+        for (let dayName in tutor.schedule.week) {
+            let day = tutor.schedule.week[dayName];
+            let timeFound = false;
+            for (let i = 0; i < day.length; i++) {
+                let time = day[i];
+                if (time.tag != "discord") continue;
+
+                if (i > 0 && "room" in day[i - 1]) {
+                    if (time.start >= day[i - 1].start && time.start <= day[i - 1].end) {
+                        continue;
+                    }
+                    if (time.end >= day[i - 1].start && time.end <= day[i - 1].end) {
+                        continue;
+                    }
+                }
+                if (i < day.length - 1 && "room" in day[i + 1]) {
+                    if (time.start >= day[i + 1].start && time.start <= day[i + 1].end) {
+                        continue;
+                    }
+                    if (time.end >= day[i + 1].start && time.end <= day[i + 1].end) {
+                        continue;
+                    }
+                }
+                time.room = "Discord Time";
+                timeFound = true;
+                break;
+            }
+            if (timeFound) break;
         }
 
         for (const courseID in tutor.courses) {
