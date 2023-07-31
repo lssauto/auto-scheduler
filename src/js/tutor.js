@@ -176,7 +176,7 @@ class Tutor {
             let options = `<select id="${this.email + "-" + id + "-preference"}">`;
             options += `<option value="any">Any</option>`;
             if (buildings != null) {
-                for (const building of buildings) {
+                for (const building in buildings) {
                     options += `<option value="${building}" ${course.preference == building ? "selected" : "" }>${building}</option>`;
                 }
             }

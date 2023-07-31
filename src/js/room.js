@@ -7,16 +7,17 @@ class Room {
         this.schedule = new Schedule(this);
 
         this.building = null; // null to designate room is not part of a building
-        this.CheckForBuilding();
+        this.checkForBuilding();
 
         return this;
     }
 
     // assign a building if it can be found
-    CheckForBuilding() {
-        for (const building of buildings) {
+    checkForBuilding() {
+        for (const building in buildings) {
             if (this.name.toUpperCase().includes(building.toUpperCase())) {
                 this.building = building;
+                this.schedule.setRange(buildings[building]);
             }
         }
     }

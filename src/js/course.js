@@ -104,6 +104,9 @@ class Course {
 
     setPreference(preference) {
         this.preference = preference;
+        if (FinishedStatus.includes(this.status)) {
+            this.setStatus(StatusOptions.InProgress);
+        }
         return this;
     }
 

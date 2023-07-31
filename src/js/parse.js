@@ -331,3 +331,59 @@ function BuildRooms(matrix) {
     }
     rooms[currentRoom.name] = currentRoom; // flush last room to the map
 }
+
+// * ===========================================================================
+
+// * Rooms
+
+function parseBuildings(matrix) {
+    if (buildings == null) {
+        buildings = {};
+    }
+
+    for (let r = 0; r < matrix.length; r++) {
+        let timeStr = matrix[r][1];
+
+        let halves = timeStr.split(":");
+        let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
+        let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)/g); // get all hours
+
+        // if there are no days, then this is a Sun time
+        if (days == null) { days = ["M", "Tu", "W", "Th", "F", "Sun"]; }
+
+        if (hours == null || hours.length < 2) {
+            if (hours != null && hours.length < 2) {
+                output({
+                    type: "warning", 
+                    message: `Improperly formatted hours for building: ${matrix[r][0]}. Defaulting to 8:00 AM - 9:00 PM.`,
+                    expected: "##:## [AM/PM] - ##:## [AM/PM]"
+                });
+            }
+            hours = [
+                "8:00 AM",
+                "9:00 PM"
+            ];
+        }
+
+        // add AM or PM to first time if it's missing
+        if (hours[0].match(/(AM|PM|am|pm)/g) == null) {
+            if (hours[1].split(":")[0].trim() == "12") {
+                hours[0] += hours[1].match(/(AM|am)/g) == null ? "AM" : "PM";
+            } else {
+                hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
+            }
+        }
+
+        // get int time values
+        const start = convertTimeToInt(hours[0]);
+        const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
+
+        let time = {
+            days: days,
+            start: start, 
+            end: end
+        }
+
+        buildings[matrix[r][0]] = time;
+    }
+}

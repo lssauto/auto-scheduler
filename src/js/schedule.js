@@ -3,6 +3,7 @@
 class Schedule {
     constructor(container) { // container is a back reference to the tutor or room that has the schedule
         this.container = container;
+        this.range = null;
         this.week = {
             "M": [],
             "Tu": [],
@@ -12,6 +13,11 @@ class Schedule {
             "Sat": [],
             "Sun": []
         }
+    }
+
+    setRange(range) {
+        this.range = range;
+        return this;
     }
 
     // expects a string formatted as "day(s) HH:MM [AM/PM]" or "day(s) HH:MM [AM/PM] - HH:MM [AM/PM]"
@@ -39,13 +45,45 @@ class Schedule {
 
         // add AM or PM to first time if it's missing
         if (hours[0].match(/(AM|PM|am|pm)/g) == null) {
-            hours[0] += hours[1].match(/(AM|am)/g) == null? "PM" : "AM";
+            if (hours[1].split(":")[0].trim() == "12") {
+                hours[0] += hours[1].match(/(AM|am)/g) == null ? "AM" : "PM";
+            } else {
+                hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
+            }
         }
         // console.log(timeStr, days, hours);
 
         // get int time values
         const start = convertTimeToInt(hours[0]);
         const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
+
+        // check if time is within the room's valid time range
+        if (this.container instanceof Room && this.range != null) {
+            for (const day of days) {
+                let matches = false;
+                for (const validDay of this.range.days) {
+                    if (day == validDay) {
+                        matches = true;
+                        break;
+                    }
+                }
+                if (!matches) {
+                    return {
+                        day: day,
+                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
+                        error: "invalid"
+                    };
+                }
+            }
+
+            if (start < this.range.start || this.range.end < end) {
+                return {
+                    day: null,
+                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
+                    error: "invalid"
+                };
+            }
+        }
 
         // check if time is valid if it is a session and schedule is for a tutor
         if (this.container instanceof Tutor && tag == "session") {

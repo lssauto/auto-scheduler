@@ -43,6 +43,7 @@ function updateTutorDisplay(email) {
         } else {
             container = document.getElementById('tutorContainer');
         }
+        if (container.style.display == 'none') return;
         str = "";
         str += tutors[email].CreateDiv();
         container.innerHTML += str;
@@ -118,10 +119,13 @@ function displayBuildings() {
     console.log("Buildings:\n", buildings);
 
     let buildingContainer = document.getElementById("buildingContainer");
-    buildingContainer.innerHTML = "</br>Buildings: ";
+    buildingContainer.innerHTML = "</br><b>Buildings:</b></br>";
 
-    for (const building of buildings) {
-        buildingContainer.innerHTML += building + " | ";
+    for (const name in buildings) {
+        const building = buildings[name];
+        let days = "";
+        for (let day of building.days) { days += day + " "; }
+        buildingContainer.innerHTML += `| ${name}: ${days} ${convertTimeToString(building.start)} - ${convertTimeToString(building.end)} |</br>`;
     }
     buildingContainer.innerHTML += "</br>";
 

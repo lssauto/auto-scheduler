@@ -2,24 +2,24 @@
 function handleBuildingsSubmit(inputText) {
     output({type: "info", message: "Parsing Building Data..."});
 
-    if (inputText.includes("\t")) {
+    /*if (inputText.includes("\t")) {
         output({type: "error", message: "Buildings should be separated by row."});
         return;
-    }
+    }*/
 
-    if (buildings == null) {
-        buildings = inputText.split("\n");
-    } else {
-        let newBuildings = inputText.split("\n");
-        buildings = Array.from( new Set( buildings.concat(newBuildings) ) );
+    let matrix = null;
+    matrix = inputText.split("\n");
+    for (let i = 0; i < matrix.length; i++) {
+        matrix[i] = matrix[i].split("\t");
     }
+    parseBuildings(matrix);
     
     displayBuildings(); // ? function located in display.js
 
     // check if any rooms can have buildings assigned to them
     if (rooms != null) {
         for (let roomID in rooms) {
-            rooms[roomID].CheckForBuilding();
+            rooms[roomID].checkForBuilding();
         }
         displayRooms();
     }

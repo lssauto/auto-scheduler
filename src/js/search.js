@@ -4,7 +4,7 @@ let SearchBar;
 
 function scrollToTutor(email) {
     const tutor = document.getElementById(email);
-    tutor.scrollIntoView({ behavior: 'smooth' });
+    tutor.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 function searchTutors() {
@@ -33,12 +33,50 @@ function searchTutors() {
     }
 
     // if input isn't tutor ID, search tutors by name
-    for (let tutor in tutors) {
-        if (tutors[tutor].name === key) {
+    const name = key.toLowerCase();
+    for (const tutor in tutors) {
+        if (tutors[tutor].name.toLowerCase().includes(name)) {
             scrollToTutor(tutors[tutor].email);
             return;
         }
     }
 
-    output({ type: "error", message: "No tutor found with the name or ID: " + key });
+    // search by course
+    const course = formatCourseID(key);
+    let results = [];
+    if (course != null) {
+        for (const email in tutors) {
+            const tutor = tutors[email];
+            for (const courseID in tutor.courses) {
+                if (courseID == course) {
+                    results.push(email);
+                }
+            }
+        }
+
+        document.getElementById('expectedTutorContainer').style.display = "none";
+
+        let tutorContainer = document.getElementById('tutorContainer');
+        tutorContainer.style.display = "block";
+        tutorContainer.innerHTML = "";
+
+        let errorsContainer = document.getElementById('errorsContainer');
+        errorsContainer.style.display = "block";
+        errorsContainer.innerHTML = "";
+
+        let str = `<h1>Tutors Assigned to ${course}:</h1></br>`;
+        let errStr = `<hr><h1>Tutors Assigned to ${course} And Have Errors:</h1></br>`;
+        for (const email of results) {
+            if (tutors[email].hasErrors()) {
+                errStr += tutors[email].CreateDiv();
+            } else {
+                str += tutors[email].CreateDiv();
+            }
+        }
+        tutorContainer.innerHTML += str;
+        errorsContainer.innerHTML += errStr;
+        return;
+    }
+
+    output({ type: "error", message: "No tutor or course found with the name or ID: " + key });
 }

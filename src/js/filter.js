@@ -76,7 +76,7 @@ function filterRegistrar() {
         }
 
         if (hasRequest) {
-            str += tutors[tutor].CreateDiv();
+            str += tutor.CreateDiv();
             continue;
         }
     }
