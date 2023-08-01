@@ -6,21 +6,11 @@ function ignoreError(email, courseID, i) {
     if (!tutors[email]) return;
 
     let tutor = tutors[email];
-    let conflict = tutor.courses[courseID].errors[i];
+    let error = tutor.courses[courseID].errors[i];
 
     // add time to the tutor's schedule
-    tutor.schedule.week[conflict.day].push({
-        tutor: null, 
-        course: conflict.time.course,
-        tag: conflict.time.tag,
-        start: conflict.time.start,
-        end: conflict.time.end
-    });
-    if (conflict.time.tag == "session") {
-        tutor.schedule.week[conflict.day].at(-1).scheduleByLSS = conflict.time.scheduleByLSS;
-    }
-
-    tutor.schedule.week[conflict.day].sort((a, b) => a.start - b.start);
+    error.time.getDay().push(error.time);
+    error.time.getDay().sort((a, b) => a.start - b.start);
 
     // remove error
     tutors[email].courses[courseID].errors.splice(i, 1);
@@ -28,13 +18,13 @@ function ignoreError(email, courseID, i) {
     // re-display tutor
     clearConsole();
     let para = document.getElementById(email);
-    if (tutors[email].getErrors().length == 0) {
+    if (tutors[email].courses[courseID].errors.length == 0) {
         tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
-        para.remove();
     }
+    if (!tutors[email].hasErrors()) para.remove();
     updateTutorDisplay(email);
 
-    output({type: "success", message: `${conflict.error} error for ${tutor.name} (${email}) has been ignored.`});
+    output({type: "success", message: `${error.error} error for ${tutor.name} (${email}) has been ignored.`});
 }
 
 function removeError(email, courseID, i) {
@@ -42,7 +32,7 @@ function removeError(email, courseID, i) {
     if (!tutors[email]) return;
 
     let tutor = tutors[email];
-    let conflict = tutor.courses[courseID].errors[i];
+    let error = tutor.courses[courseID].errors[i];
 
     // remove error
     tutors[email].courses[courseID].errors.splice(i, 1);
@@ -50,13 +40,13 @@ function removeError(email, courseID, i) {
     // re-display tutor
     clearConsole();
     let para = document.getElementById(email);
-    if (tutors[email].getErrors().length == 0) {
+    if (tutors[email].courses[courseID].errors.length == 0) {
         tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
-        para.remove();
     }
+    if (!tutors[email].hasErrors()) para.remove();
     updateTutorDisplay(email);
 
-    output({type: "success", message: `${conflict.error} error for ${tutor.name} (${email}) has been removed.`});
+    output({type: "success", message: `${error.error} error for ${tutor.name} (${email}) has been removed.`});
 }
 
 // * =================================================================

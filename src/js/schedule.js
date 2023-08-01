@@ -33,10 +33,14 @@ class Schedule {
         let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)*/g); // get all hours
 
         if (hours == null) {
+            let errorTime = new Time(this);
+            errorTime.setTutor(tutor)
+                .setCourse(course)
+                .setTag(tag)
+                .setScheduleByLSS(scheduleByLSS);
             return {
-                day: "N/A",
-                time: { tutor: tutor, course: course, tag: tag, start: null, end: null, scheduleByLSS: scheduleByLSS },
-                error: "no-time"
+                time: errorTime,
+                error: Errors.Formatting
             }
         }
         
@@ -51,7 +55,6 @@ class Schedule {
                 hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
             }
         }
-        // console.log(timeStr, days, hours);
 
         // get int time values
         const start = convertTimeToInt(hours[0]);
@@ -68,34 +71,54 @@ class Schedule {
                     }
                 }
                 if (!matches) {
+                    let errorTime = new Time(this);
+                    errorTime.setTutor(tutor)
+                        .setCourse(course)
+                        .setTag(tag)
+                        .setDay(day)
+                        .setStart(start)
+                        .setEnd(end)
+                        .setScheduleByLSS(scheduleByLSS);
                     return {
-                        day: day,
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
-                        error: "invalid"
+                        time: errorTime,
+                        error: Errors.Invalid
                     };
                 }
             }
 
             if (start < this.range.start || this.range.end < end) {
+                let errorTime = new Time(this);
+                errorTime.setTutor(tutor)
+                    .setCourse(course)
+                    .setTag(tag)
+                    .setStart(start)
+                    .setEnd(end)
+                    .setScheduleByLSS(scheduleByLSS);
                 return {
-                    day: null,
-                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
-                    error: "invalid"
+                    time: errorTime,
+                    error: Errors.Invalid
                 };
             }
         }
 
         // check if time is valid if it is a session and schedule is for a tutor
-        if (this.container instanceof Tutor && tag == "session") {
+        if (this.container instanceof Tutor && tag == Tags.Session) {
             for (const day of days) {
                 if (day == "Sun" || day == "Sat") { continue; }
 
                 // returns true if time is valid, isValidSessionTime() in session-times.js
                 if (!isValidSessionTime(day, start)) {
+                    let errorTime = new Time(this);
+                    errorTime.setTutor(tutor)
+                        .setCourse(course)
+                        .setTag(tag)
+                        .setDay(day)
+                        .setStart(start)
+                        .setEnd(end)
+                        .setScheduleByLSS(scheduleByLSS);
                     return {
-                        day: day,
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS },
-                        error: "invalid"
+                        time: errorTime,
+                        error: Errors.Invalid
                     };
                 }
             }
@@ -103,72 +126,61 @@ class Schedule {
 
         // check for overlapping times
         for (let i = 0; i < days.length; i++) {
-            for (let j = 0; j < this.week[days[i]].length; j++) {
-                if (start >= this.week[days[i]][j].start && start <= this.week[days[i]][j].end) {
-                    if (this.container instanceof Room && this.week[days[i]][j].tutor == tutor) { // if this is the same session time for the same tutor, just replace it
-                        // add new time to schedule
-                        this.week[days[i]][j] = {
-                            tutor: tutor, 
-                            course: course,
-                            tag: tag,
-                            start: start,
-                            end: end
-                        };
-                        if (tag == "session") {
-                            this.week[days[i]][j].scheduleByLSS = scheduleByLSS;
-                        }
+            const dayName = days[i];
 
+            for (let j = 0; j < this.week[dayName].length; j++) {
+                let day = this.week[dayName];
+
+                if (day[j].conflictsWith({start: start, end: end})) {
+                    let errorTime = new Time(this);
+                    errorTime.setTutor(tutor)
+                        .setCourse(course)
+                        .setTag(tag)
+                        .setDay(dayName)
+                        .setStart(start)
+                        .setEnd(end)
+                        .setScheduleByLSS(scheduleByLSS);
+
+                    // if this is the same session time for the same tutor, just replace it
+                    if (this.container instanceof Room && day[j].isEqual(errorTime)) {
+                        day[j] = errorTime;
                         return {
-                            day: days[i],
-                            time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
-                            error: "replaced"
+                            time: day[j],
+                            error: Errors.Replaced
                         };
                     }
 
                     return {
-                        day: days[i],
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
-                        error: "conflict"
+                        time: errorTime,
+                        error: Errors.Conflict
                     };
                     
                 }
-                if (end >= this.week[days[i]][j].start && end <= this.week[days[i]][j].end) {
-                    //console.log("Overlapping time");
-                    return {
-                        day: days[i],
-                        time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
-                        error: "conflict"
-                    };
-                }
             }
         }
-
         
+        // add new times
         for (let day of days) {
+            let newTime = new Time(this);
+            newTime.setTutor(tutor)
+                .setCourse(course)
+                .setTag(tag)
+                .setDay(day)
+                .setStart(start)
+                .setEnd(end)
+                .setScheduleByLSS(scheduleByLSS);
+            
             // check if day has too many sessions already for room schedules
-            if (this.container instanceof Room && tag == "session" && this.week[day].length >= 4) {
+            if (this.container instanceof Room && tag == Tags.Session && this.week[day].length >= 4) {
                 return {
-                    day: days[day],
-                    time: { tutor: tutor, course: course, tag: tag, start: start, end: end, scheduleByLSS: scheduleByLSS  },
-                    error: "over-booked"
+                    time: newTime,
+                    error: Errors.Overbooked
                 };
             }
 
             // add new time to schedule
-            this.week[day].push({
-                tutor: tutor, 
-                course: course,
-                tag: tag,
-                start: start,
-                end: end
-            });
-            if (tag == "session") {
-                this.week[day].at(-1).scheduleByLSS = scheduleByLSS;
-            }
-        }
+            this.week[day].push(newTime);
 
-        // sort schedule by start time
-        for (let day of days) {
             this.week[day].sort((a, b) => a.start - b.start);
         }
 
@@ -176,28 +188,26 @@ class Schedule {
     }
 
     // returns the time that was removed
-    removeTime(day, tag, startTime) {
-
-        for (let i = 0;  i < this.week[day].length; i++) {
-            const time = this.week[day][i];
-            if (time.start == startTime && time.tag == tag) {
-                return this.week[day].splice(i, 1)[0];
-            }
+    removeTime(day, i) {
+        i = parseInt(i, 10); // make sure i is a number, not a str
+        if (day in this.week && i in this.week[day]) {
+            return this.week[day].splice(i, 1)[0];
         }
+        return null
     }
 
-    getTime(day, tag, startTime) {
-        for (let i = 0;  i < this.week[day].length; i++) {
-            let time = this.week[day][i];
-            if (time.start == startTime && time.tag == tag) {
-                return time;
+    findTimeIndex(givenTime) {
+        for (let i = 0;  i < this.week[givenTime.day].length; i++) {
+            let time = this.week[givenTime.day][i];
+            if (time.isEqual(givenTime)) {
+                return i;
             }
         }
         return null;
     }
 
     // expects string formatted as "DAY ##:## AM/PM"
-    getTimeByStr(timeStr, tag="session") {
+    findTimeByStr(timeStr, tag="session") {
         let halves = timeStr.split(":");
         let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
         let day = days == null ? "Sun" : days[0];
@@ -205,8 +215,7 @@ class Schedule {
         let formattedDate = (days == null ? "SUN" : "") + timeStr.trim().toUpperCase().replace(/ /g, "");
 
         for (const time of this.week[day]) {
-            console.log("time: ", `${day} ${convertTimeToString(time.start)}`.toUpperCase().replace(/ /g, ""));
-            if (formattedDate == `${day} ${convertTimeToString(time.start)}`.toUpperCase().replace(/ /g, "") && time.tag == tag) {
+            if (formattedDate == time.getDayAndStartStr().toUpperCase().replace(/ /g, "") && time.tag == tag) {
                 return time;
             }
         }
@@ -214,7 +223,7 @@ class Schedule {
     }
 
     // returns the schedule formatted as a string
-    Display() {
+    display() {
         let output = "";
 
         for (let day in this.week) {
@@ -227,32 +236,13 @@ class Schedule {
 
                 // if displaying schedule for tutor with assigned sessions
                 if (this.container instanceof Tutor && FinishedStatus.includes(this.container.courses[time.course].status)) {
-                    if (!("room" in time)) continue;
+                    if (!time.hasRoomAssigned()) continue;
                 }
 
-                let confirmed = false;
-                if (this.container instanceof Tutor) {
-                    confirmed = (this.container.courses[time.course].status == StatusOptions.ScheduleConfirmed);
-                }
-                
-                let body = "";
-                if (this.container instanceof Room) {
-                    if (tutors != null && time.tutor in tutors) {
-                        body = time.course + " , " + tutors[time.tutor].name + " / " + time.tutor + " , ";
-                        confirmed = (tutors[time.tutor].courses[time.course].status == StatusOptions.ScheduleConfirmed);
-                    } else {
-                        body = time.tutor;
-                    }
-                } else {
-                    if ("room" in time && time.room != null) {
-                        body = time.course + " / <b>" + time.room + "</b>";
-                    } else {
-                        body = time.course;
-                    }
-                }
-                let tag = time.tag == "office hours" ? "office-hours" : (confirmed ? "confirmed" : time.tag);
-                output += `<div class='time ${tag}'>|` + ` (${body}`;
-                output += ` ${time.tag}: ${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}) `;
+                let confirmed = time.getCourse().status == StatusOptions.ScheduleConfirmed;
+                let tag = confirmed ? "confirmed" : time.tag;
+
+                output += `<div class='time ${tag}'>|` + ` (${time.getFullStr()}) `;
                 output += "|";
 
                 // remove time button
@@ -263,7 +253,7 @@ class Schedule {
                     } else {
                         output += `'${this.container.email}', `;
                     }
-                    output += `'${day}', '${time.tag}', '${time.start}')">Remove</button>`;
+                    output += `'${day}', ${i})">Remove</button>`;
                 }
                 
 
@@ -277,7 +267,7 @@ class Schedule {
     }
 
     // return a string representation of the schedule that will paste into a spreadsheet
-    Copy(assigned=false) {
+    copy(assigned=false) {
         let output = "";
 
         for (let day in this.week) {
@@ -287,25 +277,25 @@ class Schedule {
 
             for (let time of times) {
                 if (assigned) {
-                    if (!("room" in time)) continue;
+                    if (!(time.hasRoomAssigned())) continue;
                 }
                 
                 let body = "";
                 if (this.container instanceof Room) {
                     if (tutors != null && time.tutor in tutors) {
-                        body = time.course + " , " + tutors[time.tutor].name + " (" + time.tutor + ") , ";
+                        body = time.course + " , " + time.getTutor().name + " (" + time.tutor + ") , ";
                     } else {
                         body = time.course + " , " + " (" + time.tutor + ") , ";
                     }
                 } else {
-                    if ("room" in time) {
+                    if (time.hasRoomAssigned()) {
                         body = time.course + " , " + time.room + " , ";
                     } else {
                         body = time.course;
                     }
                 }
                 output += body;
-                output += `${convertTimeToString(time.start)} - ${convertTimeToString(time.end)}\t`;
+                output += `${time.getStartToEndStr()}\t`;
             }
 
             output += "\n";

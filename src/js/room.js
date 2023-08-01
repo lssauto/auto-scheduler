@@ -25,14 +25,14 @@ class Room {
     // wrapper around schedule.addTime(), 
     // if schedule.addTime() doesn't return null (returns error obj), then the requested time is already taken
     addTime(timeStr, course, tutor) {
-        return this.schedule.addTime(timeStr, course, "session", tutor);
+        return this.schedule.addTime(timeStr, course, Tags.Session, tutor);
     }
 
-    Display() {
+    display() {
         let str = "";
 
         str += `<b>Room: ${this.name} ; Building: ${this.building == null ? "not recognized" : this.building}</b></br></br>`;
-        str += this.schedule.Display();
+        str += this.schedule.display();
 
         return str;
     }

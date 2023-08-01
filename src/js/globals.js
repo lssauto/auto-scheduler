@@ -13,6 +13,38 @@ let rooms = null;
 let buildings = null;
 let schedulesCompleted = false;
 
+// * Column titles in form table, matched based on str including one of these keys, all keys are lowercase
+
+const Titles = {
+    Timestamp: "timestamp",
+    Email: "email address",
+    Name: "your name",
+    Resubmission: "resubmission",
+    Returnee: "have you worked for lss",
+    CourseID: "what class are you submitting this availability form for",
+    Position: "lss position",
+    Lectures: "class meeting days and times",
+    OfficeHours: "office hours",
+    Discord: "discord support",
+    Comments: "anything else you want to let lss know?",
+    SessionOption: "session option",
+    Scheduler: "scheduler",
+    Status: "status"
+}
+
+const RoomResponse = {
+    ScheduleByLSS: "lss will book me space",
+    ScheduleByTutor: "i'll book my own space",
+    AssignedToTutor: "scheduled by tutor"
+}
+
+const Positions = {
+    LGT: "LGT",
+    SGT: "SGT"
+}
+
+// * Status Values
+
 const StatusOptions = {
     PastSubmission: "Past Submission",
     WrongCourse: "Incorrect Course ID or Position",
@@ -23,6 +55,7 @@ const StatusOptions = {
     ScheduleConfirmed: "Schedule Confirmed"
 }
 
+// used for styling, class names for css
 const StatusClass = {};
 StatusClass[StatusOptions.PastSubmission] = "old";
 StatusClass[StatusOptions.WrongCourse] = "wrong-course";
@@ -32,6 +65,8 @@ StatusClass[StatusOptions.InProgress] = "in-progress";
 StatusClass[StatusOptions.SessionsScheduled] = "scheduled";
 StatusClass[StatusOptions.ScheduleConfirmed] = "confirmed";
 
+
+// arrays for .includes(), used to check if a status is part of a group of statuses
 const ErrorStatus = [
     StatusOptions.WrongCourse,
     StatusOptions.SchedulingError,
@@ -43,47 +78,19 @@ const FinishedStatus = [
     StatusOptions.ScheduleConfirmed
 ]
 
-// * console div used to output diagnostic messages
-let consoleDiv;
-const consoleColors = { // use to set the color of the console messages based on message type
-    error: "red",
-    warning: "orange",
-    info: "#2343A0",
-    success: "green"
+// * Time Tags
+
+const Tags = {
+    Session: "session",
+    Lecture: "lecture",
+    OfficeHours: "office-hours",
+    Discord: "discord support"
 }
 
-// * message is expected to be an object with at least a type field
-function output(msg) {
-    let str = "<p style='background-color: " + consoleColors[msg.type] + "'>";
-    for (let key in msg) {
-        str += key + ": " + msg[key] + "<br>";
-    }
-    str += "</p>";
-    consoleDiv.innerHTML += str;
-
-    // resize header
-    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
-}
-
-function clearConsole() {
-    consoleDiv.innerHTML = "";
-
-    // resize header
-    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
-}
-
-let hidden = false;
-function hideConsole() {
-    let button = document.getElementById("ConsoleHideButton");
-    if (!hidden) {
-        consoleDiv.style.display = "none";
-        hidden = true;
-        button.innerHTML = "Show Console";
-    } else {
-        consoleDiv.style.display = "block";
-        hidden = false;
-        button.innerHTML = "Hide Console";
-    }
-    // resize header
-    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
+const Errors = {
+    Conflict: "conflict",
+    Invalid: "invalid",
+    Replaced: "replaced",
+    Overbooked: "over-booked",
+    Formatting: "formatting"
 }

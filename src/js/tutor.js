@@ -62,9 +62,9 @@ class Tutor {
 
             // lecture times
             for (let lecture of course.lectures) {
-                let error = this.schedule.addTime(lecture, id, "lecture");
+                let error = this.schedule.addTime(lecture, id, Tags.Lecture);
                 if (error != null) {
-                    if (error.error == "no-time") {
+                    if (error.error == Errors.Formatting) {
                         output({
                             type: "warning", 
                             tutor: this.name + " (" + this.email + ")", 
@@ -78,9 +78,9 @@ class Tutor {
 
             // office hours
             for (let officeHour of course.officeHours) {
-                let error = this.schedule.addTime(officeHour, id, "office hours");
+                let error = this.schedule.addTime(officeHour, id, Tags.OfficeHours);
                 if (error != null) {
-                    if (error.error == "no-time") {
+                    if (error.error == Errors.Formatting) {
                         output({
                             type: "warning", 
                             tutor: this.name + " (" + this.email + ")", 
@@ -94,9 +94,9 @@ class Tutor {
 
             // discord hours
             for (let discordHour of course.discordHours) {
-                let error = this.schedule.addTime(discordHour, id, "discord");
+                let error = this.schedule.addTime(discordHour, id, Tags.Discord);
                 if (error != null) {
-                    if (error.error == "no-time") {
+                    if (error.error == Errors.Formatting) {
                         output({
                             type: "warning", 
                             tutor: this.name + " (" + this.email + ")", 
@@ -110,9 +110,9 @@ class Tutor {
 
             // session times
             for (let time of course.times) {
-                let error = this.schedule.addTime(time.time, id, "session", null, time.schedule);
+                let error = this.schedule.addTime(time.time, id, Tags.Session, null, time.schedule);
                 if (error != null) {
-                    if (error.error == "no-time") {
+                    if (error.error == Errors.Formatting) {
                         output({
                             type: "warning", 
                             tutor: this.name + " (" + this.email + ")", 
@@ -122,9 +122,9 @@ class Tutor {
                         course.errors.push(error);
                     }
                 } else if (time.room != null) {
-                    let scheduleTime = this.schedule.getTimeByStr(time.time);
-                    scheduleTime.room = time.room;
-                    if (time.room in rooms /*&& rooms[time.room].schedule.getTimeByStr(time.time) == null*/) {
+                    let scheduleTime = this.schedule.findTimeByStr(time.time);
+                    scheduleTime.setRoom(time.room);
+                    if (time.room in rooms) {
                         rooms[time.room].addTime(time.time, id, this.email);
                     }
                 }
@@ -160,15 +160,15 @@ class Tutor {
     }
 
     // return a string representation of the tutor
-    Display() {
+    display() {
         let str = "";
 
         str += `<b>Name: ${this.name} ; `;
-        str += `Email: ${this.email}</b></br>`;
+        str += `Email: ${this.email}</b><br>`;
 
         
 
-        str += "<b>Courses:</b></br>";
+        str += "<b>Courses:</b><br>";
         for (const id in this.courses) {
             const course = this.courses[id];
 
@@ -192,23 +192,26 @@ class Tutor {
             statusStr += `</select>`;
             statusStr += ` <button type='submit' onclick="setStatus('${this.email}', '${id}')">Set Status</button>`;
 
+            // course actions
             let deleteButton = `<button type='submit' onclick="removeCourse('${this.email}', '${id}')">Remove</button>`;
-
             let slackButton = "";
             if (FinishedStatus.includes(course.status)) {
                 slackButton = `- <button type='submit' onclick="copySlackNote('${this.name}', '${id}')">Copy Slack Note</button> `;
             }
-
-            str += `<div class='course ${StatusClass[course.status]}'>`
-            str += `<b>${id}: ${course.position}</b> || ${options} - ${statusStr} - ${deleteButton} ${slackButton}- Scheduler: ${course.scheduler}</br>`;
+            
+            // full course div
+            str += `<div class='course ${StatusClass[course.status]}'>`;
+            str += `<b>${id}: ${course.position}</b> || ${options} - ${statusStr} - ${deleteButton} ${slackButton}- Scheduler: ${course.scheduler}<br>`;
             str += course.comments != "" ? `${course.comments}` : "";
-            str += "</div></br>";
+            str += "</div><br>";
         }
 
-        str += "</br><b>Schedule:</b></br>";
-        str += this.schedule.Display();
+        // schedule
+        str += "</br><b>Schedule:</b><br>";
+        str += this.schedule.display();
 
-        str += "<b>Errors:</b></br>";
+        // errors
+        str += "<b>Errors:</b><br>";
         let errorCount = 0;
         for (const courseID in this.courses) {
             const course = this.courses[courseID];
@@ -216,26 +219,32 @@ class Tutor {
             for (let i = 0; i < course.errors.length; i++) {
                 const error = course.errors[i];
                 str += `<div class='time ${error.error}'>`;
-                str += `${error.time.course} ${error.time.tag}: `;
-                str += `${error.day} ${convertTimeToString(error.time.start)} - ${convertTimeToString(error.time.end)} , `
+                str += `${error.time.getFullStr()} , `
                 str += `error: ${error.error} - `;
                 // ? functions in ignore-errors.js
                 str += `<button type='submit' onclick="ignoreError('${this.email}', '${courseID}', '${i}')">Ignore</button> `;
                 str += `<button type='submit' onclick="removeError('${this.email}', '${courseID}', '${i}')">Remove</button>`;
-                str += "</div></br>";
+                str += "</div><br>";
             }
         }
-        if (errorCount == 0) { str += "No Errors.</br>"; }
+        if (errorCount == 0) { str += "No Errors.<br>"; }
 
         return str;
     }
 
-    CreateDiv() {
-        let str = "";
-        str += `<div id='${this.email}'>`;
-        str += this.Display();
-        str += "</br>";
-        str += ("=".repeat(50)) + "</br></div>";
-        return str;
+    createDivInnerHTML() {
+        return this.display() + "<br>" + ("=".repeat(50)) + "<br>";
     }
+
+    createDiv() {
+        let div = document.createElement('div');
+        div.id = this.email;
+        div.innerHTML = this.createDivInnerHTML();
+        return div;
+    }
+
+    createDivAsHTML() {
+        return `<div id="${this.email}">${this.createDivInnerHTML()}</div>`;
+    }
+
 }

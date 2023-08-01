@@ -94,7 +94,7 @@ function parseExpectedTutors(matrix) {
         }
         //console.log(course);
 
-        let position = row[3].includes("Large") ? "LGT" : "SGT"; // TODO: add writing and study hall tutors
+        let position = row[3].includes("Large") ? Positions.LGT : Positions.SGT; // TODO: add writing and study hall tutors
 
         tutor.courses[course] = position;
         expectedTutors[email] = tutor;
@@ -159,10 +159,10 @@ function BuildJSON(titles, data) {
             const title = titles[j].trim().toLowerCase();
 
             // column titles must include specific text to be recognized
-            if (title.includes("timestamp")) {
+            if (title.includes(Titles.Timestamp)) {
                 obj.timestamp = data[i][j].trim();
 
-            } else if (title.includes("email address")) {
+            } else if (title.includes(Titles.Email)) {
                 if (!(data[i][j].trim() in expectedTutors)) {
                     output({
                         type: "warning", 
@@ -174,16 +174,16 @@ function BuildJSON(titles, data) {
                 }
                 obj.email = data[i][j].trim();
 
-            } else if (title.includes("your name")) {
+            } else if (title.includes(Titles.Name)) {
                 obj.name = data[i][j].trim();
 
-            } else if (title.includes("resubmission")) {
+            } else if (title.includes(Titles.Resubmission)) {
                 obj.resubmission = data[i][j] == "Yes" ? true: false;
 
-            } else if (title.includes("have you worked for lss")) {
+            } else if (title.includes(Titles.Returnee)) {
                 obj.returnee = data[i][j] == "Yes"? true: false;
 
-            } else if (title.includes("what class are you submitting this availability form for")) {
+            } else if (title.includes(Titles.CourseID)) {
                 let course = formatCourseID(data[i][j]);
                 if ((obj.email in expectedTutors) && !(course in expectedTutors[obj.email].courses)) {
                     output({
@@ -196,41 +196,41 @@ function BuildJSON(titles, data) {
                 }
                 obj.class = course == null ? data[i][j].trim().replace("–", "-").toUpperCase() : course;
 
-            } else if (title.includes("lss position")) {
+            } else if (title.includes(Titles.Position)) {
                 if (obj.email in expectedTutors && !ErrorStatus.includes(obj.status)) {
                     obj.position = expectedTutors[obj.email].courses[obj.class];
                 } else {
                     obj.position = data[i][j].includes("Large") ? "LGT" : "SGT";
                 }
 
-            } else if (title.includes("class meeting days and times")) {
+            } else if (title.includes(Titles.Lectures)) {
                 if (data[i][j] == "asynchronous") {
                     obj.lectures = [];
                 } else {
                     obj.lectures = data[i][j].split(","); 
                 }
 
-            } else if (title.includes("office hours")) {
+            } else if (title.includes(Titles.OfficeHours)) {
                 if (data[i][j] == "" || data[i][j].includes("N/A")) {
                     obj.officeHours = [];
                 } else {
                     obj.officeHours = data[i][j].split(",");
                 }
 
-            } else if (title.includes("discord support")) {
+            } else if (title.includes(Titles.Discord)) {
                 if (data[i][j] == "" || data[i][j].includes("N/A")) {
                     obj.discord = [];
                 } else {
                     obj.discord = data[i][j].split(",");
                 }
 
-            } else if (title.includes("anything else you want to let lss know?")) {
+            } else if (title.includes(Titles.Comments)) {
                 obj.comments = data[i][j];
 
-            } else if (title.includes("scheduler")) {
+            } else if (title.includes(Titles.Scheduler)) {
                 obj.scheduler = data[i][j];
 
-            } else if (title.includes("status")) {
+            } else if (title.includes(Titles.Status)) {
                 if (obj.status == StatusOptions.InProgress && data[i][j] != "") {
                     obj.status = data[i][j];
                 } else if (obj.status != StatusOptions.InProgress) {
@@ -242,18 +242,19 @@ function BuildJSON(titles, data) {
                     });
                 }
 
-            } else if (title.includes("session option")) { // session times
+            } else if (title.includes(Titles.SessionOption)) { // session times
                 if ( !(data[i][j] == "" || data[i][j].includes("N/A")) ) {
                     let schedule = true;
                     let field = data[i][j + 1].trim().toLowerCase();
 
                     let time = {time: data[i][j], schedule: schedule, room: null};
 
-                    if (( field.includes("i'll book my own space") || field.includes("scheduled by tutor") ) && obj.position == "SGT") { // only SGT can reserve their own rooms
+                    // only SGT can reserve their own rooms
+                    if (( field.includes(RoomResponse.ScheduleByTutor) || field.includes(RoomResponse.AssignedToTutor) ) && obj.position == Positions.SGT) { 
                         schedule = false;
-                        if (field.includes("scheduled by tutor")) time.room = data[i][j + 1];
+                        if (field.includes(RoomResponse.AssignedToTutor)) time.room = data[i][j + 1];
                         
-                    } else if (!field.includes("lss will book me space") && !field.includes("i'll book my own space") && !field.includes("n/a")) {
+                    } else if (!field.includes(RoomResponse.ScheduleByLSS) && !field.includes(RoomResponse.ScheduleByTutor) && !field.includes("n/a")) {
                         time.room = data[i][j + 1];
                     }
                     time.schedule = schedule;
@@ -262,7 +263,7 @@ function BuildJSON(titles, data) {
                 j++;
             }
         }
-        if ("comments" in obj) { // only add the object if 
+        if ("comments" in obj) { // only add the object if row was completely read, comments is the last column
             objs.push(obj);
         }
     }

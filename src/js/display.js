@@ -44,11 +44,10 @@ function updateTutorDisplay(email) {
             container = document.getElementById('tutorContainer');
         }
         if (container.style.display == 'none') return;
-        str = "";
-        str += tutors[email].CreateDiv();
-        container.innerHTML += str;
+        container.appendChild(tutors[email].createDiv());
+
     } else {
-        para.innerHTML = tutors[email].Display() + "</br>" + ("=".repeat(50)) + "</br>";
+        para.innerHTML = tutors[email].createDivInnerHTML();
     }
 }
 
@@ -57,14 +56,12 @@ function updateTutorDisplay(email) {
 function displayErrors() {
     let errorsContainer = document.getElementById('errorsContainer');
     errorsContainer.style.display = "block";
-    errorsContainer.innerHTML = "";
-    let errors = "</br><hr><hr><h1>Tutors With Errors:</h1></br>";
+    str = "</br><hr><hr><h1>Tutors With Errors:</h1></br>";
     for (const tutor in tutors) {
         if (!tutors[tutor].hasErrors()) continue;
-        errors += tutors[tutor].CreateDiv();
+        str += tutors[tutor].createDivAsHTML();
     }
-
-    errorsContainer.innerHTML = errors;
+    errorsContainer.innerHTML = str;
 }
 
 // display tutors by adding their display string to the page
@@ -72,14 +69,11 @@ function displayTutors() {
     console.log("Tutors Map:\n", tutors);
     let tutorContainer = document.getElementById('tutorContainer');
     tutorContainer.style.display = "block";
-    tutorContainer.innerHTML = "";
-
-    let str = "<h1>Tutor Schedules:</h1></br>";
+    str = "<h1>Tutor Schedules:</h1></br>";
     for (const tutor in tutors) {
         if (tutors[tutor].hasErrors()) continue;
-        str += tutors[tutor].CreateDiv();
+        str += tutors[tutor].createDivAsHTML();
     }
-
     tutorContainer.innerHTML = str;
 }
 
@@ -93,7 +87,7 @@ function displayAllTutors() {
 
 function updateRoomDisplay(name) {
     let para = document.getElementById(name);
-    para.innerHTML = rooms[name].Display() + "</br>" + ("=".repeat(50)) + "</br>";
+    para.innerHTML = rooms[name].display() + "</br>" + ("=".repeat(50)) + "</br>";
 }
 
 // * =================================================================
@@ -107,7 +101,7 @@ function displayRooms() {
 
     for (let room in rooms) {
         str += `<div id='${room}'>`;
-        str += rooms[room].Display();
+        str += rooms[room].display();
         str += "</br>";
         str += ("=".repeat(50)) + "</br></div>";
     }

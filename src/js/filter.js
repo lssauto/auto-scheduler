@@ -6,16 +6,15 @@ function filterErrors() {
 
     let errorsContainer = document.getElementById('errorsContainer');
     errorsContainer.style.display = "block";
-    errorsContainer.innerHTML = "";
 
     let errors = "<h1>Tutors With Errors:</h1></br>";
-    for (const tutor in tutors) {
-        if (tutors[tutor].hasErrors()) {
-            errors += tutors[tutor].CreateDiv();
+    for (const email in tutors) {
+        if (tutors[email].hasErrors()) {
+            errors += tutors[email].createDivAsHTML();
             continue;
         }
     }
-    errorsContainer.innerHTML += errors;
+    errorsContainer.innerHTML = errors;
 }
 
 function filterComments() {
@@ -23,33 +22,32 @@ function filterComments() {
 
     let tutorContainer = document.getElementById('tutorContainer');
     tutorContainer.style.display = "block";
-    tutorContainer.innerHTML = "";
 
     let errorsContainer = document.getElementById('errorsContainer');
     errorsContainer.style.display = "block";
-    errorsContainer.innerHTML = "";
 
     let str = "<h1>Tutors With Comments:</h1></br>";
     let errStr = "<hr><h1>Tutors With Comments And Errors:</h1></br>";
-    for (const tutor in tutors) {
+    for (const email in tutors) {
+        const tutor = tutors[email];
         let hasComments = false;
-        for (const course in tutors[tutor].courses) {
-            if (tutors[tutor].courses[course].comments != "") {
+        for (const course in tutor.courses) {
+            if (tutor.courses[course].comments != "") {
                 hasComments = true;
                 break;
             }
         }
 
         if (hasComments) {
-            if (tutors[tutor].hasErrors()) {
-                errStr += tutors[tutor].CreateDiv();
+            if (tutor.hasErrors()) {
+                errStr += tutor.createDivAsHTML();
             } else {
-                str += tutors[tutor].CreateDiv();
+                str += tutor.createDivAsHTML();
             }
         }
     }
-    tutorContainer.innerHTML += str;
-    errorsContainer.innerHTML += errStr;
+    tutorContainer.innerHTML = str;
+    errorsContainer.innerHTML = errStr;
 }
 
 function filterRegistrar() {
@@ -58,7 +56,6 @@ function filterRegistrar() {
 
     let tutorContainer = document.getElementById('tutorContainer');
     tutorContainer.style.display = "block";
-    tutorContainer.innerHTML = "";
 
     let str = "<h1>Tutors With Registrar Requests:</h1></br>";
     for (const email in tutors) {
@@ -67,8 +64,8 @@ function filterRegistrar() {
         for (const day in tutor.schedule.week) {
             const sessions = tutor.schedule.week[day];
             for (const session of sessions) {
-                if (session.tag != "session") continue;
-                if (!("room" in session)) continue;
+                if (session.tag != Tags.Session) continue;
+                if (!session.hasRoomAssigned()) continue;
                 if (session.room.toLowerCase().includes("request")) {
                     hasRequest = true;
                 }
@@ -76,14 +73,16 @@ function filterRegistrar() {
         }
 
         if (hasRequest) {
-            str += tutor.CreateDiv();
+            str += tutor.createDivAsHTML();
             continue;
         }
     }
-    tutorContainer.innerHTML += str;
+    tutorContainer.innerHTML = str;
 }
 
+// * interface function that will call specific filter functions
 function filterTutors() {
+    clearConsole();
     if (tutors == null) {
         output({type: "error", message: "Cannot filter tutors without tutor data."});
         return;

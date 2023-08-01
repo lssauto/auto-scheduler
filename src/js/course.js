@@ -22,15 +22,16 @@ class Course {
             for (const day in this.tutor.schedule.week) {
                 let times = this.tutor.schedule.week[day];
                 for (let time of times) {
-                    if (!("room" in time)) continue;
+                    if (!time.hasRoomAssigned()) continue;
 
                     // remove time from assigned room
                     if (time.room in rooms) {
-                        removeTime(time.room, day, time.tag, time.start);
+                        let room = time.getRoom();
+                        let i = room.schedule.findTimeIndex(time);
+                        if (i != null) removeTime(time.room, day, i, false);
                     }
-                    
 
-                    delete time["room"]; // remove room from time
+                    time.setRoom(null);
                 }
             }
             clearConsole();
@@ -47,7 +48,7 @@ class Course {
             for (const day in this.tutor.schedule.week) {
                 let times = this.tutor.schedule.week[day];
                 for (let time of times) {
-                    if (!("room" in time)) continue;
+                    if (!time.hasRoomAssigned()) continue;
 
                     if (time.room in rooms) {
                         updateRoomDisplay(time.room);

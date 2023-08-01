@@ -41,8 +41,8 @@ function BuildSchedules() {
             let sessionsThisDay = 0; // number of sessions assigned to this day
             for (let i = 0; i < day.length; i++) {
                 let session = day[i];
-                if (session.tag != "session") continue;
-                if (session.room != null) { // skip if room is already assigned, // ! not redundant to similar check made in addTime()
+                if (session.tag != Tags.Session) continue;
+                if (session.hasRoomAssigned()) { // skip if room is already assigned, // ! not redundant to similar check made in addTime()
                     sessionsThisDay++;
                     sessions++;
                     sessionCount[session.course].count--;
@@ -50,9 +50,9 @@ function BuildSchedules() {
                 }
                 if (sessionsThisDay >= 2) break; // skip days with more than assigned 2 sessions
 
-                if (tutor.courses[session.course].status != StatusOptions.InProgress) continue;
+                if (session.getCourse().status != StatusOptions.InProgress) continue;
 
-                console.log("finding space for: " + dayName + " " + convertTimeToString(session.start));
+                console.log("finding space for: " + session.getDayAndStartStr());
 
                 // check if a session already has this time on a different day
                 if (dayName != "Sun" || dayName != "Sat") {
@@ -60,8 +60,8 @@ function BuildSchedules() {
                     for (let _dayName in tutor.schedule.week) {
                         let _day = tutor.schedule.week[_dayName];
                         for (let _i = 0; _i < _day.length; _i++) {
-                            if (_day[_i].tag != "session") continue;
-                            if (_day[_i].start == session.start && "room" in _day[_i]) {
+                            if (_day[_i].tag != Tags.Session) continue;
+                            if (_day[_i].start == session.start && _day[_i].hasRoomAssigned()) {
                                 taken = true;
                             }
                         }
@@ -74,29 +74,30 @@ function BuildSchedules() {
 
                 // check if tutor wants this session scheduled
                 if (session.scheduleByLSS === false) {
-                    console.log("Tutor Scheduling Session: " + dayName + " " + convertTimeToString(session.start));
-                    tutor.schedule.week[dayName][i].room = "Scheduled By Tutor";
+                    console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
+                    session.setRoom("Scheduled By Tutor");
                     sessionsThisDay++;
                     sessions++;
                     continue;
                 }
 
-                if (tutor.courses[session.course].preference != "any") {
+                if (session.getCourse().preference != "any") {
                     // check if preferred building has any rooms available
                     let buildingExists = false;
                     for (let roomID in rooms) {
-                        if (roomID.toUpperCase().includes(tutor.courses[session.course].preference.toUpperCase())) {
+                        if (roomID.toUpperCase().includes(session.getCourse().preference.toUpperCase())) {
                             buildingExists = true;
                             break;
                         }
                     }
                     if (!buildingExists && dayName != "Sun") {
-                        let building = buildings[tutor.courses[session.course].preference];
+                        // skip if session is outside buildings allowed days and times
+                        let building = buildings[session.getCourse().preference];
                         if (!building.days.includes(dayName)) continue;
                         if (session.start < building.start || building.end < session.end) continue;
 
-                        console.log("Tutor requesting specific building: " + tutor.courses[session.course].preference);
-                        tutor.schedule.week[dayName][i].room = "Request Room In " + tutor.courses[session.course].preference;
+                        console.log("Tutor requesting specific building: " + session.getCourse().preference);
+                        session.setRoom("Request Room In " + session.getCourse().preference);
                         sessionsThisDay++;
                         sessions++;
                         continue;
@@ -107,23 +108,23 @@ function BuildSchedules() {
                         for (let roomID in rooms) {
                             if (sessionCount[session.course].count <= (sessionCount[session.course].position == "LGT" ? 2 : 1) && dayName != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
                             let room = rooms[roomID];
-                            if (room.type != tutor.courses[session.course].position) continue; // only match tutors to rooms for their position
-                            if (room.building != tutor.courses[session.course].preference) continue; // skip rooms that aren't in the preferred building
+                            if (room.type != session.getCourse().position) continue; // only match tutors to rooms for their position
+                            if (room.building != session.getCourse().preference) continue; // skip rooms that aren't in the preferred building
     
                             // check if the room is available for that time
-                            let response = room.addTime(dayName + " " + convertTimeToString(session.start), session.course, tutorID);
+                            let response = room.addTime(session.getDayAndStartStr(), session.course, tutorID);
     
                             // if response is null, space was found
                             if (response == null) {
                                 console.log("Room found: " + room.name);
-                                tutor.schedule.week[dayName][i].room = room.name;
+                                session.setRoom = room.name;
                                 sessionsThisDay++;
                                 sessions++;
                                 sessionCount[session.course].count--;
                                 break;
                             } else if (response.error == "replaced") {
                                 console.log("Session already scheduled in: " + room.name);
-                                tutor.schedule.week[dayName][i].room = room.name;
+                                session.setRoom = room.name;
                                 sessionsThisDay++;
                                 sessions++;
                                 sessionCount[session.course].count--;
@@ -134,26 +135,26 @@ function BuildSchedules() {
                 }
 
                 // * for each room without preference
-                if (!("room" in tutor.schedule.week[dayName][i])) {
+                if (!session.hasRoomAssigned()) {
                     for (let roomID in rooms) {
                         if (sessionCount[session.course].count <= (sessionCount[session.course].position == "LGT" ? 2 : 1) && dayName != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
                         let room = rooms[roomID];
-                        if (room.type != tutor.courses[session.course].position) continue; // only match tutors to rooms for their position
+                        if (room.type != session.getCourse().position) continue; // only match tutors to rooms for their position
 
                         // check if the room is available for that time
-                        let response = room.addTime(dayName + " " + convertTimeToString(session.start), session.course, tutorID);
+                        let response = room.addTime(session.getDayAndStartStr(), session.course, tutorID);
 
                         // if response is null, space was found
                         if (response == null) {
                             console.log("Room found: " + room.name);
-                            tutor.schedule.week[dayName][i].room = room.name;
+                            session.setRoom(room.name);
                             sessionsThisDay++;
                             sessions++;
                             sessionCount[session.course].count--;
                             break;
                         } else if (response.error == "replaced") {
                             console.log("Session already scheduled in: " + room.name);
-                            tutor.schedule.week[dayName][i].room = room.name;
+                            session.setRoom(room.name);
                             sessionsThisDay++;
                             sessions++;
                             sessionCount[session.course].count--;
@@ -162,9 +163,10 @@ function BuildSchedules() {
                     }
                 }
 
-                if (!("room" in tutor.schedule.week[dayName][i]) && dayName != "Sun") {
-                    console.log("No Space For: " + dayName + " " + convertTimeToString(session.start));
-                    tutor.schedule.week[dayName][i].room = "Request From Registrar";
+                if (!session.hasRoomAssigned() && dayName != "Sun") {
+                    console.log("No Space For: " + session.getDayAndStartStr());
+                    console.log(session);
+                    session.setRoom("Request From Registrar");
                     sessionsThisDay++;
                     sessions++;
                     sessionCount[session.course]--;
@@ -177,25 +179,15 @@ function BuildSchedules() {
             let timeFound = false;
             for (let i = 0; i < day.length; i++) {
                 let time = day[i];
-                if (time.tag != "discord") continue;
+                if (time.tag != Tags.Discord) continue;
 
-                if (i > 0 && "room" in day[i - 1]) {
-                    if (time.start >= day[i - 1].start && time.start <= day[i - 1].end) {
-                        continue;
-                    }
-                    if (time.end >= day[i - 1].start && time.end <= day[i - 1].end) {
-                        continue;
-                    }
+                if (i > 0 && day[i - 1].hasRoomAssigned() && time.conflictsWith(day[i - 1])) {
+                    continue;
                 }
-                if (i < day.length - 1 && "room" in day[i + 1]) {
-                    if (time.start >= day[i + 1].start && time.start <= day[i + 1].end) {
-                        continue;
-                    }
-                    if (time.end >= day[i + 1].start && time.end <= day[i + 1].end) {
-                        continue;
-                    }
+                if (i < day.length - 1 && day[i + 1].hasRoomAssigned() && time.conflictsWith(day[i + 1])) {
+                    continue;
                 }
-                time.room = "Discord Time";
+                time.setRoom("Discord Time");
                 timeFound = true;
                 break;
             }

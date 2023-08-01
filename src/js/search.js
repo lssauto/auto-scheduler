@@ -58,23 +58,21 @@ function searchTutors() {
 
         let tutorContainer = document.getElementById('tutorContainer');
         tutorContainer.style.display = "block";
-        tutorContainer.innerHTML = "";
 
         let errorsContainer = document.getElementById('errorsContainer');
         errorsContainer.style.display = "block";
-        errorsContainer.innerHTML = "";
 
         let str = `<h1>Tutors Assigned to ${course}:</h1></br>`;
         let errStr = `<hr><h1>Tutors Assigned to ${course} And Have Errors:</h1></br>`;
         for (const email of results) {
             if (tutors[email].hasErrors()) {
-                errStr += tutors[email].CreateDiv();
+                errStr += tutors[email].createDivAsHTML();
             } else {
-                str += tutors[email].CreateDiv();
+                str += tutors[email].createDivAsHTML();
             }
         }
-        tutorContainer.innerHTML += str;
-        errorsContainer.innerHTML += errStr;
+        tutorContainer.innerHTML = str;
+        errorsContainer.innerHTML = errStr;
         return;
     }
 

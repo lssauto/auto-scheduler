@@ -26,9 +26,11 @@ function copyTutorTable(event) {
         if (!(rowObj.class in tutor.courses)) {
             for (let c = 0; c < responseColumnTitles.length; c++) {
                 const title = responseColumnTitles[c].trim().toLowerCase();
-                if (title.includes("status")) {
+
+                if (title.includes(Titles.Status)) {
                     tutorMatrix[r][c] = StatusOptions.PastSubmission;
-                } else if (title.includes("scheduler")) {
+
+                } else if (title.includes(Titles.Scheduler)) {
                     tutorMatrix[r][c] = course.scheduler;
                 }
             }
@@ -44,11 +46,14 @@ function copyTutorTable(event) {
         if (course.timestamp > timestamp) {
             for (let c = 0; c < responseColumnTitles.length; c++) {
                 const title = responseColumnTitles[c].trim().toLowerCase();
-                if (title.includes("what class are you submitting this availability form for")) {
+
+                if (title.includes(Titles.CourseID)) {
                     tutorMatrix[r][c] = course.id;
-                } else if (title.includes("status")) {
+
+                } else if (title.includes(Titles.Status)) {
                     tutorMatrix[r][c] = StatusOptions.PastSubmission;
-                } else if (title.includes("scheduler")) {
+
+                } else if (title.includes(Titles.Scheduler)) {
                     tutorMatrix[r][c] = course.scheduler;
                 }
             }
@@ -59,11 +64,14 @@ function copyTutorTable(event) {
         if (ErrorStatus.includes(course.status)) {
             for (let c = 0; c < responseColumnTitles.length; c++) {
                 const title = responseColumnTitles[c].trim().toLowerCase();
-                if (title.includes("what class are you submitting this availability form for")) {
+
+                if (title.includes(Titles.CourseID)) {
                     tutorMatrix[r][c] = course.id;
-                } else if (title.includes("status")) {
+
+                } else if (title.includes(Titles.Status)) {
                     tutorMatrix[r][c] = course.status;
-                } else if (title.includes("scheduler")) {
+
+                } else if (title.includes(Titles.Scheduler)) {
                     tutorMatrix[r][c] = course.scheduler;
                 }
             }
@@ -74,22 +82,22 @@ function copyTutorTable(event) {
         for (let c = 0; c < responseColumnTitles.length; c++) {
             const title = responseColumnTitles[c].trim().toLowerCase();
 
-            if (title.includes("what class are you submitting this availability form for")) {
+            if (title.includes(Titles.CourseID)) {
                 tutorMatrix[r][c] = course.id;
 
-            } else if (title.includes("session option")) {
-                let time = tutor.schedule.getTimeByStr(tutorMatrix[r][c]);
+            } else if (title.includes(Titles.SessionOption)) {
+                let time = tutor.schedule.findTimeByStr(tutorMatrix[r][c]);
                 if (time != null) {
-                    if ("room" in time && time.room != null) {
+                    if (time.hasRoomAssigned()) {
                         tutorMatrix[r][c + 1] = time.room;
                     }
                 }
                 c++;
 
-            } else if (title.includes("status")) {
+            } else if (title.includes(Titles.Status)) {
                 tutorMatrix[r][c] = course.status;
 
-            } else if (title.includes("scheduler")) {
+            } else if (title.includes(Titles.Scheduler)) {
                 tutorMatrix[r][c] = course.scheduler;
             }
         }
@@ -138,7 +146,7 @@ function copyTutorSchedules(event) {
         }
         str += "\n";
 
-        str += tutor.schedule.Copy(true);
+        str += tutor.schedule.copy(true);
         str += "\n";
     }
 
@@ -167,7 +175,7 @@ function copyRoomSchedules(event) {
         str += "Room\t";
         str += room.name + "\n";
 
-        str += room.schedule.Copy();
+        str += room.schedule.copy();
     }
 
     navigator.clipboard.writeText(str);
