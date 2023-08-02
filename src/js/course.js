@@ -28,7 +28,7 @@ class Course {
                     if (time.room in rooms) {
                         let room = time.getRoom();
                         let i = room.schedule.findTimeIndex(time);
-                        if (i != null) removeTime(time.room, day, i, false);
+                        if (i != null) removeTime(time.room, day, i);
                     }
 
                     time.setRoom(null);

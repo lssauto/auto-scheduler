@@ -10,6 +10,7 @@ let tutorMatrix = null;
 let responseColumnTitles = null;
 let expectedTutors = null;
 let rooms = null;
+let requestRooms = null;
 let buildings = null;
 let schedulesCompleted = false;
 
@@ -41,6 +42,10 @@ const RoomResponse = {
 const Positions = {
     LGT: "LGT",
     SGT: "SGT"
+}
+
+const PositionSessionLimit = {
+
 }
 
 // * Status Values

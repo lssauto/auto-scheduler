@@ -300,6 +300,7 @@ function BuildTutors(jsonObjs) {
 function BuildRooms(matrix) {
     if (rooms == null) {
         rooms = {};
+        requestRooms = {};
     }
 
     let currentRoom = null;
@@ -331,11 +332,22 @@ function BuildRooms(matrix) {
         }
     }
     rooms[currentRoom.name] = currentRoom; // flush last room to the map
+
+    // add registrar request rooms
+    for (let buildingName in buildings) {
+        let building = buildings[buildingName];
+        if (!building.hasRooms) {
+            let requestRoom = new Room("Request Room In " + buildingName, true);
+            requestRooms[requestRoom.name] = requestRoom;
+        }
+    }
+    let generalRequestRoom = new Room("Request From Registrar", true);
+    requestRooms[generalRequestRoom.name] = generalRequestRoom;
 }
 
 // * ===========================================================================
 
-// * Rooms
+// * buildings
 
 function parseBuildings(matrix) {
     if (buildings == null) {
@@ -379,12 +391,13 @@ function parseBuildings(matrix) {
         const start = convertTimeToInt(hours[0]);
         const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
 
-        let time = {
+        let building = {
             days: days,
             start: start, 
-            end: end
+            end: end,
+            hasRooms: false // used for determining if a registrar request room should be created
         }
 
-        buildings[matrix[r][0]] = time;
+        buildings[matrix[r][0]] = building;
     }
 }

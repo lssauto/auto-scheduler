@@ -121,3 +121,37 @@ function filterTutors() {
 
     output({type: "success", message: "Successfully filtered tutors based on " + selection});
 }
+
+// * ===================================================================
+
+// filter rooms by buildings or sessions by registrar requests
+
+function filterRooms(building) {
+    if (building == "any") {
+        displayRooms();
+        return;
+    }
+
+    let roomContainer = document.getElementById('roomContainer');
+    let str = "";
+
+    for (let room in rooms) {
+        if (rooms[room].building == building) {
+            str += `<div id='${room}'>`;
+            str += rooms[room].display();
+            str += "</br>";
+            str += ("=".repeat(50)) + "</br></div>";
+        }
+    }
+
+    for (let room in requestRooms) {
+        if (requestRooms[room].name.includes(building)) {
+            str += `<div id='${room}'>`;
+            str += requestRooms[room].display();
+            str += "</br>";
+            str += ("=".repeat(50)) + "</br></div>";
+        }
+    }
+
+    roomContainer.innerHTML = str;
+}

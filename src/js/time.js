@@ -15,6 +15,16 @@ class Time {
         return this;
     }
 
+    setSchedule(schedule) {
+        this.schedule = schedule;
+        return this;
+    }
+
+    setContainer(container) {
+        this.container = container;
+        return this;
+    }
+
     setTutor(tutor) {
         this.tutor = tutor;
         return this;
@@ -114,7 +124,9 @@ class Time {
     getFullStr() {
         let body = "";
         if (this.container instanceof Room) {
-            if (tutors != null && this.tutor in tutors) {
+            if (this.room != null) { // for registrar request rooms
+                body = this.course + " , " + this.getTutor().name + " / " + this.tutor + " , " + " <b>" + this.room + "</b> , ";
+            } else if (tutors != null && this.tutor in tutors) {
                 body = this.course + " , " + this.getTutor().name + " / " + this.tutor + " , ";
             } else {
                 body = this.tutor;

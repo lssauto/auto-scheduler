@@ -9,8 +9,7 @@ function ignoreError(email, courseID, i) {
     let error = tutor.courses[courseID].errors[i];
 
     // add time to the tutor's schedule
-    error.time.getDay().push(error.time);
-    error.time.getDay().sort((a, b) => a.start - b.start);
+    tutor.schedule.pushTime(error.time);
 
     // remove error
     tutors[email].courses[courseID].errors.splice(i, 1);

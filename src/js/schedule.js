@@ -187,6 +187,14 @@ class Schedule {
         return null;
     }
 
+    pushTime(time) {
+        let newTime = time.makeCopy();
+        newTime.setSchedule(this).setContainer(this.container);
+        this.week[newTime.day].push(newTime);
+        this.week[newTime.day].sort((a, b) => a.start - b.start);
+        return newTime;
+    }
+
     // returns the time that was removed
     removeTime(day, i) {
         i = parseInt(i, 10); // make sure i is a number, not a str

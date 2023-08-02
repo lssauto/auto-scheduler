@@ -1,23 +1,24 @@
 // * container class to organize schedules for individual rooms
 
 class Room {
-    constructor(name) {
+    constructor(name, isRequestRoom=false) {
         this.name = name;
-        this.type = name.includes("Large") ? "LGT" : "SGT";
+        this.type = isRequestRoom ? null : (name.includes("Large") ? Positions.LGT : Positions.SGT);
         this.schedule = new Schedule(this);
 
         this.building = null; // null to designate room is not part of a building
-        this.checkForBuilding();
+        this.checkForBuilding(isRequestRoom);
 
         return this;
     }
 
     // assign a building if it can be found
-    checkForBuilding() {
-        for (const building in buildings) {
-            if (this.name.toUpperCase().includes(building.toUpperCase())) {
+    checkForBuilding(isRequestRoom=false) {
+        for (let building in buildings) {
+            if (this.name.includes(building)) {
                 this.building = building;
                 this.schedule.setRange(buildings[building]);
+                if (!isRequestRoom) buildings[building].hasRooms = true;
             }
         }
     }

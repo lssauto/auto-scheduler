@@ -95,13 +95,21 @@ function updateRoomDisplay(name) {
 // display rooms by adding their display string to the page
 function displayRooms() {
     console.log("Rooms Map:\n", rooms);
+    console.log("Request Rooms Map:\n", requestRooms);
     let roomContainer = document.getElementById('roomContainer');
-    roomContainer.innerHTML = "";
     let str = "";
 
     for (let room in rooms) {
         str += `<div id='${room}'>`;
         str += rooms[room].display();
+        str += "</br>";
+        str += ("=".repeat(50)) + "</br></div>";
+    }
+
+    str += "</br><hr><hr><h1>Registrar Requests:</h1></br>";
+    for (let room in requestRooms) {
+        str += `<div id='${room}'>`;
+        str += requestRooms[room].display();
         str += "</br>";
         str += ("=".repeat(50)) + "</br></div>";
     }
@@ -113,16 +121,24 @@ function displayBuildings() {
     console.log("Buildings:\n", buildings);
 
     let buildingContainer = document.getElementById("buildingContainer");
-    buildingContainer.innerHTML = "</br><b>Buildings:</b></br>";
-
+    let str = "</br><b>Buildings:</b></br>";
     for (const name in buildings) {
         const building = buildings[name];
         let days = "";
         for (let day of building.days) { days += day + " "; }
-        buildingContainer.innerHTML += `| ${name}: ${days} ${convertTimeToString(building.start)} - ${convertTimeToString(building.end)} |</br>`;
+        str += "<p class='building'>";
+        str += `| <b>${name}</b>: ${days} ${convertTimeToString(building.start)} - ${convertTimeToString(building.end)} | `;
+        str += `<button type='submit' onclick="filterRooms('${name}')">Filter Rooms</button>`;
+        str += "</p><br>";
     }
-    buildingContainer.innerHTML += "</br>";
+    str += `<button type='submit' onclick="filterRooms('Request')">Filter Registrar Requests</button><br>`;
+    str += `<button type='submit' onclick="filterRooms('any')">Show All Rooms</button>`;
+    str += "<br>";
+    buildingContainer.innerHTML = str;
 
+    if (rooms != null) {
+        displayRooms();
+    }
     if (tutors != null) {
         displayTutors();
     }
