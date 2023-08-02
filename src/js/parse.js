@@ -2,7 +2,7 @@
 
 // ensures that course IDs follow specific formatting so that they can be matched against each other
 function formatCourseID(courseStr) {
-    let courseId = courseStr.trim().replace("–", "-"); // replace strange hyphen characters with dashes
+    let courseId = courseStr.trim().replaceAll("–", "-"); // replace strange hyphen characters with dashes
 
     let departments = courseId.match(/[A-Z]{2,4}/g);
     let sections = courseId.match(/[0-9]{1,3}[A-Z]*([\s]*-[\s]*([0-9]{1,3}|\(All Sections\)))?/g);
