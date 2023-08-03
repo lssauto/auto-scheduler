@@ -220,10 +220,10 @@ class Schedule {
         let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
         let day = days == null ? "Sun" : days[0];
 
-        let formattedDate = (days == null ? "SUN" : "") + timeStr.trim().toUpperCase().replace(/ /g, "");
+        let formattedDate = (days == null ? "SUN" : "") + timeStr.trim().toUpperCase().replaceAll(" ", "");
 
         for (const time of this.week[day]) {
-            if (formattedDate == time.getDayAndStartStr().toUpperCase().replace(/ /g, "") && time.tag == tag) {
+            if (formattedDate == time.getDayAndStartStr().toUpperCase().replaceAll(" ", "") && time.tag == tag) {
                 return time;
             }
         }
