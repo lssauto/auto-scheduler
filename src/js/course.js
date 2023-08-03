@@ -10,6 +10,8 @@ class Course {
     }
 
     setStatus(status) {
+        let prevStatus = this.status;
+
         // forcefully remove errors if course no longer has an error status
         if (ErrorStatus.includes(this.status) && !ErrorStatus.includes(status)) {
             this.errors = [];
@@ -28,19 +30,20 @@ class Course {
                     if (time.room in rooms) {
                         let room = time.getRoom();
                         let i = room.schedule.findTimeIndex(time);
-                        if (i != null) removeTime(time.room, day, i);
+                        if (i != null) removeTime(time.room, day, i, false); // false flag used to tell removeTime not to update tutor display
                     }
 
                     time.setRoom(null);
                 }
             }
+            this.status = status;
+            updateTutorDisplay(this.tutor.email);
             clearConsole();
             output({type: "info", 
             message: `Since status is being changed to an 'incomplete' status, all room assignments will be removed.`});
         }
 
         // set status
-        let prevStatus = this.status;
         this.status = status;
 
         // update room schedule display to reflect changed styling

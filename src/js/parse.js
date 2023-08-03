@@ -231,13 +231,19 @@ function BuildJSON(titles, data) {
                 obj.scheduler = data[i][j];
 
             } else if (title.includes(Titles.Status)) {
-                if (obj.status == StatusOptions.InProgress && data[i][j] != "") {
+                if (obj.status == StatusOptions.InProgress && StatusList.includes(data[i][j])) {
                     obj.status = data[i][j];
                 } else if (obj.status != StatusOptions.InProgress) {
                     output({
                         type: "warning", 
                         message: `Status of '${data[i][j]}' found in data, but an error was encountered 
                         at a different cell, so status will be replaced with '${obj.status}'.`,
+                        row: i + 2
+                    });
+                } else {
+                    output({
+                        type: "warning", 
+                        message: `Status of '${data[i][j]}' found in data, but this is not a valid status, so status will be replaced with '${obj.status}'.`,
                         row: i + 2
                     });
                 }

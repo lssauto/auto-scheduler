@@ -60,6 +60,12 @@ const StatusOptions = {
     ScheduleConfirmed: "Schedule Confirmed"
 }
 
+// used to check for valid status options in parse.js
+const StatusList = [];
+for (const status in StatusOptions) {
+    StatusList.push(StatusOptions[status]);
+}
+
 // used for styling, class names for css
 const StatusClass = {};
 StatusClass[StatusOptions.PastSubmission] = "old";
