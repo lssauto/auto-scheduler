@@ -24,7 +24,7 @@ class Schedule {
     // course and tag arguments used primarily by tutor schedules for display purposes
     // tutor argument is a string for the tutor's email (key to Tutors map), and is used by room schedules to track which tutor is assigned to the time
     addTime(timeStr, course="COURSE", tag="session", tutor=null, scheduleByLSS=true) {
-        if (timeStr == "N/A") return false;
+        if (timeStr == NA) return false;
 
         // split string at an arbitrary space to prevent days from including the "M" from PM/AM
         let halves = timeStr.split(":");

@@ -1,7 +1,6 @@
-// * function called by "Ignore" buttons on tutor errors.
-// * takes the tutor's email to use as a key in the tutors object, and the index of the conflict that will be ignored.
+// * functions called by "Ignore" and "Remove" buttons on tutor errors.
 
-function ignoreError(email, courseID, i) {
+function ignoreError(email, courseID, i, updateDisplay=true) {
     // if the tutor's email is not in the tutors object, return.
     if (!tutors[email]) return;
 
@@ -15,18 +14,20 @@ function ignoreError(email, courseID, i) {
     tutors[email].courses[courseID].errors.splice(i, 1);
 
     // re-display tutor
-    clearConsole();
-    let para = document.getElementById(email);
-    if (tutors[email].courses[courseID].errors.length == 0) {
-        tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+    if (updateDisplay) {
+        clearConsole();
+        let para = document.getElementById(email);
+        if (tutors[email].courses[courseID].errors.length == 0) {
+            tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+        }
+        if (!tutors[email].hasErrors()) para.remove();
+        updateTutorDisplay(email);
     }
-    if (!tutors[email].hasErrors()) para.remove();
-    updateTutorDisplay(email);
 
     output({type: "success", message: `${error.error} error for ${tutor.name} (${email}) has been ignored.`});
 }
 
-function removeError(email, courseID, i) {
+function removeError(email, courseID, i, updateDisplay=true) {
     // if the tutor's email is not in the tutors object, return.
     if (!tutors[email]) return;
 
@@ -38,12 +39,14 @@ function removeError(email, courseID, i) {
 
     // re-display tutor
     clearConsole();
-    let para = document.getElementById(email);
-    if (tutors[email].courses[courseID].errors.length == 0) {
-        tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+    if (updateDisplay) {
+        let para = document.getElementById(email);
+        if (tutors[email].courses[courseID].errors.length == 0) {
+            tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+        }
+        if (!tutors[email].hasErrors()) para.remove();
+        updateTutorDisplay(email);
     }
-    if (!tutors[email].hasErrors()) para.remove();
-    updateTutorDisplay(email);
 
     output({type: "success", message: `${error.error} error for ${tutor.name} (${email}) has been removed.`});
 }
@@ -67,7 +70,7 @@ function setBuildingPreference(email, course) {
 
 // * =================================================================
 
-function setStatus(email, course) {
+function setStatus(email, course, updateDisplay=true) {
     clearConsole();
     if (!(email in tutors)) {
         output({type: "error", message: `${email} does not exit in tutor list.`});
@@ -87,14 +90,14 @@ function setStatus(email, course) {
             para.remove();
         }
     }
-    updateTutorDisplay(email);
+    if (updateDisplay) updateTutorDisplay(email);
 
     output({type: "success", message: `${tutors[email].name}'s status for sessions supporting ${course} has been set to '${selection}'.`});
 }
 
 // * =================================================================
 
-function removeCourse(email, course) {
+function removeCourse(email, course, updateDisplay=true) {
     if (!(email in tutors)) {
         output({type: "error", message: `${email} does not exit in tutor list.`});
         return;
@@ -123,7 +126,7 @@ function removeCourse(email, course) {
     if (!tutors[email].hasErrors() && para.parentNode.id == "errorsContainer") {
         para.remove();
     }
-    updateTutorDisplay(email);
+    if (updateDisplay) updateTutorDisplay(email);
 }
 
 

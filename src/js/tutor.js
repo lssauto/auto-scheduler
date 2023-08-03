@@ -110,6 +110,7 @@ class Tutor {
 
             // session times
             for (let time of course.times) {
+                
                 let error = this.schedule.addTime(time.time, id, Tags.Session, null, time.schedule);
                 if (error != null) {
                     if (error.error == Errors.Formatting) {
@@ -119,9 +120,13 @@ class Tutor {
                             message: "Session time could not be recognized: " + time.time
                         });
                     } else {
+                        if (time.room != null) {
+                            error.time.setRoom(time.room);
+                        }
                         course.errors.push(error);
                     }
                 } else if (time.room != null) {
+                    console.log(time.room);
                     let scheduleTime = this.schedule.findTimeByStr(time.time);
                     scheduleTime.setRoom(time.room);
                     if (time.room in rooms) {
@@ -130,10 +135,22 @@ class Tutor {
                 }
             }
 
-            if (course.errors.length > 0) {
-                course.setStatus(StatusOptions.SchedulingError);
-
+            
+            // ignore all errors, assuming they've already been resolved
+            if (FinishedStatus.includes(course.status)) {
+                for (let error of course.errors) {
+                    this.schedule.pushTime(error.time);
+                    if (error.time.hasRoomAssigned() && error.time.room in rooms) {
+                        rooms[error.time.room].addTime(error.time.getDayAndStartStr(), id, this.email);
+                    }
+                }
+                course.errors = [];
             }
+            
+            if (course.errors.length > 0) {
+                course.setStatus(StatusOptions.SchedulingError, false); // false flag to prevent repeated display updates
+            }
+
             this.courses[id] = course;
         }
     }

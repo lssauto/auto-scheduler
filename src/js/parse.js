@@ -194,13 +194,13 @@ function BuildJSON(titles, data) {
                     });
                     obj.status = StatusOptions.WrongCourse;
                 }
-                obj.class = course == null ? data[i][j].trim().replace("–", "-").toUpperCase() : course;
+                obj.class = course == null ? data[i][j].trim().replaceAll("–", "-").toUpperCase() : course;
 
             } else if (title.includes(Titles.Position)) {
                 if (obj.email in expectedTutors && !ErrorStatus.includes(obj.status)) {
                     obj.position = expectedTutors[obj.email].courses[obj.class];
                 } else {
-                    obj.position = data[i][j].includes("Large") ? "LGT" : "SGT";
+                    obj.position = data[i][j].includes("Large") ? Positions.LGT : Positions.SGT;
                 }
 
             } else if (title.includes(Titles.Lectures)) {
@@ -211,14 +211,14 @@ function BuildJSON(titles, data) {
                 }
 
             } else if (title.includes(Titles.OfficeHours)) {
-                if (data[i][j] == "" || data[i][j].includes("N/A")) {
+                if (data[i][j] == "" || data[i][j].includes(NA)) {
                     obj.officeHours = [];
                 } else {
                     obj.officeHours = data[i][j].split(",");
                 }
 
             } else if (title.includes(Titles.Discord)) {
-                if (data[i][j] == "" || data[i][j].includes("N/A")) {
+                if (data[i][j] == "" || data[i][j].includes(NA)) {
                     obj.discord = [];
                 } else {
                     obj.discord = data[i][j].split(",");
@@ -240,7 +240,7 @@ function BuildJSON(titles, data) {
                         at a different cell, so status will be replaced with '${obj.status}'.`,
                         row: i + 2
                     });
-                } else {
+                } else if (data[i][j] != "") {
                     output({
                         type: "warning", 
                         message: `Status of '${data[i][j]}' found in data, but this is not a valid status, so status will be replaced with '${obj.status}'.`,
@@ -249,7 +249,7 @@ function BuildJSON(titles, data) {
                 }
 
             } else if (title.includes(Titles.SessionOption)) { // session times
-                if ( !(data[i][j] == "" || data[i][j].includes("N/A")) ) {
+                if ( !(data[i][j] == "" || data[i][j].includes(NA)) ) {
                     let schedule = true;
                     let field = data[i][j + 1].trim().toLowerCase();
 
@@ -260,7 +260,7 @@ function BuildJSON(titles, data) {
                         schedule = false;
                         if (field.includes(RoomResponse.AssignedToTutor)) time.room = data[i][j + 1];
                         
-                    } else if (!field.includes(RoomResponse.ScheduleByLSS) && !field.includes(RoomResponse.ScheduleByTutor) && !field.includes("n/a")) {
+                    } else if (!field.includes(RoomResponse.ScheduleByLSS) && !field.includes(RoomResponse.ScheduleByTutor) && !field.includes(NA.toLowerCase())) {
                         time.room = data[i][j + 1];
                     }
                     time.schedule = schedule;

@@ -9,7 +9,7 @@ class Course {
         return this;
     }
 
-    setStatus(status) {
+    setStatus(status, updateDisplay=true) {
         let prevStatus = this.status;
 
         // forcefully remove errors if course no longer has an error status
@@ -37,7 +37,7 @@ class Course {
                 }
             }
             this.status = status;
-            updateTutorDisplay(this.tutor.email);
+            if (updateDisplay) updateTutorDisplay(this.tutor.email);
             clearConsole();
             output({type: "info", 
             message: `Since status is being changed to an 'incomplete' status, all room assignments will be removed.`});

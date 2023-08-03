@@ -91,6 +91,8 @@ function copyTutorTable(event) {
                     if (time.hasRoomAssigned()) {
                         tutorMatrix[r][c + 1] = time.room;
                     }
+                } else {
+                    tutorMatrix[r][c] = NA;
                 }
                 c++;
 

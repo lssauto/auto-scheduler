@@ -1,46 +1,42 @@
+
+function removeTimeFromTutor(email, day, i) {
+    let tutor = tutors[email];
+    let time = tutor.schedule.removeTime(day, i);
+    
+    if (time.hasRoomAssigned()) {
+        let room = time.getRoom();
+        room.schedule.removeTime(day, room.schedule.findTimeIndex(time));
+        updateRoomDisplay(time.room);
+        output({type: "info", message: `Time will also be removed from ${time.room}.`});
+    }
+    
+    updateTutorDisplay(email);
+    output({type: "success", message: `Time for ${time.getDayAndStartStr()} has been removed from ${email}'s schedule.`});
+}
+
+function removeTimeFromRoom(name, day, i, updateStatus) {
+    let room = name in rooms ? rooms[name] : requestRooms[name];
+    let time = room.schedule.removeTime(day, i);
+    
+    if (updateStatus && tutors != null && time.tutor in tutors) {
+        time.getCourse().setStatus(StatusOptions.InProgress);
+        updateTutorDisplay(time.tutor);
+        output({type: "info", message: `Room assignment will also be removed from ${time.tutor}, and course will be marked as '${StatusOptions.InProgress}'.`});
+    }
+    
+    updateRoomDisplay(name);
+    output({type: "success", message: `Time for ${time.getDayAndStartStr()} has been removed from ${name}'s schedule.`});
+}
+
 // remove a time from a room's or tutor's schedule
 function removeTime(containerID, day, i, updateStatus=true) {
     clearConsole();
 
     if (containerID in tutors) {
-        let tutor = tutors[containerID];
-        let time = tutor.schedule.removeTime(day, i);
+        removeTimeFromTutor(containerID, day, i);
 
-        if (time.hasRoomAssigned()) {
-            let room = time.getRoom();
-            room.schedule.removeTime(day, room.schedule.findTimeIndex(time));
-            updateRoomDisplay(time.room);
-            output({type: "info", message: `Time will also be removed from ${time.room}.`});
-        }
-
-        updateTutorDisplay(containerID);
-        output({type: "success", message: `Time for ${time.getDayAndStartStr()} has been removed from ${containerID}'s schedule.`});
-
-    } else if (containerID in rooms) {
-        let room = rooms[containerID];
-        let time = room.schedule.removeTime(day, i);
-
-        if (updateStatus && tutors != null && time.tutor in tutors) {
-            time.getCourse().setStatus(StatusOptions.InProgress);
-            updateTutorDisplay(time.tutor);
-            output({type: "info", message: `Room assignment will also be removed from ${time.tutor}, and course will be marked as '${StatusOptions.InProgress}'.`});
-        }
-
-        updateRoomDisplay(containerID);
-        output({type: "success", message: `Time for ${time.getDayAndStartStr()} has been removed from ${containerID}'s schedule.`});
-
-    } else if (containerID in requestRooms) {
-        let room = requestRooms[containerID];
-        let time = room.schedule.removeTime(day, i);
-
-        if (updateStatus && tutors != null && time.tutor in tutors) {
-            time.getCourse().setStatus(StatusOptions.InProgress);
-            updateTutorDisplay(time.tutor);
-            output({type: "info", message: `Room assignment will also be removed from ${time.tutor}, and course will be marked as '${StatusOptions.InProgress}'.`});
-        }
-
-        updateRoomDisplay(containerID);
-        output({type: "success", message: `Time for ${time.getDayAndStartStr()} has been removed from ${containerID}'s schedule.`});
+    } else if (containerID in rooms || containerID in requestRooms) {
+        removeTimeFromRoom(containerID, day, i, updateStatus);
 
     } else {
         output({type: 'error', 

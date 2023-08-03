@@ -39,6 +39,8 @@ const RoomResponse = {
     AssignedToTutor: "scheduled by tutor"
 }
 
+NA = "N/A"; // in case this changes for some reason
+
 const Positions = {
     LGT: "LGT",
     SGT: "SGT"
