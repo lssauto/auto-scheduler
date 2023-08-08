@@ -6,6 +6,7 @@ class Course {
         this.id = id;
         this.status = StatusOptions.InProgress;
         this.errors = [];
+        this.hadErrors = false;
         return this;
     }
 
@@ -13,14 +14,15 @@ class Course {
         let prevStatus = this.status;
 
         // forcefully remove errors if course no longer has an error status
-        if (ErrorStatus.includes(this.status) && !ErrorStatus.includes(status)) {
+        if (ErrorStatus.includes(this.status) && !ErrorStatus.includes(status) &&  this.errors.length > 0) {
             this.errors = [];
+            this.hadErrors = true;
             output({type: "info", 
             message: `Since status is being changed to a non-error status, all errors will be removed.`});
         }
 
         // if schedule was complete, but want to redo schedule, remove all rooms from sessions
-        if (FinishedStatus.includes(this.status) && !FinishedStatus.includes(status)) {
+        if (ScheduledStatus.includes(this.status) && !ScheduledStatus.includes(status)) {
             for (const day in this.tutor.schedule.week) {
                 let times = this.tutor.schedule.week[day];
                 for (let time of times) {
@@ -48,13 +50,16 @@ class Course {
 
         // update room schedule display to reflect changed styling
         if (status == StatusOptions.ScheduleConfirmed || (status != StatusOptions.ScheduleConfirmed && prevStatus == StatusOptions.ScheduleConfirmed)) {
+            let updatedRooms = [];
             for (const day in this.tutor.schedule.week) {
                 let times = this.tutor.schedule.week[day];
                 for (let time of times) {
                     if (!time.hasRoomAssigned()) continue;
+                    if (updatedRooms.includes(time.room)) continue;
 
                     if (time.room in rooms) {
                         updateRoomDisplay(time.room);
+                        updatedRooms.push(time.room);
                     }
                 }
             }
@@ -108,8 +113,12 @@ class Course {
 
     setPreference(preference) {
         this.preference = preference;
-        if (FinishedStatus.includes(this.status)) {
-            this.setStatus(StatusOptions.InProgress);
+        if (ScheduledStatus.includes(this.status)) {
+            if (this.hadErrors) {
+                this.setStatus(StatusOptions.ErrorsResolved);
+            } else {
+                this.setStatus(StatusOptions.InProgress);
+            }
         }
         return this;
     }

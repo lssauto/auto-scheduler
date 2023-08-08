@@ -15,19 +15,13 @@ function output(msg) {
         p.innerHTML += key + ": " + msg[key] + "<br>";
     }
     consoleDiv.appendChild(p);
-
-    // resize header
-    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
 }
 
 function clearConsole() {
     consoleDiv.innerHTML = "";
-    
-    // resize header
-    contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
 }
 
-let hidden = false;
+/*let hidden = false;
 function hideConsole() {
     let button = document.getElementById("ConsoleHideButton");
     if (!hidden) {
@@ -41,4 +35,4 @@ function hideConsole() {
     }
     // resize header
     contentDiv.style.paddingTop = headerDiv.clientHeight + "px";
-}
+}*/

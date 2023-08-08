@@ -3,7 +3,15 @@
 class Room {
     constructor(name, isRequestRoom=false) {
         this.name = name;
-        this.type = isRequestRoom ? null : (name.includes("Large") ? Positions.LGT : Positions.SGT);
+        this.type = null;
+        if (!isRequestRoom) {
+            this.type = DefaultPosition;
+            for (const key in PositionKeys) {
+                if (name.toLowerCase().includes(PositionKeys[key])) {
+                    this.type = Positions[key];
+                }
+            }
+        }
         this.schedule = new Schedule(this);
 
         this.building = null; // null to designate room is not part of a building

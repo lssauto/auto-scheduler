@@ -41,9 +41,10 @@ function searchTutors() {
         }
     }
 
+    let results = [];
+
     // search by course
     const course = formatCourseID(key);
-    let results = [];
     if (course != null) {
         for (const email in tutors) {
             const tutor = tutors[email];
@@ -54,14 +55,40 @@ function searchTutors() {
             }
         }
 
-        document.getElementById('expectedTutorContainer').style.display = "none";
-
-        let tutorContainer = document.getElementById('tutorContainer');
+        expectedTutorContainer.style.display = "none";
         tutorContainer.style.display = "block";
-
-        let errorsContainer = document.getElementById('errorsContainer');
         errorsContainer.style.display = "block";
 
+        let str = `<h1>Tutors Assigned to ${course}:</h1></br>`;
+        let errStr = `<hr><h1>Tutors Assigned to ${course} And Have Errors:</h1></br>`;
+        for (const email of results) {
+            if (tutors[email].hasErrors()) {
+                errStr += tutors[email].createDivAsHTML();
+            } else {
+                str += tutors[email].createDivAsHTML();
+            }
+        }
+        tutorContainer.innerHTML = str;
+        errorsContainer.innerHTML = errStr;
+        return;
+    }
+
+    // search by department
+    const dep = key.toUpperCase();
+    results = [];
+    for (const email in tutors) {
+        const tutor = tutors[email];
+        for (const courseID in tutor.courses) {
+            if (courseID.includes(dep)) {
+                results.push(email);
+            }
+        }
+    }
+    if (results.length > 0) {
+        expectedTutorContainer.style.display = "none";
+        tutorContainer.style.display = "block";
+        errorsContainer.style.display = "block";
+    
         let str = `<h1>Tutors Assigned to ${course}:</h1></br>`;
         let errStr = `<hr><h1>Tutors Assigned to ${course} And Have Errors:</h1></br>`;
         for (const email of results) {

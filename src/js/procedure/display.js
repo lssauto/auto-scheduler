@@ -1,17 +1,15 @@
 // displays all tutor's expected courses and positions
 function displayExpectedTutors() {
     console.log("Expected Tutors Map:\n", expectedTutors);
-    let tutorContainer = document.getElementById('expectedTutorContainer');
-    tutorContainer.style.display = "block";
-    tutorContainer.innerHTML = "";
-
-    if (tutors != null) {
-        tutorContainer.innerHTML += "<hr><hr><h1>Missing Tutors:</h1></br>";
-    } else {
-        tutorContainer.innerHTML += "<h1>Expected Tutor Courses and Positions:</h1></br>";
-    }
+    expectedTutorContainer.style.display = "block";
 
     let str = "";
+    if (tutors != null) {
+        str += "<hr><hr><h1>Missing Tutors:</h1></br>";
+    } else {
+        str += "<h1>Expected Tutor Courses and Positions:</h1></br>";
+    }
+
 
     for (const email in expectedTutors) {
         if (tutors != null && email in tutors) continue;
@@ -28,7 +26,7 @@ function displayExpectedTutors() {
         str += ("=".repeat(50)) + "</br>";
     }
 
-    tutorContainer.innerHTML += str;
+    expectedTutorContainer.innerHTML = str;
 }
 
 // * =================================================================
@@ -39,9 +37,9 @@ function updateTutorDisplay(email) {
     if (para == null) {
         let container = null;
         if (tutors[email].hasErrors()) {
-            container = document.getElementById('errorsContainer');
+            container = errorsContainer;
         } else {
-            container = document.getElementById('tutorContainer');
+            container = tutorContainer;
         }
         if (container.style.display == 'none') return;
         container.appendChild(tutors[email].createDiv());
@@ -54,7 +52,6 @@ function updateTutorDisplay(email) {
 // * =================================================================
 
 function displayErrors() {
-    let errorsContainer = document.getElementById('errorsContainer');
     errorsContainer.style.display = "block";
     str = "</br><hr><hr><h1>Tutors With Errors:</h1></br>";
     for (const tutor in tutors) {
@@ -67,7 +64,7 @@ function displayErrors() {
 // display tutors by adding their display string to the page
 function displayTutors() {
     console.log("Tutors Map:\n", tutors);
-    let tutorContainer = document.getElementById('tutorContainer');
+    console.log("Positions Map:\n", positionsMap);
     tutorContainer.style.display = "block";
     str = "<h1>Tutor Schedules:</h1></br>";
     for (const tutor in tutors) {

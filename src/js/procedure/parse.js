@@ -4,6 +4,8 @@
 function formatCourseID(courseStr) {
     let courseId = courseStr.trim().replaceAll("–", "-"); // replace strange hyphen characters with dashes
 
+    if (courseId == "" || courseId == NA) return NA; // if position is courseless
+
     let departments = courseId.match(/[A-Z]{2,4}/g);
     let sections = courseId.match(/[0-9]{1,3}[A-Z]*([\s]*-[\s]*([0-9]{1,3}|\(All Sections\)))?/g);
     
@@ -81,20 +83,31 @@ function parseExpectedTutors(matrix) {
         } else {
             tutor = { email: email, name: row[1], courses: {} };
         }
-
-        // ensure course id follows specific formatting
-        let course = formatCourseID(row[2]);
-        if (course == null) {
-            output({
-                type: "warning", 
-                message: `Course could not be recognized, contents: ${row[2]}. Belonged to: ${row[1]} (${email}). Skipping to next row.`,
-                row: r + 1
-            });
-            continue;
+        
+        let position = DefaultPosition;
+        for (const key in PositionKeys) {
+            if (row[3].toLowerCase().includes(PositionKeys[key])) {
+                position = Positions[key];
+            }
         }
-        //console.log(course);
 
-        let position = row[3].includes("Large") ? Positions.LGT : Positions.SGT; // TODO: add writing and study hall tutors
+        // course may or may not exist
+        let course = null;
+        if (CourselessPositions.includes(position)) {
+            course = NA;
+        
+        } else {
+            course = formatCourseID(row[2]);
+            if (course == null) {
+                output({
+                    type: "warning", 
+                    message: `Course could not be recognized, contents: ${row[2]}. Belonged to: ${row[1]} (${email}). Skipping to next row.`,
+                    row: r + 1
+                });
+                continue;
+            }
+        }
+
 
         tutor.courses[course] = position;
         expectedTutors[email] = tutor;
@@ -137,12 +150,14 @@ function parseExpectedTutors(matrix) {
 // ?  3. name - tutor's first and last name
 // ?  4. resubmission - whether this is a resubmission
 // ?  5. returnee - whether this is a returning tutor
-// ?  6. class - class tutor is submitting this form for
+// ?  6. course - class tutor is submitting this form for
 // ?  7. position - position tutor is submitting this form for
 // ?  8. lectures - list of lecture times, split by ","
 // ?  9. officeHours - list of office hours, split by ","
 // ?  10. discord - list of discord times, split by ","
 // ?  11. times - list of sessions times in format {time: "response string", schedule: bool}, schedule says whether lss needs to schedule the session
+// ?  12. status - the current scheduling status according to that column
+// ?  13. scheduler - the name of the staff member who created that schedule
 
 function BuildJSON(titles, data) {
     let objs = [];
@@ -194,13 +209,18 @@ function BuildJSON(titles, data) {
                     });
                     obj.status = StatusOptions.WrongCourse;
                 }
-                obj.class = course == null ? data[i][j].trim().replaceAll("–", "-").toUpperCase() : course;
+                obj.course = course == null ? data[i][j].trim().replaceAll("–", "-").toUpperCase() : course;
 
             } else if (title.includes(Titles.Position)) {
                 if (obj.email in expectedTutors && !ErrorStatus.includes(obj.status)) {
-                    obj.position = expectedTutors[obj.email].courses[obj.class];
+                    obj.position = expectedTutors[obj.email].courses[obj.course];
                 } else {
-                    obj.position = data[i][j].includes("Large") ? Positions.LGT : Positions.SGT;
+                    obj.position = DefaultPosition;
+                    for (const key in PositionKeys) {
+                        if (data[i][j].toLowerCase().includes(PositionKeys[key])) {
+                            obj.position = Positions[key];
+                        }
+                    }
                 }
 
             } else if (title.includes(Titles.Lectures)) {
@@ -294,6 +314,7 @@ function BuildTutors(jsonObjs) {
         } else {
             let tutor = new Tutor(row);
             tutors[tutor.email] = tutor;
+            positionsMap[row.position].push(tutor.email);
         }
     }
 }
@@ -343,11 +364,11 @@ function BuildRooms(matrix) {
     for (let buildingName in buildings) {
         let building = buildings[buildingName];
         if (!building.hasRooms) {
-            let requestRoom = new Room("Request Room In " + buildingName, true);
+            let requestRoom = new Room(FixedRooms.SpecificRequest + buildingName, true);
             requestRooms[requestRoom.name] = requestRoom;
         }
     }
-    let generalRequestRoom = new Room("Request From Registrar", true);
+    let generalRequestRoom = new Room(FixedRooms.Request, true);
     requestRooms[generalRequestRoom.name] = generalRequestRoom;
 }
 

@@ -5,6 +5,7 @@
 let scheduler = null;
 
 let tutors = null;
+let preferenceList = [];
 let tutorJSONObjs = null;
 let tutorMatrix = null;
 let responseColumnTitles = null;
@@ -31,34 +32,94 @@ const Titles = {
     SessionOption: "session option",
     Scheduler: "scheduler",
     Status: "status"
-}
+};
 
 const RoomResponse = {
     ScheduleByLSS: "lss will book me space",
     ScheduleByTutor: "i'll book my own space",
     AssignedToTutor: "scheduled by tutor"
-}
+};
 
 NA = "N/A"; // in case this changes for some reason
 
+// * Positions ==============================================================
+
+// used to match position titles from table data, titles are set to lower case
+const PositionKeys = {
+    LGT: "large",
+    SGT: "small",
+    SI: "si",
+    WR: "writing",
+    SH: "study hall"
+};
+
 const Positions = {
     LGT: "LGT",
-    SGT: "SGT"
+    SGT: "SGT",
+    SI: "SI",
+    WR: "Writing",
+    SH: "Study Hall"
+};
+
+// map of positions to contain tutor emails
+let positionsMap = {};
+for (const key in Positions) {
+    positionsMap[Positions[key]] = [];
 }
 
-const PositionSessionLimit = {
+const DefaultPosition = Positions.SGT;
 
+// any positions that don't expect course IDs, course ID is replaced with "N/A"
+const CourselessPositions = [
+    Positions.WR,
+    Positions.SH
+]
+
+// max sessions for each position
+const PositionSessionLimit = {};
+PositionSessionLimit[Positions.LGT] = 5;
+PositionSessionLimit[Positions.SGT] = 4;
+PositionSessionLimit[Positions.SI] = 5;
+PositionSessionLimit[Positions.WR] = 5;
+PositionSessionLimit[Positions.SH] = 2;
+
+// once number of sessions reaches this limit, any more sessions will be registrar requests
+const PositionRequestLimit = {};
+PositionRequestLimit[Positions.LGT] = 3;
+PositionRequestLimit[Positions.SGT] = 3;
+PositionRequestLimit[Positions.SI] = 3;
+
+// * Rooms ===================================================================
+
+const FixedRooms = {
+    TutorScheduled: "Scheduled By Tutor",
+    Request: "Request From Registrar",
+    SpecificRequest: "Request Room In ", // building name expected to by concat to end of str
+    Discord: "Discord Time"
 }
 
-// * Status Values
+// used to determine if a tutor's position allows them to be scheduled in that room
+// key is the type of the room, and the value is a list of acceptable tutor positions
+const RoomPositionFilter = {};
+RoomPositionFilter[Positions.LGT] = [Positions.LGT, Positions.SI, Positions.SH];
+RoomPositionFilter[Positions.SGT] = [Positions.SGT];
+RoomPositionFilter[Positions.SI] = [Positions.SI];
+RoomPositionFilter[Positions.WR] = [Positions.WR];
+RoomPositionFilter[Positions.SH] = [Positions.SH];
+
+// * Status Values ===========================================================
 
 const StatusOptions = {
     PastSubmission: "Past Submission",
     WrongCourse: "Incorrect Course ID or Position",
     SchedulingError: "Invalid Time or Conflicts",
     Missing: "Email Not In Expected Tutors List",
+    ErrorsResolved: "All Errors Resolved",
     InProgress: "Scheduling In Progress",
     SessionsScheduled: "Sessions Scheduled",
+    SlackNote: "Slack Note Sent",
+    CalendarPosted: "Posted On Calendar",
+    TutorHubPosted: "Posted On TutorHub",
     ScheduleConfirmed: "Schedule Confirmed"
 }
 
@@ -74,24 +135,40 @@ StatusClass[StatusOptions.PastSubmission] = "old";
 StatusClass[StatusOptions.WrongCourse] = "wrong-course";
 StatusClass[StatusOptions.SchedulingError] = "scheduling-error";
 StatusClass[StatusOptions.Missing] = "missing";
+StatusClass[StatusOptions.ErrorsResolved] = "in-progress";
 StatusClass[StatusOptions.InProgress] = "in-progress";
 StatusClass[StatusOptions.SessionsScheduled] = "scheduled";
+StatusClass[StatusOptions.SlackNote] = "scheduled";
+StatusClass[StatusOptions.CalendarPosted] = "posted";
+StatusClass[StatusOptions.TutorHubPosted] = "posted";
 StatusClass[StatusOptions.ScheduleConfirmed] = "confirmed";
 
 
 // arrays for .includes(), used to check if a status is part of a group of statuses
+const ProgressStatus = [
+    StatusOptions.ErrorsResolved,
+    StatusOptions.InProgress
+]
+
 const ErrorStatus = [
     StatusOptions.WrongCourse,
     StatusOptions.SchedulingError,
     StatusOptions.Missing
 ]
 
-const FinishedStatus = [
+const ScheduledStatus = [
     StatusOptions.SessionsScheduled,
+    StatusOptions.SlackNote,
+    StatusOptions.CalendarPosted,
+    StatusOptions.TutorHubPosted,
     StatusOptions.ScheduleConfirmed
 ]
 
-// * Time Tags
+const FinishedStatus = [
+    StatusOptions.ScheduleConfirmed
+]
+
+// * Time Tags ===========================================================
 
 const Tags = {
     Session: "session",

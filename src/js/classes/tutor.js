@@ -20,7 +20,7 @@ class Tutor {
 
     // wrapper around process for adding a course
     AddCourse(obj) {
-        let course = new Course(this, obj.class);
+        let course = new Course(this, obj.course);
         course.setTimestamp(obj.timestamp)
             .setPosition(obj.position)
             .setLectures(obj.lectures)
@@ -137,7 +137,7 @@ class Tutor {
 
             
             // ignore all errors, assuming they've already been resolved
-            if (FinishedStatus.includes(course.status)) {
+            if (course.errors.length > 0 && (FinishedStatus.includes(course.status) || course.status == StatusOptions.ErrorsResolved)) {
                 for (let error of course.errors) {
                     this.schedule.pushTime(error.time);
                     if (error.time.hasRoomAssigned() && error.time.room in rooms) {
@@ -145,6 +145,7 @@ class Tutor {
                     }
                 }
                 course.errors = [];
+                course.hadErrors = true;
             }
             
             if (course.errors.length > 0) {

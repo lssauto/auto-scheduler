@@ -1,10 +1,8 @@
 // * used to filter which tutors are displayed
 
 function filterErrors() {
-    document.getElementById('tutorContainer').style.display = "none";
-    document.getElementById('expectedTutorContainer').style.display = "block";
-
-    let errorsContainer = document.getElementById('errorsContainer');
+    tutorContainer.style.display = "none";
+    expectedTutorContainer.style.display = "block";
     errorsContainer.style.display = "block";
 
     let errors = "<h1>Tutors With Errors:</h1></br>";
@@ -18,12 +16,8 @@ function filterErrors() {
 }
 
 function filterComments() {
-    document.getElementById('expectedTutorContainer').style.display = "none";
-
-    let tutorContainer = document.getElementById('tutorContainer');
+    expectedTutorContainer.style.display = "none";
     tutorContainer.style.display = "block";
-
-    let errorsContainer = document.getElementById('errorsContainer');
     errorsContainer.style.display = "block";
 
     let str = "<h1>Tutors With Comments:</h1></br>";
@@ -51,10 +45,8 @@ function filterComments() {
 }
 
 function filterRegistrar() {
-    document.getElementById('errorsContainer').style.display = "none";
-    document.getElementById('expectedTutorContainer').style.display = "none";
-
-    let tutorContainer = document.getElementById('tutorContainer');
+    errorsContainer.style.display = "none";
+    expectedTutorContainer.style.display = "none";
     tutorContainer.style.display = "block";
 
     let str = "<h1>Tutors With Registrar Requests:</h1></br>";
@@ -80,6 +72,25 @@ function filterRegistrar() {
     tutorContainer.innerHTML = str;
 }
 
+function filterByPosition(position) {
+    expectedTutorContainer.style.display = "none";
+    tutorContainer.style.display = "block";
+    errorsContainer.style.display = "block";
+
+    let str = `<h1>All ${position} Tutors:</h1></br>`;
+    let errStr = `<hr><h1>All ${position} Tutors With Errors:</h1></br>`;
+    for (const email of positionsMap[position]) {
+        if (tutors[email].hasErrors()) {
+            errStr += tutors[email].createDivAsHTML();
+        } else {
+            str += tutors[email].createDivAsHTML();
+        }
+    }
+
+    tutorContainer.innerHTML = str;
+    errorsContainer.innerHTML = errStr;
+}
+
 // * interface function that will call specific filter functions
 function filterTutors() {
     clearConsole();
@@ -97,8 +108,8 @@ function filterTutors() {
             break;
 
         case "expected":
-            document.getElementById('tutorContainer').style.display = "none";
-            document.getElementById('errorsContainer').style.display = "none";
+            tutorContainer.style.display = "none";
+            errorsContainer.style.display = "none";
             displayExpectedTutors();
             break;
 
@@ -113,9 +124,18 @@ function filterTutors() {
             }
             filterRegistrar();
             break;
+        
+        case "all":
+            displayAllTutors();
+            break;
 
         default:
-            displayAllTutors();
+            if (selection in Positions) {
+                filterByPosition(Positions[selection]);
+            } else {
+                displayAllTutors();
+                output({type: "warning", message: "Failed to filter tutors based on " + selection});
+            }
             break;
     }
 

@@ -18,7 +18,7 @@ function ignoreError(email, courseID, i, updateDisplay=true) {
         clearConsole();
         let para = document.getElementById(email);
         if (tutors[email].courses[courseID].errors.length == 0) {
-            tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+            tutors[email].courses[courseID].setStatus(StatusOptions.ErrorsResolved);
         }
         if (!tutors[email].hasErrors()) para.remove();
         updateTutorDisplay(email);
@@ -42,7 +42,7 @@ function removeError(email, courseID, i, updateDisplay=true) {
     if (updateDisplay) {
         let para = document.getElementById(email);
         if (tutors[email].courses[courseID].errors.length == 0) {
-            tutors[email].courses[courseID].setStatus(StatusOptions.InProgress);
+            tutors[email].courses[courseID].setStatus(StatusOptions.ErrorsResolved);
         }
         if (!tutors[email].hasErrors()) para.remove();
         updateTutorDisplay(email);
@@ -64,6 +64,11 @@ function setBuildingPreference(email, course) {
     let selection = dropdown.options[dropdown.selectedIndex].value;
 
     tutors[email].courses[course].setPreference(selection);
+    if (selection != "any" && !preferenceList.includes(email)) {
+        preferenceList.push(email);
+    } else if (selection == "any") {
+        preferenceList.splice(preferenceList.indexOf(email), 1);
+    }
 
     output({type: "success", message: `${tutors[email].name}'s preferred building for sessions supporting ${course} has been set to ${selection}.`});
 }
@@ -81,7 +86,7 @@ function setStatus(email, course, updateDisplay=true) {
     let selection = dropdown.options[dropdown.selectedIndex].value;
 
     let previous = tutors[email].courses[course].status
-    tutors[email].courses[course].setStatus(selection);
+    tutors[email].courses[course].setStatus(selection, false); // false flag to not update tutor display
 
     // re-display tutor
     para = document.getElementById(email);

@@ -243,7 +243,7 @@ class Schedule {
                 const time = times[i];
 
                 // if displaying schedule for tutor with assigned sessions
-                if (this.container instanceof Tutor && FinishedStatus.includes(this.container.courses[time.course].status)) {
+                if (this.container instanceof Tutor && ScheduledStatus.includes(this.container.courses[time.course].status)) {
                     if (!time.hasRoomAssigned()) continue;
                 }
 

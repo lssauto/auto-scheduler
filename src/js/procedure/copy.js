@@ -144,11 +144,11 @@ function copyTutorSchedules(event) {
 
         str += "Courses\t";
         for (let courseID in tutor.courses) {
-            str += `${courseID} , ${tutor.courses[courseID].position}\t`;
+            str += `${courseID} (${tutor.courses[courseID].position}): ${tutor.courses[courseID].status}\t`;
         }
         str += "\n";
 
-        str += tutor.schedule.copy(true);
+        str += tutor.schedule.copy(true); // true flag to only copy times will room assignments
         str += "\n";
     }
 
@@ -184,12 +184,3 @@ function copyRoomSchedules(event) {
 
     output({type: "success", message: "Room schedules copied to clipboard!"});
 }
-
-let copyTutorTableButton = document.getElementById('copyTutorTableButton');
-copyTutorTableButton.addEventListener('click', copyTutorTable);
-
-let copyTutorSchedulesButton = document.getElementById('copyTutorSchedulesButton');
-copyTutorSchedulesButton.addEventListener('click', copyTutorSchedules);
-
-let RoomCopyButton = document.getElementById('RoomCopyButton');
-RoomCopyButton.addEventListener('click', copyRoomSchedules);
