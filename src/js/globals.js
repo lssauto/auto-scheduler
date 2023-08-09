@@ -184,3 +184,20 @@ const Errors = {
     Overbooked: "over-booked",
     Formatting: "formatting"
 }
+
+// * Scheduler Strategies ================================================
+
+// specific scheduler strategies to be used for each position
+// ? Options: defaultScheduler, writingScheduler, studyHallScheduler
+const ScheduleBuilders = {};
+ScheduleBuilders[Positions.LGT] = defaultScheduler;
+ScheduleBuilders[Positions.SGT] = defaultScheduler;
+ScheduleBuilders[Positions.SI] = defaultScheduler;
+ScheduleBuilders[Positions.WR] = writingScheduler;
+ScheduleBuilders[Positions.SH] = studyHallScheduler;
+
+// returned by specific schedulers, tells main buildSchedules() function how to update session counts
+const NO_SESSION = 0;
+const REQUEST = 1;
+const SCHEDULED = 2;
+const TUTOR_SCHEDULED = 3;
