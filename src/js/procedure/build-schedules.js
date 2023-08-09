@@ -30,16 +30,17 @@ function defaultScheduler(tutor, session, courseSessionCount) {
         return TUTOR_SCHEDULED;
     }
 
+    // * schedule for preferred building
     if (course.preference != "any") {
-        // check if preferred building has any rooms available
         let building = buildings[course.preference];
-        let buildingHasRooms = building.hasRooms;
-
-        if (!buildingHasRooms && session.day != "Sun") {
-            console.log(building);
-            // skip if session is outside buildings allowed days and times
-            if (!building.days.includes(session.day)) return;
-            if (session.start < building.start || building.end < session.end) return;
+        
+        console.log("Searching for rooms in: " + course.preference);
+        
+        // * if preference requires a registrar request
+        if (!building.hasRooms && session.day != "Sun") {
+            // skip if session is outside buildings allowed days and times // ! check is typically done in schedule.addTime()
+            if (!building.days.includes(session.day)) return NO_SESSION;
+            if (session.start < building.start || building.end < session.end) return NO_SESSION;
 
             console.log("Tutor requesting specific building: " + course.preference);
             requestRooms[FixedRooms.SpecificRequest + course.preference].schedule.pushTime(session).setTutor(tutor.email);
@@ -47,40 +48,14 @@ function defaultScheduler(tutor, session, courseSessionCount) {
             return REQUEST;
         }
 
-        // * for each room with preference
-        if (buildingHasRooms) {
-            for (let roomID in rooms) {
-                if (courseSessionCount > PositionRequestLimit[course.position] && session.day != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
-
-                let room = rooms[roomID];
-
-                if (!RoomPositionFilter[room.type].includes(course.position)) continue; // only match tutors to rooms for their position
-                if (room.building != course.preference) continue; // skip rooms that aren't in the preferred building
-
-                // check if the room is available for that time
-                let response = room.addTime(session.getDayAndStartStr(), session.course, tutor.email);
-
-                // if response is null, space was found
-                if (response == null) {
-                    console.log("Room found: " + room.name);
-                    return SCHEDULED;
-                } else if (response.error == Errors.Replaced) {
-                    console.log("Session already scheduled in: " + room.name);
-                    session.setRoom(room.name);
-                    return SCHEDULED;
-                }
-            }
-        }
-    }
-
-    // * for each room without preference
-    if (!session.hasRoomAssigned()) {
+        // * for each room filtering with preference
         for (let roomID in rooms) {
             if (courseSessionCount > PositionRequestLimit[course.position] && session.day != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
-            
+
             let room = rooms[roomID];
 
-            if (room.type != course.position) continue; // only match tutors to rooms for their position
+            if (!RoomPositionFilter[room.type].includes(course.position)) continue; // only match tutors to rooms for their position
+            if (room.building != course.preference) continue; // skip rooms that aren't in the preferred building
 
             // check if the room is available for that time
             let response = room.addTime(session.getDayAndStartStr(), session.course, tutor.email);
@@ -96,14 +71,43 @@ function defaultScheduler(tutor, session, courseSessionCount) {
                 return SCHEDULED;
             }
         }
+
+        console.log("No space found in: " + course.preference);
     }
 
-    if (!session.hasRoomAssigned() && session.day != "Sun") {
+    // * for each room without preference
+    for (let roomID in rooms) {
+        if (courseSessionCount > PositionRequestLimit[course.position] && session.day != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
+        
+        let room = rooms[roomID];
+
+        if (!RoomPositionFilter[room.type].includes(course.position)) continue; // only match tutors to rooms for their position
+
+        // check if the room is available for that time
+        let response = room.addTime(session.getDayAndStartStr(), session.course, tutor.email);
+
+        // if response is null, space was found
+        if (response == null) {
+            console.log("Room found: " + room.name);
+            session.setRoom(room.name);
+            return SCHEDULED;
+        } else if (response.error == Errors.Replaced) {
+            console.log("Session already scheduled in: " + room.name);
+            session.setRoom(room.name);
+            return SCHEDULED;
+        }
+    }
+
+    // * registrar request
+    if (session.day != "Sun") {
         console.log("No Space For: " + session.getDayAndStartStr());
         requestRooms[FixedRooms.Request].schedule.pushTime(session).setTutor(tutor.email);
         session.setRoom(FixedRooms.Request);
-        return SCHEDULED;
+        return REQUEST;
     }
+
+    console.log("Session could not be scheduled");
+    return NO_SESSION;
 }
 
 function writingScheduler(tutor, session, sessionCount) {
@@ -189,7 +193,7 @@ function BuildSchedules() {
         } else {
             tutor = tutors[emailList[e]];
             e++;
-            if (preferenceList.includes(emailList[e])) continue;
+            if (preferenceList.includes(tutor.email)) continue;
         }
         finished++;
 
@@ -267,7 +271,7 @@ function BuildSchedules() {
                 if (i < day.length - 1 && day[i + 1].hasRoomAssigned() && time.conflictsWith(day[i + 1])) {
                     continue;
                 }
-                
+
                 time.setRoom(FixedRooms.Discord);
                 timeFound = true;
                 break;

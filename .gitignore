@@ -1,2 +1,3 @@
-.vscode/settings.json
-src/js/.vscode/settings.json
+.vscode
+src/js/.vscode
+src/.vscode

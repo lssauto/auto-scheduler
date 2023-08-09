@@ -89,8 +89,8 @@ function searchTutors() {
         tutorContainer.style.display = "block";
         errorsContainer.style.display = "block";
     
-        let str = `<h1>Tutors Assigned to ${course}:</h1></br>`;
-        let errStr = `<hr><h1>Tutors Assigned to ${course} And Have Errors:</h1></br>`;
+        let str = `<h1>Tutors Assigned to '${dep}' Courses:</h1></br>`;
+        let errStr = `<hr><h1>Tutors Assigned to '${dep}' Courses And Have Errors:</h1></br>`;
         for (const email of results) {
             if (tutors[email].hasErrors()) {
                 errStr += tutors[email].createDivAsHTML();

@@ -40,7 +40,7 @@ const RoomResponse = {
     AssignedToTutor: "scheduled by tutor"
 };
 
-NA = "N/A"; // in case this changes for some reason
+const NA = "N/A"; // in case this changes for some reason
 
 // * Positions ==============================================================
 
@@ -94,7 +94,7 @@ PositionRequestLimit[Positions.SI] = 3;
 const FixedRooms = {
     TutorScheduled: "Scheduled By Tutor",
     Request: "Request From Registrar",
-    SpecificRequest: "Request Room In ", // building name expected to by concat to end of str
+    SpecificRequest: "Request Room In ", // building name expected to be concat to end of str
     Discord: "Discord Time"
 }
 

@@ -11,15 +11,15 @@ class Tutor {
         // courses map key-value pairs are ("course id": Course object) Course is defined in course.js
         this.courses = {};
 
-        this.AddCourse(obj);
+        this.addCourse(obj);
 
-        this.FillSchedule();
+        this.fillSchedule();
 
         return this;
     }
 
     // wrapper around process for adding a course
-    AddCourse(obj) {
+    addCourse(obj) {
         let course = new Course(this, obj.course);
         course.setTimestamp(obj.timestamp)
             .setPosition(obj.position)
@@ -30,7 +30,7 @@ class Tutor {
             .setComments(obj.comments)
             .setPreference("any")
             .setRow(obj.row)
-            .setStatus(obj.status)
+            .setStatus(obj.status, false) // false flag to prevent display from updating
             .setScheduler(obj.scheduler);
 
         this.courses[course.id] = course;
@@ -46,15 +46,15 @@ class Tutor {
         }
         
         // update courses
-        this.AddCourse(obj);
+        this.addCourse(obj);
 
-        this.FillSchedule();
+        this.fillSchedule();
 
         return this;
     }
 
     // add times to schedule from courses
-    FillSchedule() {
+    fillSchedule() {
         this.schedule = new Schedule(this);
         for (let id in this.courses) {
             let course = this.courses[id];
@@ -110,7 +110,6 @@ class Tutor {
 
             // session times
             for (let time of course.times) {
-                
                 let error = this.schedule.addTime(time.time, id, Tags.Session, null, time.schedule);
                 if (error != null) {
                     if (error.error == Errors.Formatting) {
@@ -126,7 +125,6 @@ class Tutor {
                         course.errors.push(error);
                     }
                 } else if (time.room != null) {
-                    console.log(time.room);
                     let scheduleTime = this.schedule.findTimeByStr(time.time);
                     scheduleTime.setRoom(time.room);
                     if (time.room in rooms) {
@@ -137,7 +135,7 @@ class Tutor {
 
             
             // ignore all errors, assuming they've already been resolved
-            if (course.errors.length > 0 && (FinishedStatus.includes(course.status) || course.status == StatusOptions.ErrorsResolved)) {
+            if (course.errors.length > 0 && (ScheduledStatus.includes(course.status) || course.status == StatusOptions.ErrorsResolved)) {
                 for (let error of course.errors) {
                     this.schedule.pushTime(error.time);
                     if (error.time.hasRoomAssigned() && error.time.room in rooms) {
@@ -213,7 +211,7 @@ class Tutor {
             // course actions
             let deleteButton = `<button type='submit' onclick="removeCourse('${this.email}', '${id}')">Remove</button>`;
             let slackButton = "";
-            if (FinishedStatus.includes(course.status)) {
+            if (ScheduledStatus.includes(course.status)) {
                 slackButton = `- <button type='submit' onclick="copySlackNote('${this.name}', '${id}')">Copy Slack Note</button> `;
             }
             

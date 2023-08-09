@@ -21,9 +21,11 @@ function copyTutorTable(event) {
     for (let r = 0; r < tutorMatrix.length; r++) {
         const rowObj = tutorJSONObjs[r];
         const tutor = tutors[rowObj.email];
+        const course = tutor.courses[rowObj.course];
+        //console.log(rowObj);
 
         // if course was deleted
-        if (!(rowObj.class in tutor.courses)) {
+        if (!(rowObj.course in tutor.courses)) {
             for (let c = 0; c < responseColumnTitles.length; c++) {
                 const title = responseColumnTitles[c].trim().toLowerCase();
 
@@ -36,8 +38,6 @@ function copyTutorTable(event) {
             }
             continue;
         }
-
-        const course = tutor.courses[rowObj.class];
 
         // determine if the current row is a past submission
         let dateObject = new Date(rowObj.timestamp);

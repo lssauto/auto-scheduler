@@ -48,22 +48,25 @@ class Course {
         // set status
         this.status = status;
 
-        // update room schedule display to reflect changed styling
-        if (status == StatusOptions.ScheduleConfirmed || (status != StatusOptions.ScheduleConfirmed && prevStatus == StatusOptions.ScheduleConfirmed)) {
-            let updatedRooms = [];
-            for (const day in this.tutor.schedule.week) {
-                let times = this.tutor.schedule.week[day];
-                for (let time of times) {
-                    if (!time.hasRoomAssigned()) continue;
-                    if (updatedRooms.includes(time.room)) continue;
-
-                    if (time.room in rooms) {
-                        updateRoomDisplay(time.room);
-                        updatedRooms.push(time.room);
+        if (updateDisplay) {
+            // update room schedule display to reflect changed styling
+            if (status == StatusOptions.ScheduleConfirmed || (status != StatusOptions.ScheduleConfirmed && prevStatus == StatusOptions.ScheduleConfirmed)) {
+                let updatedRooms = [];
+                for (const day in this.tutor.schedule.week) {
+                    let times = this.tutor.schedule.week[day];
+                    for (let time of times) {
+                        if (!time.hasRoomAssigned()) continue;
+                        if (updatedRooms.includes(time.room)) continue;
+    
+                        if (time.room in rooms) {
+                            updateRoomDisplay(time.room);
+                            updatedRooms.push(time.room);
+                        }
                     }
                 }
             }
         }
+
 
         return this;
     }

@@ -111,7 +111,7 @@ function removeCourse(email, course, updateDisplay=true) {
     let tutor = tutors[email];
 
     delete tutor.courses[course];
-    tutor.FillSchedule();
+    tutor.fillSchedule();
 
     clearConsole();
     output({type: "success", message: `${course}, and all times associated have been removed from ${tutors[email].name}'s course list.`});
