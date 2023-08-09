@@ -134,9 +134,8 @@ function handleTutorSubmit(inputText) {
     tutorMatrix = matrix;
     
     // ? functions located in parse.js
-    const jsonObjs = BuildJSON(columnTitles, matrix);
-    console.log('jsonObjs:\n', jsonObjs);
-    tutorJSONObjs = jsonObjs;
+    BuildJSON(columnTitles, matrix);
+    console.log('jsonObjs:\n', tutorJSONObjs);
     output({type: "info", message: "Building initial tutor schedules..."});
     BuildTutors(jsonObjs);
 
@@ -154,6 +153,11 @@ function handleInputSubmit(event) {
     let inputText = field.value;
     field.value = ""; // clear
     autoResize("InputField");
+
+    if (inputText == "") {
+        output({type: "error", message: "Input field is empty."});
+        return;
+    }
 
     clearConsole();
 

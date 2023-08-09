@@ -160,7 +160,7 @@ function parseExpectedTutors(matrix) {
 // ?  13. scheduler - the name of the staff member who created that schedule
 
 function BuildJSON(titles, data) {
-    let objs = [];
+    tutorJSONObjs = [];
 
     for (let i = 0; i < data.length; i++) {
         let obj = {
@@ -290,11 +290,9 @@ function BuildJSON(titles, data) {
             }
         }
         if ("comments" in obj) { // only add the object if row was completely read, comments is the last column
-            objs.push(obj);
+            tutorJSONObjs.push(obj);
         }
     }
-
-    return objs;
 }
 
 // * ===========================================================================

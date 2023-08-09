@@ -18,7 +18,7 @@ TutorSubmitButton.addEventListener('click', handleInputSubmit);
 
 // create schedule
 let ScheduleButton = document.getElementById('ScheduleButton');
-ScheduleButton.addEventListener('click', BuildSchedules);
+ScheduleButton.addEventListener('click', buildSchedules);
 
 // header and tools
 consoleDiv = document.getElementById('console');

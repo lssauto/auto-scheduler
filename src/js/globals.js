@@ -1,22 +1,14 @@
-// * tutors and rooms map created as global variables for easy access
-// * these will contain all the Tutor and Room objects created in parse.js,
-// * and will be used to create complete schedules in build-schedules.js
+/* 
+    Contains all enums and globally accessible objects. 
+    Most HTML elements are global variables declared separately in elements.js.
+*/
 
-let scheduler = null;
+// # ================================================================
+// # ENUMS
 
-let tutors = null;
-let preferenceList = [];
-let tutorJSONObjs = null;
-let tutorMatrix = null;
-let responseColumnTitles = null;
-let expectedTutors = null;
-let rooms = null;
-let requestRooms = null;
-let buildings = null;
-let schedulesCompleted = false;
+// Enums used primarily for string comparisons.
 
-// * Column titles in form table, matched based on str including one of these keys, all keys are lowercase
-
+// Column titles in form table. Matched based on str including one of these keys, all keys are lowercase.
 const Titles = {
     Timestamp: "timestamp",
     Email: "email address",
@@ -34,6 +26,7 @@ const Titles = {
     Status: "status"
 };
 
+// Fixed responses for room selection. Matched based on str including one of these keys, all keys are lowercase.
 const RoomResponse = {
     ScheduleByLSS: "lss will book me space",
     ScheduleByTutor: "i'll book my own space",
@@ -44,7 +37,7 @@ const NA = "N/A"; // in case this changes for some reason
 
 // * Positions ==============================================================
 
-// used to match position titles from table data, titles are set to lower case
+// Used to match position titles from table data, titles are set to lower case.
 const PositionKeys = {
     LGT: "large",
     SGT: "small",
@@ -53,6 +46,7 @@ const PositionKeys = {
     SH: "study hall"
 };
 
+// Valid positions, used as keys for other enums.
 const Positions = {
     LGT: "LGT",
     SGT: "SGT",
@@ -60,12 +54,6 @@ const Positions = {
     WR: "Writing",
     SH: "Study Hall"
 };
-
-// map of positions to contain tutor emails
-let positionsMap = {};
-for (const key in Positions) {
-    positionsMap[Positions[key]] = [];
-}
 
 const DefaultPosition = Positions.SGT;
 
@@ -201,3 +189,50 @@ const NO_SESSION = 0;
 const REQUEST = 1;
 const SCHEDULED = 2;
 const TUTOR_SCHEDULED = 3;
+
+// # =================================================================
+// # GLOBALS
+
+// The name of scheduler, assigned when user fills in their name.
+let scheduler = null;
+
+let expectedTutors = null;
+let tutors = null;
+
+// Map of positions containing Arrays of emails. Organizes Tutors by position.
+let positionsMap = {};
+for (const key in Positions) {
+    positionsMap[Positions[key]] = [];
+}
+
+// Array of any tutor emails that have building preferences.
+// Used to schedule tutors with preferences first.
+let preferenceList = [];
+
+/*
+    Array of objects created by buildTutorJSON() function.
+    Used to make creating Tutor instances easier, 
+    and for reconstructing input table in copyTutorTable() function.
+*/
+let tutorJSONObjs = [];
+
+/*
+    Matrix containing original tutor response table.
+    Used for reconstructing input table in copyTutorTable() function.
+ */
+let tutorMatrix = [];
+
+/*
+    Array of the titles used to determine how responses 
+    should be interpreted in buildTutorJSON() function.
+*/
+let responseColumnTitles = [];
+
+let buildings = null;
+let rooms = null;
+
+// Room instances are specifically to represent any buildings that require registrar requests.
+let requestRooms = null;
+
+// Set true once buildSchedules() has been run.
+let schedulesCompleted = false;

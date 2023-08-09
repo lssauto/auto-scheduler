@@ -1,5 +1,5 @@
 // * Assign rooms to tutor's requested session times
-function BuildSchedules() {
+function buildSchedules() {
     clearConsole();
     
     if (tutors == null) {
