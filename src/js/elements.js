@@ -1,36 +1,37 @@
 // all elements that can be accessed globally
 
 // submit buttons
-let InputSubmitButton = document.getElementById('InputSubmitButton');
-InputSubmitButton.addEventListener('click', handleInputSubmit);
+let inputSubmitButton = document.getElementById('InputSubmitButton');
+inputSubmitButton.addEventListener('click', handleInputSubmit);
 
-let BuildingSubmitButton = document.getElementById('BuildingSubmitButton');
-BuildingSubmitButton.addEventListener('click', handleInputSubmit);
+let buildingSubmitButton = document.getElementById('BuildingSubmitButton');
+buildingSubmitButton.addEventListener('click', handleInputSubmit);
 
-let RoomSubmitButton = document.getElementById('RoomSubmitButton');
-RoomSubmitButton.addEventListener('click', handleInputSubmit);
+let roomSubmitButton = document.getElementById('RoomSubmitButton');
+roomSubmitButton.addEventListener('click', handleInputSubmit);
 
-let ExpectedSubmitButton = document.getElementById('ExpectedSubmitButton');
-ExpectedSubmitButton.addEventListener('click', handleInputSubmit);
+let expectedSubmitButton = document.getElementById('ExpectedSubmitButton');
+expectedSubmitButton.addEventListener('click', handleInputSubmit);
 
-let TutorSubmitButton = document.getElementById('TutorSubmitButton');
-TutorSubmitButton.addEventListener('click', handleInputSubmit);
+let tutorSubmitButton = document.getElementById('TutorSubmitButton');
+tutorSubmitButton.addEventListener('click', handleInputSubmit);
 
 // create schedule
-let ScheduleButton = document.getElementById('ScheduleButton');
-ScheduleButton.addEventListener('click', buildSchedules);
+let scheduleButton = document.getElementById('ScheduleButton');
+scheduleButton.addEventListener('click', buildSchedules);
 
 // header and tools
-consoleDiv = document.getElementById('console');
+let consoleDiv = document.getElementById('console');
 
-headerDiv = document.getElementById('header');
-contentDiv = document.getElementById('content');
+// headerDiv = document.getElementById('header');
+// contentDiv = document.getElementById('content');
 
-SearchBar = document.getElementById('SearchBar');
+let searchBar = document.getElementById('SearchBar');
 
 // add position filter options
+let filterOptions = document.getElementById("filterOptions");
 for (const position in Positions) {
-    document.getElementById("filterOptions").innerHTML += `<option value="${position}">${Positions[position]}</option>`;
+    filterOptions.innerHTML += `<option value="${position}">${Positions[position]}</option>`;
 }
 
 // copy buttons
@@ -40,7 +41,7 @@ copyTutorTableButton.addEventListener('click', copyTutorTable);
 let copyTutorSchedulesButton = document.getElementById('copyTutorSchedulesButton');
 copyTutorSchedulesButton.addEventListener('click', copyTutorSchedules);
 
-let RoomCopyButton = document.getElementById('RoomCopyButton');
+let roomCopyButton = document.getElementById('RoomCopyButton');
 RoomCopyButton.addEventListener('click', copyRoomSchedules);
 
 // content divs

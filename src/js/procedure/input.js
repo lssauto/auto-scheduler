@@ -134,10 +134,10 @@ function handleTutorSubmit(inputText) {
     tutorMatrix = matrix;
     
     // ? functions located in parse.js
-    BuildJSON(columnTitles, matrix);
+    buildJSON(columnTitles, matrix);
     console.log('jsonObjs:\n', tutorJSONObjs);
     output({type: "info", message: "Building initial tutor schedules..."});
-    BuildTutors(jsonObjs);
+    buildTutors(jsonObjs);
 
     displayAllTutors(); // ? function located in display.js
     displayRooms();
@@ -163,29 +163,29 @@ function handleInputSubmit(event) {
 
     if (buildings == null || event.srcElement.id == 'BuildingSubmitButton') {
         if (buildings == null) {
-            InputSubmitButton.innerHTML = "Parse Room Schedules";
-            BuildingSubmitButton.style.display = "inline";
+            inputSubmitButton.innerHTML = "Parse Room Schedules";
+            buildingSubmitButton.style.display = "inline";
         }
         handleBuildingsSubmit(inputText);
 
     } else if (rooms == null || event.srcElement.id == 'RoomSubmitButton') {
         if (rooms == null) {
-            InputSubmitButton.innerHTML = "Parse Expected Tutors";
-            RoomSubmitButton.style.display = "inline";
+            inputSubmitButton.innerHTML = "Parse Expected Tutors";
+            roomSubmitButton.style.display = "inline";
         }
         handleRoomSubmit(inputText);
 
     } else if (expectedTutors == null || event.srcElement.id == 'ExpectedSubmitButton') {
         if (expectedTutors == null) {
-            InputSubmitButton.innerHTML = "Parse Tutor Responses";
-            ExpectedSubmitButton.style.display = "inline";
+            inputSubmitButton.innerHTML = "Parse Tutor Responses";
+            expectedSubmitButton.style.display = "inline";
         }
         handleExpectedTutorsSubmit(inputText);
 
     } else if (tutors == null || event.srcElement.id == 'TutorSubmitButton') {
         if (tutors == null) {
-            TutorSubmitButton.style.display = "inline";
-            InputSubmitButton.style.display = "none";
+            tutorSubmitButton.style.display = "inline";
+            inputSubmitButton.style.display = "none";
         }
         handleTutorSubmit(inputText);
     }

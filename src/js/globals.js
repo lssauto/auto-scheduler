@@ -97,6 +97,21 @@ RoomPositionFilter[Positions.SH] = [Positions.SH];
 
 // * Status Values ===========================================================
 
+// Used to match status options from table data, statuses are set to lower case.
+const StatusKeys = {
+    PastSubmission: "past",
+    WrongCourse: "incorrect",
+    SchedulingError: "invalid",
+    Missing: "expected",
+    ErrorsResolved: "resolved",
+    InProgress: "in progress",
+    SessionsScheduled: "scheduled",
+    SlackNote: "slack",
+    CalendarPosted: "calendar",
+    TutorHubPosted: "tutorhub",
+    ScheduleConfirmed: "confirmed"
+}
+
 const StatusOptions = {
     PastSubmission: "Past Submission",
     WrongCourse: "Incorrect Course ID or Position",
@@ -171,6 +186,30 @@ const Errors = {
     Replaced: "replaced",
     Overbooked: "over-booked",
     Formatting: "formatting"
+}
+
+// * Valid Session Times according to https://registrar.ucsc.edu/soc/archive/html/fall2020/schedule_planner1.pdf
+const SessionTimes = {
+    "MWF": [
+        "8:00 AM",
+        "9:20 AM",
+        "10:40 AM",
+        "12:00 PM",
+        "1:20 PM",
+        "2:40 PM",
+        "4:00 PM",
+        "5:20 PM",
+        "7:10 PM"
+    ],
+    "TuTh": [
+        "8:00 AM",
+        "9:50 AM",
+        "11:40 AM",
+        "1:30 PM",
+        "3:20 PM",
+        "5:20 PM",
+        "7:10 PM"
+    ]
 }
 
 // * Scheduler Strategies ================================================

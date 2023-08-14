@@ -1,14 +1,12 @@
 // * reads search bar input and uses it to search for the specific tutor
 
-let SearchBar;
-
 function scrollToTutor(email) {
     const tutor = document.getElementById(email);
     tutor.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 function searchTutors() {
-    let key = SearchBar.value;
+    let key = searchBar.value;
 
     if (tutors == null) {
         output({ type: "error", message: "Tutor data must be parsed before searching for any tutors." });

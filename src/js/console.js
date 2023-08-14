@@ -1,6 +1,5 @@
 // * console div used to output diagnostic messages
-let consoleDiv;
-const consoleColors = { // use to set the color of the console messages based on message type
+const ConsoleColors = { // use to set the color of the console messages based on message type
     error: "red",
     warning: "orange",
     info: "#2343A0",
@@ -10,7 +9,7 @@ const consoleColors = { // use to set the color of the console messages based on
 // * message is expected to be an object with at least a type field
 function output(msg) {
     let p = document.createElement("p");
-    p.style.backgroundColor = consoleColors[msg.type];
+    p.style.backgroundColor = ConsoleColors[msg.type];
     for (let key in msg) {
         p.innerHTML += key + ": " + msg[key] + "<br>";
     }

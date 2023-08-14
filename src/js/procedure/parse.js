@@ -159,7 +159,7 @@ function parseExpectedTutors(matrix) {
 // ?  12. status - the current scheduling status according to that column
 // ?  13. scheduler - the name of the staff member who created that schedule
 
-function BuildJSON(titles, data) {
+function buildJSON(titles, data) {
     tutorJSONObjs = [];
 
     for (let i = 0; i < data.length; i++) {
@@ -251,19 +251,24 @@ function BuildJSON(titles, data) {
                 obj.scheduler = data[i][j];
 
             } else if (title.includes(Titles.Status)) {
-                if (obj.status == StatusOptions.InProgress && StatusList.includes(data[i][j])) {
-                    obj.status = data[i][j];
-                } else if (obj.status != StatusOptions.InProgress) {
+                if (obj.status == StatusOptions.InProgress) {
+                    for (const key in StatusKeys) {
+                        if (data[i][j].toLowerCase().includes(StatusKeys[key])) {
+                            obj.position = StatusOptions[key];
+                        }
+                    }
+                    if (data[i][j] != "") {
+                        output({
+                            type: "warning", 
+                            message: `Status of '${data[i][j]}' found in data, but this is not a valid status, so status will be replaced with '${obj.status}'.`,
+                            row: i + 2
+                        });
+                    }
+                } else {
                     output({
                         type: "warning", 
                         message: `Status of '${data[i][j]}' found in data, but an error was encountered 
                         at a different cell, so status will be replaced with '${obj.status}'.`,
-                        row: i + 2
-                    });
-                } else if (data[i][j] != "") {
-                    output({
-                        type: "warning", 
-                        message: `Status of '${data[i][j]}' found in data, but this is not a valid status, so status will be replaced with '${obj.status}'.`,
                         row: i + 2
                     });
                 }
@@ -298,7 +303,7 @@ function BuildJSON(titles, data) {
 // * ===========================================================================
 
 // * use the json objs to create a map of tutors with key value pairs ("email": Tutor instance)
-function BuildTutors(jsonObjs) {
+function buildTutors(jsonObjs) {
     if (tutors == null) {
         tutors = {};
     }

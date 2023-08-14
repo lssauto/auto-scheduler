@@ -99,8 +99,7 @@ function filterTutors() {
         return;
     }
 
-    let dropdown = document.getElementById("filterOptions");
-    let selection = dropdown.options[dropdown.selectedIndex].value;
+    let selection = filterOptions.options[filterOptions.selectedIndex].value;
 
     switch (selection) {
         case "errors":

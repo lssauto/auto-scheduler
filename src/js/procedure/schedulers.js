@@ -117,6 +117,8 @@ function defaultScheduler(tutor, session, courseSessionCount) {
 // writing tutor strategy
 
 function writingScheduler(tutor, session, sessionCount) {
+    if (sessionCount > PositionSessionLimit[session.getCourse().position]) return NO_SESSION;
+
     // check if a session already has this time on a different day
     if (session.day != "Sun" || session.day != "Sat") {
         for (const dayName in tutor.schedule.week) {
@@ -158,6 +160,8 @@ function writingScheduler(tutor, session, sessionCount) {
 // * =====================================================================
 // study hall strategy
 
-function studyHallScheduler(session) {
+function studyHallScheduler(tutor, session, sessionCount) {
+    const studyHallTutors = positionsMap[Positions.SH];
 
+    
 }
