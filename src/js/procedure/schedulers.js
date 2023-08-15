@@ -138,14 +138,12 @@ function writingScheduler(tutor, session, sessionCount) {
         if (email == tutor.email) continue;
 
         const otherTutor = tutors[email];
-        for (const dayName in otherTutor.schedule.week) {
-            const day = otherTutor.schedule.week[dayName];
-            for (let i = 0; i < day.length; i++) {
-                if (day[i].tag != Tags.Session) continue;
-                if (day[i].start == session.start && day[i].hasRoomAssigned()) {
-                    console.log("Time taken by another tutor: " + email);
-                    return NO_SESSION;
-                }
+        const day = otherTutor.schedule.week[session.day];
+        for (let i = 0; i < day.length; i++) {
+            if (day[i].tag != Tags.Session) continue;
+            if (day[i].start == session.start && day[i].hasRoomAssigned()) {
+                console.log("Time taken by another tutor: " + email);
+                return NO_SESSION;
             }
         }
     }

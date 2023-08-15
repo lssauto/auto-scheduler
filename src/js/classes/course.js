@@ -85,7 +85,7 @@ class Course {
     }
 
     setPosition(position) {
-        this.position = position.replace(/[^A-Z]/g, ""); // create acronym
+        this.position = position;
         return this;
     }
 

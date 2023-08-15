@@ -137,7 +137,7 @@ function handleTutorSubmit(inputText) {
     buildJSON(columnTitles, matrix);
     console.log('jsonObjs:\n', tutorJSONObjs);
     output({type: "info", message: "Building initial tutor schedules..."});
-    buildTutors(jsonObjs);
+    buildTutors(tutorJSONObjs);
 
     displayAllTutors(); // ? function located in display.js
     displayRooms();
