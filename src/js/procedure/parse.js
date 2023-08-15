@@ -252,12 +252,14 @@ function buildJSON(titles, data) {
 
             } else if (title.includes(Titles.Status)) {
                 if (obj.status == StatusOptions.InProgress) {
+                    let statusFound = false;
                     for (const key in StatusKeys) {
                         if (data[i][j].toLowerCase().includes(StatusKeys[key])) {
-                            obj.position = StatusOptions[key];
+                            obj.status = StatusOptions[key];
+                            statusFound = true;
                         }
                     }
-                    if (data[i][j] != "") {
+                    if (data[i][j] != "" && !statusFound) {
                         output({
                             type: "warning", 
                             message: `Status of '${data[i][j]}' found in data, but this is not a valid status, so status will be replaced with '${obj.status}'.`,
