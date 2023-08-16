@@ -387,13 +387,13 @@ function parseBuildings(matrix) {
     }
 
     for (let r = 0; r < matrix.length; r++) {
-        let timeStr = matrix[r][1];
+        let timeStr = matrix[r].length > 1 ? matrix[r][1] : "";
 
         let halves = timeStr.split(":");
         let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
         let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)/g); // get all hours
 
-        // if there are no days, then this is a Sun time
+        // if there are no days, then default to all week excluding sat
         if (days == null) { days = ["M", "Tu", "W", "Th", "F", "Sun"]; }
 
         if (hours == null || hours.length < 2) {

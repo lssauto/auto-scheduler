@@ -10,8 +10,20 @@ function handleBuildingsSubmit(inputText) {
     let matrix = null;
     matrix = inputText.split("\n");
     for (let i = 0; i < matrix.length; i++) {
+        if (matrix[i][0] == "\t") {
+            matrix.splice(i, 1);
+            i--;
+            continue;
+        } 
         matrix[i] = matrix[i].split("\t");
+        for (let j = 0; j < matrix[i].length; j++) {
+            if (matrix[i][j] == "") {
+                matrix[i].splice(j, 1);
+                j--;
+            }
+        }
     }
+    console.log(matrix);
     parseBuildings(matrix);
     
     displayBuildings(); // ? function located in display.js
@@ -36,6 +48,11 @@ function handleRoomSubmit(inputText) {
     // build matrix
     let matrix = inputText.split("\n");
     for (let i = 0; i < matrix.length; i++) {
+        if (matrix[i][0] == "\t") {
+            matrix.splice(i, 1);
+            i--;
+            continue;
+        }
         matrix[i] = matrix[i].split("\t");
         for (let j = 0; j < matrix[i].length; j++) {
             matrix[i][j] = matrix[i][j].trim();
@@ -59,9 +76,18 @@ function handleExpectedTutorsSubmit(inputText) {
     // build matrix
     let matrix = inputText.split("\n");
     for (let i = 0; i < matrix.length; i++) {
+        if (matrix[i][0] == "\t") {
+            matrix.splice(i, 1);
+            i--;
+            continue;
+        }
         matrix[i] = matrix[i].split("\t");
         for (let j = 0; j < matrix[i].length; j++) {
             matrix[i][j] = matrix[i][j].trim();
+            if (matrix[i][j] == "") {
+                matrix[i].splice(j, 1);
+                j--;
+            }
         }
     }
     console.log("Expected Tutor Input:\n", matrix);
@@ -87,6 +113,7 @@ function handleTutorSubmit(inputText) {
     let buffer = ""; let i = 0;
     while (inputText[i] != '\n') {
         if (inputText[i] == '\t') {
+            if (buffer == "\t") break;
             columnTitles.push(buffer);
             buffer = "";
             i++;
@@ -94,29 +121,37 @@ function handleTutorSubmit(inputText) {
         buffer += inputText[i];
         i++;
     }
-    columnTitles.push(buffer); // flush buffer
+    if (buffer != "" || buffer != "\t" ) columnTitles.push(buffer); // flush buffer
+    for (let i = 0; i < columnTitles.length; i++) {
+        if (columnTitles[i] == "\t") columnTitles.splice(i, 1);
+    }
 
     responseColumnTitles = columnTitles;
     
     // build data field matrix
     let matrix = [];
-    buffer = ""; i++; // reset buffer and skip over first /n
+    buffer = "";
+    while (inputText[i] != "\n") {
+        i++;
+    }
+    i++; // skip over first newline
     columnCount = 1;  // makes sure all column fields are filled per row
     rowCount = 1;
-    errors = []; // index list of flagged errors in input
     while (i < inputText.length) {
         if (inputText[i] == '\n' && columnCount >= columnTitles.length) {
-            errors.push(columnCount > columnTitles.length);
             matrix.push(buffer);
             buffer = "";
             columnCount = 1;
             rowCount++;
             i++;
         }
-        if (inputText[i] == '\t') columnCount++;
+        if (inputText[i] == "\t") {
+            if (buffer == "") break; // exit if next row is empty
+            columnCount++;
+        }
         if (columnCount > columnTitles.length) {
             output({type: "error", 
-                message: `Too many columns counted in row: ${rowCount}. A tab character was likely input in a response. Remove the tab, and try again.`});
+                message: `Too many columns counted in row: ${rowCount}. A tab character was likely input in a response. Remove the tab, and try again. Multiple empty columns might have also been included.`});
             return;
         }
 
@@ -124,10 +159,10 @@ function handleTutorSubmit(inputText) {
         i++;
         
     }
-    matrix.push(buffer);
+    if (buffer != "" || buffer != "\t") matrix.push(buffer);
 
-    for (let j = 0; j < matrix.length; j++) {
-        matrix[j] = matrix[j].split('\t');
+    for (let i = 0; i < matrix.length; i++) {
+        matrix[i] = matrix[i].split('\t');
     }
     console.log('Tutors Input:\n', matrix);
 
