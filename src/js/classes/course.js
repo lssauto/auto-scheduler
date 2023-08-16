@@ -7,6 +7,15 @@ class Course {
         this.status = StatusOptions.InProgress;
         this.errors = [];
         this.hadErrors = false;
+        this.row = 0;
+        this.timestamp = 0;
+        this.position = DefaultPosition;
+        this.lectures = [];
+        this.officeHours = [];
+        this.discordHours = [];
+        this.times = [];
+        this.comments = "";
+        this.preference = "any";
         return this;
     }
 

@@ -16,6 +16,9 @@ Each Tutor and Room has a Schedule instance that can be accessed with the `.sche
 
 ## Methods
 
+> ### `Schedule(container: Tutor | Room) -> Schedule`
+> Create a new Schedule. Expects a reference to the container object.
+
 > ### `setRange(range: object) -> this`
 > Set the valid time range for this schedule.
 
