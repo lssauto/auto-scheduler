@@ -26,13 +26,8 @@ class Schedule {
     addTime(timeStr, course="COURSE", tag="session", tutor=null, scheduleByLSS=true) {
         if (timeStr == NA) return false;
 
-        // split string at an arbitrary space to prevent days from including the "M" from PM/AM
-        let halves = timeStr.split(":");
-
-        let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
-        let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)*/g); // get all hours
-
-        if (hours == null) {
+        let timeObj = parseTimeStr(timeStr);
+        if (timeObj == null) {
             let errorTime = new Time(this);
             errorTime.setTutor(tutor)
                 .setCourse(course)
@@ -43,22 +38,10 @@ class Schedule {
                 error: Errors.Formatting
             }
         }
-        
-        // if there are no days, then this is a Sun time
-        if (days == null) { days = ["Sun"]; }
 
-        // add AM or PM to first time if it's missing
-        if (hours[0].match(/(AM|PM|am|pm)/g) == null) {
-            if (hours[1].split(":")[0].trim() == "12") {
-                hours[0] += hours[1].match(/(AM|am)/g) == null ? "AM" : "PM";
-            } else {
-                hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
-            }
-        }
-
-        // get int time values
-        const start = convertTimeToInt(hours[0]);
-        const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
+        const days = timeObj.days;
+        const start = timeObj.start;
+        const end = timeObj.end;
 
         // check if time is within the room's valid time range
         if (this.container instanceof Room && this.range != null) {
@@ -216,14 +199,12 @@ class Schedule {
 
     // expects string formatted as "DAY ##:## AM/PM"
     findTimeByStr(timeStr, tag="session") {
-        let halves = timeStr.split(":");
-        let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
-        let day = days == null ? "Sun" : days[0];
-
-        let formattedDate = (days == null ? "SUN" : "") + timeStr.trim().toUpperCase().replaceAll(" ", "");
+        let timeObj = parseTimeStr(timeStr);
+        if (timeObj == null) return null;
+        const day = timeObj.days[0];
 
         for (const time of this.week[day]) {
-            if (formattedDate == time.getDayAndStartStr().toUpperCase().replaceAll(" ", "") && time.tag == tag) {
+            if (timeObj.start == time.start && timeObj.end == time.end && time.tag == tag) {
                 return time;
             }
         }

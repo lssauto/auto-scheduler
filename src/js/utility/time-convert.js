@@ -31,3 +31,35 @@ function convertTimeToString(time) {
     const formattedTime = `${formattedHours}:${mins.toString().padStart(2, "0")} ${ampm}`;
     return formattedTime;
 }
+
+function parseTimeStr(timeStr, dayDefault=["Sun"]) {
+    // split string at an arbitrary space to prevent days from including the "M" from PM/AM
+    let halves = timeStr.split(":");
+
+    let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
+    let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)*/g); // get all hours
+
+    if (hours == null) return null;
+    
+    // if there are no days, then this is a Sun time
+    if (days == null) { days = dayDefault; }
+
+    // add AM or PM to first time if it's missing
+    if (hours[0].match(/(AM|PM|am|pm)/g) == null) {
+        if (hours[1].split(":")[0].trim() == "12") {
+            hours[0] += hours[1].match(/(AM|am)/g) == null ? "AM" : "PM";
+        } else {
+            hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
+        }
+    }
+
+    // get int time values
+    const start = convertTimeToInt(hours[0]);
+    const end = hours.length > 1 ? convertTimeToInt(hours[1]) : start + 60; // add 60 minutes if no second time
+
+    return {
+        days: days,
+        start: start,
+        end: end
+    }
+}
