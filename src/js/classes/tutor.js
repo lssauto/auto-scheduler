@@ -39,7 +39,7 @@ class Tutor {
     }
 
     // update an existing course, or add a new one
-    Update(obj) {
+    update(obj) {
         // exit if current timestamp is newer
         if (obj.class in this.courses) {
             if (obj.timestamp < this.courses[obj.class].timestamp) return;

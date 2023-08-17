@@ -315,7 +315,7 @@ function buildTutors(jsonObjs) {
         const row = jsonObjs[i];
 
         if (row.email in tutors) {
-            tutors[row.email].Update(row);
+            tutors[row.email].update(row);
         } else {
             let tutor = new Tutor(row);
             tutors[tutor.email] = tutor;
