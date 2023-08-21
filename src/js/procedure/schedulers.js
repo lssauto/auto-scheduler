@@ -24,6 +24,23 @@ function defaultScheduler(tutor, session, courseSessionCount) {
         }
     }
 
+    // check if another tutor in the same position supporting the same course already has that time
+    for (const email of positionsMap[course.position]) {
+        if (email == tutor.email) continue;
+
+        const otherTutor = tutors[email];
+        const day = otherTutor.schedule.week[session.day];
+        for (let i = 0; i < day.length; i++) {
+            if (day[i].tag != Tags.Session) continue;
+            if (day[i].course != session.course) continue;
+            
+            if (day[i].start == session.start && day[i].hasRoomAssigned()) {
+                console.log("Time taken by another tutor: " + email);
+                return NO_SESSION;
+            }
+        }
+    }
+
     // check if tutor wants this session scheduled
     if (session.scheduleByLSS === false) {
         console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
@@ -134,19 +151,19 @@ function writingScheduler(tutor, session, sessionCount) {
     }
 
     // check if another writing tutor has the same session
-    for (const email of positionsMap[Positions.WR]) {
-        if (email == tutor.email) continue;
+    // for (const email of positionsMap[Positions.WR]) {
+    //     if (email == tutor.email) continue;
 
-        const otherTutor = tutors[email];
-        const day = otherTutor.schedule.week[session.day];
-        for (let i = 0; i < day.length; i++) {
-            if (day[i].tag != Tags.Session) continue;
-            if (day[i].start == session.start && day[i].hasRoomAssigned()) {
-                console.log("Time taken by another tutor: " + email);
-                return NO_SESSION;
-            }
-        }
-    }
+    //     const otherTutor = tutors[email];
+    //     const day = otherTutor.schedule.week[session.day];
+    //     for (let i = 0; i < day.length; i++) {
+    //         if (day[i].tag != Tags.Session) continue;
+    //         if (day[i].start == session.start && day[i].hasRoomAssigned()) {
+    //             console.log("Time taken by another tutor: " + email);
+    //             return NO_SESSION;
+    //         }
+    //     }
+    // }
 
     console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
     session.setRoom(FixedRooms.TutorScheduled);

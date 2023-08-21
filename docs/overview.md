@@ -15,6 +15,7 @@ Functions used for specific, and common tasks.
 
 - **[session-times.js](utility/session-times.md)**: Check if a given session time is valid.
 - **[time-convert.js](utility/time-convert.md)**: Convert strings representing times to integers and vice-versa.
+- **[match-pos.js](utility/match-pos.md)**: Matches a given string to a value in the [`Positions`](globals.md#positions) enum.
 
 ## Classes
 

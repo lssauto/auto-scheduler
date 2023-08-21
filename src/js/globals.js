@@ -38,44 +38,49 @@ const NA = "N/A"; // in case this changes for some reason
 // * Positions ==============================================================
 
 // Used to match position titles from table data, titles are set to lower case.
+// ? matched using matchPosition() in match-pos.js
 const PositionKeys = {
     LGT: "large",
     SGT: "small",
+    ELGT: "embedded large",
+    ESGT: "embedded small",
     SI: "si",
-    WR: "writing",
-    SH: "study hall"
+    WR: "writing"
 };
 
 // Valid positions, used as keys for other enums.
 const Positions = {
     LGT: "LGT",
     SGT: "SGT",
+    ELGT: "EMB LGT",
+    ESGT: "EMB SGT",
     SI: "SI",
-    WR: "Writing",
-    SH: "Study Hall"
+    WR: "Writing"
 };
 
 const DefaultPosition = Positions.SGT;
 
 // any positions that don't expect course IDs, course ID is replaced with "N/A"
 const CourselessPositions = [
-    Positions.WR,
-    Positions.SH
+    Positions.WR
 ]
 
 // max sessions for each position
 const PositionSessionLimit = {};
 PositionSessionLimit[Positions.LGT] = 5;
 PositionSessionLimit[Positions.SGT] = 4;
+PositionSessionLimit[Positions.ELGT] = 5;
+PositionSessionLimit[Positions.ESGT] = 4;
 PositionSessionLimit[Positions.SI] = 5;
 PositionSessionLimit[Positions.WR] = 5;
-PositionSessionLimit[Positions.SH] = 2;
 
 // once number of sessions reaches this limit, any more sessions will be registrar requests
 const PositionRequestLimit = {};
-PositionRequestLimit[Positions.LGT] = 3;
-PositionRequestLimit[Positions.SGT] = 3;
-PositionRequestLimit[Positions.SI] = 3;
+PositionRequestLimit[Positions.LGT] = 4;
+PositionRequestLimit[Positions.SGT] = 4;
+PositionRequestLimit[Positions.ELGT] = 4;
+PositionRequestLimit[Positions.ESGT] = 4;
+PositionRequestLimit[Positions.SI] = 4;
 
 // * Rooms ===================================================================
 
@@ -89,11 +94,10 @@ const FixedRooms = {
 // used to determine if a tutor's position allows them to be scheduled in that room
 // key is the type of the room, and the value is a list of acceptable tutor positions
 const RoomPositionFilter = {};
-RoomPositionFilter[Positions.LGT] = [Positions.LGT, Positions.SI, Positions.SH];
-RoomPositionFilter[Positions.SGT] = [Positions.SGT];
+RoomPositionFilter[Positions.LGT] = [Positions.LGT, Positions.SI, Positions.ELGT];
+RoomPositionFilter[Positions.SGT] = [Positions.SGT, Positions.ESGT];
 RoomPositionFilter[Positions.SI] = [Positions.SI];
 RoomPositionFilter[Positions.WR] = [Positions.WR];
-RoomPositionFilter[Positions.SH] = [Positions.SH];
 
 // * Status Values ===========================================================
 
@@ -190,7 +194,7 @@ const Errors = {
 
 // * Valid Session Times according to https://registrar.ucsc.edu/soc/archive/html/fall2020/schedule_planner1.pdf
 const SessionTimes = {
-    "MWF": [
+    "MW": [
         "8:00 AM",
         "9:20 AM",
         "10:40 AM",
@@ -200,6 +204,15 @@ const SessionTimes = {
         "4:00 PM",
         "5:20 PM",
         "7:10 PM"
+    ],
+    "F": [
+        "8:00 AM",
+        "9:20 AM",
+        "10:40 AM",
+        "12:00 PM",
+        "1:20 PM",
+        "2:40 PM",
+        "4:00 PM"
     ],
     "TuTh": [
         "8:00 AM",

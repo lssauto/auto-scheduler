@@ -37,7 +37,7 @@ function parseTimeStr(timeStr, dayDefault=["Sun"]) {
     let halves = timeStr.split(":");
 
     let days = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g); // get all days
-    let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]*(AM|PM|am|pm)*/g); // get all hours
+    let hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]?(AM|PM|am|pm)?/g); // get all hours
 
     if (hours == null) return null;
     

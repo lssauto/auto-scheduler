@@ -84,12 +84,7 @@ function parseExpectedTutors(matrix) {
             tutor = { email: email, name: row[1], courses: {} };
         }
         
-        let position = DefaultPosition;
-        for (const key in PositionKeys) {
-            if (row[3].toLowerCase().includes(PositionKeys[key])) {
-                position = Positions[key];
-            }
-        }
+        let position = matchPosition(row[3]);
 
         // course may or may not exist
         let course = null;
@@ -215,12 +210,7 @@ function buildJSON(titles, data) {
                 if (obj.email in expectedTutors && !ErrorStatus.includes(obj.status)) {
                     obj.position = expectedTutors[obj.email].courses[obj.course];
                 } else {
-                    obj.position = DefaultPosition;
-                    for (const key in PositionKeys) {
-                        if (data[i][j].toLowerCase().includes(PositionKeys[key])) {
-                            obj.position = Positions[key];
-                        }
-                    }
+                    obj.position = matchPosition(data[i][j]);
                 }
 
             } else if (title.includes(Titles.Lectures)) {
