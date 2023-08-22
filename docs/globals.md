@@ -93,7 +93,7 @@ Contains enums and global variables used throughout the program. The only global
 
 - `schedulesCompleted`: bool to indicate whether [`buildSchedules()`](procedure/build-schedules.md) has been run.
 
-### Parsing Data Saves
+### Data Saved From Parsing
 
 These are used in [`copy.js`](procedure/copy.md) to reconstruct the response table.
 
