@@ -175,8 +175,8 @@ function writingScheduler(tutor, session, sessionCount) {
 // * =====================================================================
 // study hall strategy
 
-function studyHallScheduler(tutor, session, sessionCount) {
-    const studyHallTutors = positionsMap[Positions.SH];
+// function studyHallScheduler(tutor, session, sessionCount) {
+//     const studyHallTutors = positionsMap[Positions.SH];
 
     
-}
+// }
