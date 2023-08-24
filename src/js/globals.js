@@ -88,6 +88,24 @@ PositionRequestLimit[Positions.ELGT] = 4;
 PositionRequestLimit[Positions.ESGT] = 4;
 PositionRequestLimit[Positions.SI] = 4;
 
+// * Scheduler Strategies ================================================
+
+// specific scheduler strategies to be used for each position
+// ? Options: defaultScheduler, writingScheduler
+const ScheduleBuilders = {};
+ScheduleBuilders[Positions.LGT] = defaultScheduler;
+ScheduleBuilders[Positions.SGT] = defaultScheduler;
+ScheduleBuilders[Positions.ELGT] = defaultScheduler;
+ScheduleBuilders[Positions.ESGT] = defaultScheduler;
+ScheduleBuilders[Positions.SI] = defaultScheduler;
+ScheduleBuilders[Positions.WR] = writingScheduler;
+
+// returned by specific schedulers, tells main buildSchedules() function how to update session counts
+const NO_SESSION = 0;
+const REQUEST = 1;
+const SCHEDULED = 2;
+const TUTOR_SCHEDULED = 3;
+
 // * Rooms ===================================================================
 
 const FixedRooms = {
@@ -101,7 +119,7 @@ const FixedRooms = {
 // key is the type of the room, and the value is a list of acceptable tutor positions
 const RoomPositionFilter = {};
 RoomPositionFilter[Positions.LGT] = [Positions.LGT, Positions.SI, Positions.ELGT];
-RoomPositionFilter[Positions.SGT] = [Positions.SGT, Positions.ESGT];
+RoomPositionFilter[Positions.SGT] = [Positions.SGT, Positions.ESGT, Positions.WR];
 RoomPositionFilter[Positions.SI] = [Positions.SI];
 RoomPositionFilter[Positions.WR] = [Positions.WR];
 
@@ -230,24 +248,6 @@ const SessionTimes = {
         "7:10 PM"
     ]
 }
-
-// * Scheduler Strategies ================================================
-
-// specific scheduler strategies to be used for each position
-// ? Options: defaultScheduler, writingScheduler, studyHallScheduler
-const ScheduleBuilders = {};
-ScheduleBuilders[Positions.LGT] = defaultScheduler;
-ScheduleBuilders[Positions.SGT] = defaultScheduler;
-ScheduleBuilders[Positions.ELGT] = defaultScheduler;
-ScheduleBuilders[Positions.ESGT] = defaultScheduler;
-ScheduleBuilders[Positions.SI] = defaultScheduler;
-ScheduleBuilders[Positions.WR] = writingScheduler;
-
-// returned by specific schedulers, tells main buildSchedules() function how to update session counts
-const NO_SESSION = 0;
-const REQUEST = 1;
-const SCHEDULED = 2;
-const TUTOR_SCHEDULED = 3;
 
 // # =================================================================
 // # GLOBALS

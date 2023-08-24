@@ -15,17 +15,22 @@ function buildSchedules() {
     
     // * for each tutor
     let finished = 0;
-    let p = 0; let e = 0;
+    let p = 0; let e = 0; let w = 0;
     const emailList = Object.keys(tutors);
-    while (finished < emailList.length && e < emailList.length) {
+    while (finished < emailList.length) {
         // tutors with building preferences are scheduled first
         let tutor = null;
         if (p < preferenceList.length) {
             tutor = tutors[preferenceList[p]];
             p++;
-        } else {
+        } else if (e < emailList.length) {
             tutor = tutors[emailList[e]];
             e++;
+            if (preferenceList.includes(tutor.email)) continue;
+            if (positionsMap[Positions.WR].includes(tutor.email)) continue;
+        } else {
+            tutor = tutors[positionsMap[Positions.WR][w]];
+            w++;
             if (preferenceList.includes(tutor.email)) continue;
         }
         finished++;

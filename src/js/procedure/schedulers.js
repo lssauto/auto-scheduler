@@ -165,6 +165,50 @@ function writingScheduler(tutor, session, sessionCount) {
     //     }
     // }
 
+    let course = session.getCourse();
+
+    if (course.preference != "any") {
+        let building = buildings[course.preference];
+        
+        console.log("Searching for rooms in: " + course.preference);
+        
+        // * if preference requires a registrar request
+        if (!building.hasRooms && session.day != "Sun") {
+            // skip if session is outside buildings allowed days and times // ! check is typically done in schedule.addTime()
+            if (!building.days.includes(session.day)) return NO_SESSION;
+            if (session.start < building.start || building.end < session.end) return NO_SESSION;
+
+            console.log("Tutor requesting specific building: " + course.preference);
+            requestRooms[FixedRooms.SpecificRequest + course.preference].schedule.pushTime(session).setTutor(tutor.email);
+            session.setRoom(FixedRooms.SpecificRequest + course.preference);
+            return REQUEST;
+        }
+
+        // * for each room filtering with preference
+        for (let roomID in rooms) {
+            let room = rooms[roomID];
+
+            if (!RoomPositionFilter[room.type].includes(course.position)) continue; // only match tutors to rooms for their position
+            if (room.building != course.preference) continue; // skip rooms that aren't in the preferred building
+
+            // check if the room is available for that time
+            let response = room.addTime(session.getDayAndStartStr(), session.course, tutor.email);
+
+            // if response is null, space was found
+            if (response == null) {
+                console.log("Room found: " + room.name);
+                session.setRoom(room.name);
+                return SCHEDULED;
+            } else if (response.error == Errors.Replaced) {
+                console.log("Session already scheduled in: " + room.name);
+                session.setRoom(room.name);
+                return SCHEDULED;
+            }
+        }
+
+        console.log("No space found in: " + course.preference);
+    }
+
     console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
     session.setRoom(FixedRooms.TutorScheduled);
     return TUTOR_SCHEDULED;
