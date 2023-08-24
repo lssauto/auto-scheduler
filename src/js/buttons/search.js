@@ -101,5 +101,8 @@ function searchTutors() {
         return;
     }
 
-    output({ type: "error", message: "No tutor or course found with the name or ID: " + key });
+    output({ 
+        type: "error", 
+        message: "No tutor or course found with the name or ID: " + key + ". Course IDs are case sensitive."
+    });
 }
