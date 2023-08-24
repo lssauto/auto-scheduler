@@ -44,7 +44,7 @@ const PositionKeys = {
     SGT: "small",
     ELGT: "embedded large",
     ESGT: "embedded small",
-    SI: "si",
+    SI: "si leader",
     WR: "writing"
 };
 
@@ -62,6 +62,12 @@ const DefaultPosition = Positions.SGT;
 
 // any positions that don't expect course IDs, course ID is replaced with "N/A"
 const CourselessPositions = [
+    Positions.WR
+]
+
+const SelfSchedulable = [
+    Positions.SGT,
+    Positions.ESGT,
     Positions.WR
 ]
 
@@ -232,9 +238,10 @@ const SessionTimes = {
 const ScheduleBuilders = {};
 ScheduleBuilders[Positions.LGT] = defaultScheduler;
 ScheduleBuilders[Positions.SGT] = defaultScheduler;
+ScheduleBuilders[Positions.ELGT] = defaultScheduler;
+ScheduleBuilders[Positions.ESGT] = defaultScheduler;
 ScheduleBuilders[Positions.SI] = defaultScheduler;
 ScheduleBuilders[Positions.WR] = writingScheduler;
-ScheduleBuilders[Positions.SH] = studyHallScheduler;
 
 // returned by specific schedulers, tells main buildSchedules() function how to update session counts
 const NO_SESSION = 0;
