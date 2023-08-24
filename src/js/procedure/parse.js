@@ -103,30 +103,28 @@ function parseExpectedTutors(matrix) {
 // * ====================================================================
 
 // * separate raw data into json objects to make building Tutor class instances easier
-// ? json objects will have fields:
-// ?  1. stamp - timestamp for when the response was submitted
-// ?  2. email - tutor's email address
-// ?  3. name - tutor's first and last name
-// ?  4. resubmission - whether this is a resubmission
-// ?  5. returnee - whether this is a returning tutor
-// ?  6. course - class tutor is submitting this form for
-// ?  7. position - position tutor is submitting this form for
-// ?  8. lectures - list of lecture times, split by ","
-// ?  9. officeHours - list of office hours, split by ","
-// ?  10. discord - list of discord times, split by ","
-// ?  11. times - list of sessions times in format {time: "response string", schedule: bool}, schedule says whether lss needs to schedule the session
-// ?  12. status - the current scheduling status according to that column
-// ?  13. scheduler - the name of the staff member who created that schedule
 
 function buildJSON(titles, data) {
     tutorJSONObjs = [];
 
     for (let i = 0; i < data.length; i++) {
         let obj = {
-            times: []
+            row: i + 2,
+            timestamp: "",
+            email: "",
+            name: "",
+            resubmission: false,
+            returnee: false,
+            course: "",
+            position: DefaultPosition,
+            lectures: [],
+            officeHours: [],
+            discord: [],
+            times: [],
+            comments: "",
+            status: StatusOptions.InProgress,
+            scheduler: ""
         };
-        obj.row = i + 2; // row number of table
-        obj.status = StatusOptions.InProgress;
 
         // iterate through each column and fill obj with corresponding data
         for (let j = 0; j < titles.length; j++) {
@@ -250,9 +248,10 @@ function buildJSON(titles, data) {
                 j++;
             }
         }
-        if ("comments" in obj) { // only add the object if row was completely read, comments is the last column
-            tutorJSONObjs.push(obj);
-        }
+        //if ("comments" in obj) { // only add the object if row was completely read
+        //    tutorJSONObjs.push(obj);
+        //}
+        tutorJSONObjs.push(obj);
     }
 }
 
