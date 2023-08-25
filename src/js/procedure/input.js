@@ -111,8 +111,22 @@ function handleTutorSubmit(inputText) {
     // find column titles
     let columnTitles = [];
     let buffer = ""; let i = 0;
-    while (inputText[i] != '\n') {
-        if (inputText[i] == '\t') {
+    while (true) {
+        console.log(i);
+        if (i == inputText.length) {
+            output({
+                type: "error",
+                message: "Failed to parse column titles. The end of the input text was reached."
+            });
+            return;
+        }
+        if (inputText[i] == "\n" && buffer.toLowerCase().includes(Titles.Scheduler)) {
+            columnTitles.push(buffer);
+            buffer = "";
+            i++;
+            break;
+        }
+        if (inputText[i] == "\t") {
             if (buffer == "\t") break;
             columnTitles.push(buffer);
             buffer = "";
@@ -122,8 +136,11 @@ function handleTutorSubmit(inputText) {
         i++;
     }
     if (buffer != "" || buffer != "\t" ) columnTitles.push(buffer); // flush buffer
-    for (let i = 0; i < columnTitles.length; i++) {
-        if (columnTitles[i] == "\t") columnTitles.splice(i, 1);
+    for (let j = 0; j < columnTitles.length; j++) {
+        if (columnTitles[j] == "\t" || columnTitles[j] == "") {
+            columnTitles.splice(j, 1);
+            j--;
+        } 
     }
 
     responseColumnTitles = columnTitles;
@@ -131,9 +148,6 @@ function handleTutorSubmit(inputText) {
     // build data field matrix
     let matrix = [];
     buffer = "";
-    while (inputText[i] != "\n") {
-        i++;
-    }
     i++; // skip over first newline
     columnCount = 1;  // makes sure all column fields are filled per row
     rowCount = 1;
