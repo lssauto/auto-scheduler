@@ -112,11 +112,10 @@ function handleTutorSubmit(inputText) {
     let columnTitles = [];
     let buffer = ""; let i = 0;
     while (true) {
-        console.log(i);
         if (i == inputText.length) {
             output({
                 type: "error",
-                message: "Failed to parse column titles. The end of the input text was reached."
+                message: "Failed to parse column titles. The end of the input text was reached. This probably means the '" + Titles.Scheduler + "' column was not last."
             });
             return;
         }
