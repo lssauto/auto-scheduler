@@ -73,32 +73,32 @@ const SelfSchedulable = [
 
 // max sessions for each position
 const PositionSessionLimit = {};
-PositionSessionLimit[Positions.LGT] = 5;
-PositionSessionLimit[Positions.SGT] = 4;
-PositionSessionLimit[Positions.ELGT] = 5;
-PositionSessionLimit[Positions.ESGT] = 4;
-PositionSessionLimit[Positions.SI] = 5;
-PositionSessionLimit[Positions.WR] = 5;
+PositionSessionLimit[Positions.LGT]  = 3;
+PositionSessionLimit[Positions.SGT]  = 3;
+PositionSessionLimit[Positions.ELGT] = 3;
+PositionSessionLimit[Positions.ESGT] = 3;
+PositionSessionLimit[Positions.SI]   = 3;
+PositionSessionLimit[Positions.WR]   = 8;
 
 // once number of sessions reaches this limit, any more sessions will be registrar requests
 const PositionRequestLimit = {};
-PositionRequestLimit[Positions.LGT] = 4;
-PositionRequestLimit[Positions.SGT] = 4;
-PositionRequestLimit[Positions.ELGT] = 4;
-PositionRequestLimit[Positions.ESGT] = 4;
-PositionRequestLimit[Positions.SI] = 4;
+PositionRequestLimit[Positions.LGT]  = 2;
+PositionRequestLimit[Positions.SGT]  = 3;
+PositionRequestLimit[Positions.ELGT] = 2;
+PositionRequestLimit[Positions.ESGT] = 3;
+PositionRequestLimit[Positions.SI]   = 2;
 
 // * Scheduler Strategies ================================================
 
 // specific scheduler strategies to be used for each position
 // ? Options: defaultScheduler, writingScheduler
 const ScheduleBuilders = {};
-ScheduleBuilders[Positions.LGT] = defaultScheduler;
-ScheduleBuilders[Positions.SGT] = defaultScheduler;
+ScheduleBuilders[Positions.LGT]  = defaultScheduler;
+ScheduleBuilders[Positions.SGT]  = defaultScheduler;
 ScheduleBuilders[Positions.ELGT] = defaultScheduler;
 ScheduleBuilders[Positions.ESGT] = defaultScheduler;
-ScheduleBuilders[Positions.SI] = defaultScheduler;
-ScheduleBuilders[Positions.WR] = writingScheduler;
+ScheduleBuilders[Positions.SI]   = defaultScheduler;
+ScheduleBuilders[Positions.WR]   = writingScheduler;
 
 // returned by specific schedulers, tells main buildSchedules() function how to update session counts
 const NO_SESSION = 0;
