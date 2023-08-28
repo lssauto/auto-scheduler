@@ -7,7 +7,7 @@
 // * =====================================================================
 // default strategy
 
-function defaultScheduler(tutor, session, courseSessionCount) {
+function defaultScheduler(tutor, session, sessionCounts) {
     let course = session.getCourse();
 
     // check if a session already has this time on a different day
@@ -68,7 +68,8 @@ function defaultScheduler(tutor, session, courseSessionCount) {
 
         // * for each room filtering with preference
         for (let roomID in rooms) {
-            if (courseSessionCount > PositionRequestLimit[course.position] && session.day != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
+            // no more sessions to assign, will default to "Request From Registrar"
+            if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
 
             let room = rooms[roomID];
 
@@ -95,7 +96,8 @@ function defaultScheduler(tutor, session, courseSessionCount) {
 
     // * for each room without preference
     for (let roomID in rooms) {
-        if (courseSessionCount > PositionRequestLimit[course.position] && session.day != "Sun") break; // no more sessions to assign, will default to "Request From Registrar"
+        // no more sessions to assign, will default to "Request From Registrar"
+        if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
         
         let room = rooms[roomID];
 
@@ -133,8 +135,8 @@ function defaultScheduler(tutor, session, courseSessionCount) {
 // * =====================================================================
 // writing tutor strategy
 
-function writingScheduler(tutor, session, sessionCount) {
-    if (sessionCount > PositionSessionLimit[session.getCourse().position]) return NO_SESSION;
+function writingScheduler(tutor, session, sessionCounts) {
+    if (sessionCounts.count > PositionSessionLimit[session.getCourse().position]) return NO_SESSION;
 
     // check if a session already has this time on a different day
     if (session.day != "Sun" || session.day != "Sat") {
@@ -167,10 +169,18 @@ function writingScheduler(tutor, session, sessionCount) {
 
     let course = session.getCourse();
 
-    if (course.preference != "any") {
-        let building = buildings[course.preference];
+    if (course.preference != "any" || session.scheduleByLSS) {
+        let building = null;
+        let buildingName = null;
+        if (course.preference != "any") {
+            building = buildings[course.preference];
+            buildingName = course.preference;
+        } else {
+            building = buildings["ARC"];
+            buildingName = "ARC";
+        }
         
-        console.log("Searching for rooms in: " + course.preference);
+        console.log("Searching for rooms in: " + buildingName);
         
         // * if preference requires a registrar request
         if (!building.hasRooms && session.day != "Sun") {
@@ -178,9 +188,9 @@ function writingScheduler(tutor, session, sessionCount) {
             if (!building.days.includes(session.day)) return NO_SESSION;
             if (session.start < building.start || building.end < session.end) return NO_SESSION;
 
-            console.log("Tutor requesting specific building: " + course.preference);
-            requestRooms[FixedRooms.SpecificRequest + course.preference].schedule.pushTime(session).setTutor(tutor.email);
-            session.setRoom(FixedRooms.SpecificRequest + course.preference);
+            console.log("Tutor requesting specific building: " + buildingName);
+            requestRooms[FixedRooms.SpecificRequest + buildingName].schedule.pushTime(session).setTutor(tutor.email);
+            session.setRoom(FixedRooms.SpecificRequest + buildingName);
             return REQUEST;
         }
 
@@ -189,7 +199,7 @@ function writingScheduler(tutor, session, sessionCount) {
             let room = rooms[roomID];
 
             if (!RoomPositionFilter[room.type].includes(course.position)) continue; // only match tutors to rooms for their position
-            if (room.building != course.preference) continue; // skip rooms that aren't in the preferred building
+            if (room.building != buildingName) continue; // skip rooms that aren't in the preferred building
 
             // check if the room is available for that time
             let response = room.addTime(session.getDayAndStartStr(), session.course, tutor.email);
@@ -206,7 +216,7 @@ function writingScheduler(tutor, session, sessionCount) {
             }
         }
 
-        console.log("No space found in: " + course.preference);
+        console.log("No space found in: " + buildingName);
     }
 
     console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());

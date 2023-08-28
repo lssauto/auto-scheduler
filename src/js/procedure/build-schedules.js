@@ -15,7 +15,7 @@ function buildSchedules() {
     
     // * for each tutor
     let finished = 0;
-    let p = 0; let e = 0; let w = 0;
+    let p = 0, e = 0, w = 0;
     const emailList = Object.keys(tutors);
     while (finished < emailList.length) {
         // tutors with building preferences are scheduled first
@@ -46,7 +46,7 @@ function buildSchedules() {
         for (const courseID in tutor.courses) {
             const course = tutor.courses[courseID];
             maxSessions += PositionSessionLimit[course.position];
-            sessionCounts[courseID] = {position: course.position, count: 0};
+            sessionCounts[courseID] = {position: course.position, count: 0, requests: 0};
         }
 
         // * for each day of the week
@@ -71,21 +71,23 @@ function buildSchedules() {
                 if (time.hasRoomAssigned()) { // skip if room is already assigned, // ! not redundant to similar check made in schedule.addTime()
                     result = SCHEDULED;
                 } else { // call specific scheduler function
-                    result = ScheduleBuilders[time.getCourse().position](tutor, time, sessionCounts[time.course].count);
+                    result = ScheduleBuilders[time.getCourse().position](tutor, time, sessionCounts[time.course]);
                 }
 
                 // update session counts
                 switch (result) {
                     case SCHEDULED:
+                    case TUTOR_SCHEDULED:
                         sessionsThisDay++;
                         sessions++;
                         sessionCounts[time.course].count++;
                         break;
                     
                     case REQUEST:
-                    case TUTOR_SCHEDULED:
                         sessionsThisDay++;
                         sessions++;
+                        sessionCounts[time.course].count++;
+                        sessionCounts[time.course].requests++;
                         break;
                     
                     case NO_SESSION:

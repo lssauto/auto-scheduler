@@ -45,7 +45,7 @@ const PositionKeys = {
     ELGT: "embedded large",
     ESGT: "embedded small",
     SI: "si leader",
-    WR: "writing"
+    WR: "writing individual"
 };
 
 // Valid positions, used as keys for other enums.

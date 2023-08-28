@@ -115,7 +115,7 @@ function buildJSON(titles, data) {
             name: "",
             resubmission: false,
             returnee: false,
-            course: "",
+            course: NA,
             position: DefaultPosition,
             lectures: [],
             officeHours: [],
@@ -123,7 +123,7 @@ function buildJSON(titles, data) {
             times: [],
             comments: "",
             status: StatusOptions.InProgress,
-            scheduler: ""
+            scheduler: scheduler
         };
 
         // iterate through each column and fill obj with corresponding data
