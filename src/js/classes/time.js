@@ -88,7 +88,7 @@ class Time {
     getCourse() {
         if (this.container instanceof Tutor && this.course in this.container.courses) {
             return this.container.courses[this.course];
-        } else if (this.container instanceof Room && this.tutor in tutors) {
+        } else if (this.container instanceof Room && tutors != null && this.tutor in tutors) {
             return this.getTutor().courses[this.course];
         }
         return null;
@@ -148,6 +148,12 @@ class Time {
         if (this.start != other.start) return false;
         if (this.end != other.end) return false;
         return true; 
+    }
+
+    isRemovable() {
+        if (this.container instanceof Tutor) return true;
+        if (tutors != null && this.tutor in tutors && this.getCourse() != null) return true;
+        return false;
     }
 
     conflictsWith(other) {

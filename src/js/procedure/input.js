@@ -106,6 +106,15 @@ function handleExpectedTutorsSubmit(inputText) {
 
 // Reads raw spreadsheet data from text field, and separates it into a matrix to create Tutor objects
 function handleTutorSubmit(inputText) {
+    if (tutors != null) {
+        let option = window.confirm("This will erase the current tutor list. Do you want to continue?");
+        if (!option) {
+            output({type: "warning", message: "Current tutor data will NOT be erased, aborting parsing process."});
+            return;
+        }
+        output({type: "warning", message: "Current tutor response data has be erased, parsing new data set."});
+    }
+
     output({type: "info", message: "Parsing Tutor Data..."});
     
     // find column titles

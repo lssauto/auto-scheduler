@@ -228,14 +228,18 @@ class Schedule {
                     if (!time.hasRoomAssigned()) continue;
                 }
 
-                let confirmed = time.getCourse().status == StatusOptions.ScheduleConfirmed;
+                let course = time.getCourse();
+                let confirmed = false;
+                if (course != null) {
+                    confirmed = time.getCourse().status == StatusOptions.ScheduleConfirmed;
+                }
                 let tag = confirmed ? "confirmed" : time.tag;
 
                 output += `<div class='time ${tag}'>|` + ` (${time.getFullStr()}) `;
                 output += "|";
 
                 // remove time button
-                if (!confirmed) {
+                if (!confirmed && time.isRemovable()) {
                     output += ` <button type='submit' onclick="removeTime(`;
                     if (this.container instanceof Room) {
                         output += `'${this.container.name}', `;

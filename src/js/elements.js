@@ -41,8 +41,11 @@ copyTutorTableButton.addEventListener('click', copyTutorTable);
 let copyTutorSchedulesButton = document.getElementById('copyTutorSchedulesButton');
 copyTutorSchedulesButton.addEventListener('click', copyTutorSchedules);
 
-let roomCopyButton = document.getElementById('RoomCopyButton');
-RoomCopyButton.addEventListener('click', copyRoomSchedules);
+let roomCopyButton = document.getElementById('copyRoomButton');
+roomCopyButton.addEventListener('click', copyRoomSchedules);
+
+let requestRoomCopyButton = document.getElementById('copyRequestRoomButton');
+requestRoomCopyButton.addEventListener('click', copyRequestRoomSchedules);
 
 // content divs
 

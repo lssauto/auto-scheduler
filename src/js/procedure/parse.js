@@ -259,9 +259,7 @@ function buildJSON(titles, data) {
 
 // * use the json objs to create a map of tutors with key value pairs ("email": Tutor instance)
 function buildTutors(jsonObjs) {
-    if (tutors == null) {
-        tutors = {};
-    }
+    tutors = {};
 
     // build tutors
     for (let i = 0; i < jsonObjs.length; i++) {

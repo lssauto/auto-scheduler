@@ -184,3 +184,28 @@ function copyRoomSchedules(event) {
 
     output({type: "success", message: "Room schedules copied to clipboard!"});
 }
+
+function copyRequestRoomSchedules(event) {
+    event.preventDefault(); // Prevents the form from submitting and refreshing the page
+
+    // check if tutors exist
+    if (requestRooms == null) {
+        output({type: "error", message: "Room data must be parsed before copying schedules."});
+        return;
+    }
+
+    let str = "";
+
+    for (const roomID in requestRooms) {
+        const room = requestRooms[roomID];
+
+        str += "Room\t";
+        str += room.name + "\n";
+
+        str += room.schedule.copy();
+    }
+
+    navigator.clipboard.writeText(str);
+
+    output({type: "success", message: "Request room schedules copied to clipboard!"});
+}
