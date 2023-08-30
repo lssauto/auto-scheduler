@@ -18,7 +18,7 @@ function removeTimeFromRoom(name, day, i, updateStatus) {
     let room = name in rooms ? rooms[name] : requestRooms[name];
     let time = room.schedule.removeTime(day, i);
     
-    if (updateStatus && tutors != null && time.tutor in tutors) {
+    if (updateStatus && tutors != null && time.tutor in tutors && !ErrorStatus.includes(time.getCourse().status)) {
         time.getCourse().setStatus(StatusOptions.InProgress);
         updateTutorDisplay(time.tutor);
         output({type: "info", message: `Room assignment will also be removed from ${time.tutor}, and course will be marked as '${StatusOptions.InProgress}'.`});

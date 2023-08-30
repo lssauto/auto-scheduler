@@ -180,6 +180,15 @@ function copyRoomSchedules(event) {
         str += room.schedule.copy();
     }
 
+    for (const roomID in requestRooms) {
+        const room = requestRooms[roomID];
+
+        str += "Room\t";
+        str += room.name + "\n";
+
+        str += room.schedule.copy();
+    }
+
     navigator.clipboard.writeText(str);
 
     output({type: "success", message: "Room schedules copied to clipboard!"});

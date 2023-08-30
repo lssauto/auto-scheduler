@@ -280,7 +280,7 @@ function buildTutors(jsonObjs) {
 // * Rooms
 
 // create rooms map
-function BuildRooms(matrix) {
+function buildRooms(matrix) {
     if (rooms == null) {
         rooms = {};
         requestRooms = {};
@@ -293,39 +293,64 @@ function BuildRooms(matrix) {
         // create a new room
         if (row[0] == "Room") {
             if (currentRoom != null) { // add the previous room to the map
-                if (!(currentRoom.name in rooms)) { // if room already exists, do not override the existing room's schedule
+                if (currentRoom.name.toLowerCase().includes("request")) {
+                    requestRooms[currentRoom.name] = currentRoom;
+                } else { // if room already exists, do not override the existing room's schedule
                     rooms[currentRoom.name] = currentRoom;
                 }
             }
-            currentRoom = new Room(row[1]); // 2nd element in the row should be the room name
+            let isRequestRoom = row[1].toLowerCase().includes("request");
+            currentRoom = new Room(row[1], isRequestRoom); // 2nd element in the row should be the room name
             continue;
         }
 
         // add times to the current room's schedule
         const day = row[0].trim();
+        if (day.match(/(M|Tu|W|Th|F|Sat|Sun)/) == null) {
+            output({
+                type: "warning", 
+                message: `'${day}' could not be recognized as a valid day (M/Tu/W/Th/F/Sat/Sun). Skipping row.`,
+                row: i
+            });
+        }
         for (let j = 1; j < row.length; j++) {
             if (row[j] == "") continue;
 
             const fields = row[j].split(",");
-            const course = fields[0].trim();
+            if (fields.length < 3) {
+                output({
+                    type: "warning",
+                    message: "A time is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]",
+                    cell: `(${j} , ${i})`
+                })
+            }
+            const course = formatCourseID(fields[0].trim());
             const tutor = fields[1].split("(")[1].replace(")", "").trim(); // get just the email
             const time = fields[2].trim();
 
-            currentRoom.addTime(day + " " + time, course, tutor);
+            let result = currentRoom.addTime(day + " " + time, course, tutor);
+            if (result != null) {
+                output({
+                    type: "warning",
+                    message: `The time at (${j} , ${i}) could not be added to the room. Schedule returned the error: ${result.error}. Time will be skipped.`
+                })
+            }
         }
     }
-    rooms[currentRoom.name] = currentRoom; // flush last room to the map
+    if (!currentRoom.name.toLowerCase().includes("request")) rooms[currentRoom.name] = currentRoom; // flush last room to the map
 
     // add registrar request rooms
     for (let buildingName in buildings) {
         let building = buildings[buildingName];
-        if (!building.hasRooms) {
+        if (!building.hasRooms && !((FixedRooms.SpecificRequest + buildingName) in requestRooms)) {
             let requestRoom = new Room(FixedRooms.SpecificRequest + buildingName, true);
             requestRooms[requestRoom.name] = requestRoom;
         }
     }
-    let generalRequestRoom = new Room(FixedRooms.Request, true);
-    requestRooms[generalRequestRoom.name] = generalRequestRoom;
+    if (!((FixedRooms.Request) in requestRooms)) {
+        let generalRequestRoom = new Room(FixedRooms.Request, true);
+        requestRooms[generalRequestRoom.name] = generalRequestRoom;
+    }
 }
 
 // * ===========================================================================

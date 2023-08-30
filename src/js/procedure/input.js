@@ -43,6 +43,15 @@ function handleBuildingsSubmit(inputText) {
 
 // Reads raw spreadsheet data from text field, and separates it into a matrix to create Room objects
 function handleRoomSubmit(inputText) {
+    if (rooms != null) {
+        let option = window.confirm("Any room's schedule parsed from this submission will replace its current schedule. Do you want to continue?");
+        if (!option) {
+            output({type: "warning", message: "Quitting parsing process."});
+            return;
+        }
+        output({type: "warning", message: "Replacing select room schedules."});
+    }
+
     output({type: "info", message: "Parsing Room Data..."});
 
     // build matrix
@@ -61,7 +70,7 @@ function handleRoomSubmit(inputText) {
     console.log("Rooms Input:\n", matrix);
 
     // ? function located in parse.js
-    BuildRooms(matrix);
+    buildRooms(matrix);
 
     displayRooms(); // ? function located in display.js
 
@@ -109,7 +118,7 @@ function handleTutorSubmit(inputText) {
     if (tutors != null) {
         let option = window.confirm("This will erase the current tutor list. Do you want to continue?");
         if (!option) {
-            output({type: "warning", message: "Current tutor data will NOT be erased, aborting parsing process."});
+            output({type: "warning", message: "Current tutor data will NOT be erased, quitting parsing process."});
             return;
         }
         output({type: "warning", message: "Current tutor response data has be erased, parsing new data set."});

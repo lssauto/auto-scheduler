@@ -85,7 +85,13 @@ function displayAllTutors() {
 function updateRoomDisplay(name) {
     console.log(name);
     let para = document.getElementById(name);
-    if (para != null) para.innerHTML = rooms[name].display() + "</br>" + ("=".repeat(50)) + "</br>";
+    if (para != null) {
+        if (name in rooms) {
+            para.innerHTML = rooms[name].display() + "</br>" + ("=".repeat(50)) + "</br>";
+        } else if (name in requestRooms) {
+            para.innerHTML = requestRooms[name].display() + "</br>" + ("=".repeat(50)) + "</br>";
+        }
+    } 
 }
 
 // * =================================================================
