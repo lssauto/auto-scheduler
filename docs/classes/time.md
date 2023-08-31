@@ -85,6 +85,9 @@ Times are contained in Schedules, and represent individual time blocks for the c
 > ### `isEqual(other: Time) -> bool`
 > Compares `other` with `this` to see if they are describing the same time, not if they are the same time instance.
 
+> ### `isRemovable() -> bool`
+> Used to determine if the "Remove" button should be added to the schedule display, made in [`Schedule.display()`](schedule.md#display---str). Checks if the removing the time can properly update the tutor's schedule.
+
 > ### `conflictsWith(other: Time) -> bool`
 > Compares `other` with `this` to see if they have overlap in their start and end. Does not compare days.
 

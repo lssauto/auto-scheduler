@@ -295,3 +295,6 @@ let requestRooms = null;
 
 // Set true once buildSchedules() has been run.
 let schedulesCompleted = false;
+
+// toggles verbose output to in-app console
+let verbose = false;

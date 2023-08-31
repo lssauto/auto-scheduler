@@ -38,6 +38,7 @@ function buildSchedules() {
         if (tutor.hasErrors()) continue; // skip tutors with errors
         
         console.log("creating schedule for: " + tutor.name + " (" + tutor.email + ")");
+        if (verbose) output({type: "info", message: "creating schedule for: " + tutor.name + " (" + tutor.email + ")"});
 
         let sessions = 0; // number of sessions assigned to this tutor
         let maxSessions = 0; // maximum number of sessions assigned to this tutor
@@ -65,7 +66,8 @@ function buildSchedules() {
                 if (!ProgressStatus.includes(time.getCourse().status)) continue;
                 if (sessionCounts[time.course].count >= PositionSessionLimit[time.getCourse().position]) continue;
 
-                console.log("finding space for: " + time.getDayAndStartStr());
+                console.log("finding space for: " + time.getDayAndStartStr() + " for " + time.course);
+                if (verbose) output({type: "info", message: "finding space for: " + time.getDayAndStartStr() + " for " + time.course});
 
                 let result = NO_SESSION;
                 if (time.hasRoomAssigned()) { // skip if room is already assigned, // ! not redundant to similar check made in schedule.addTime()

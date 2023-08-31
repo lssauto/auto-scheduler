@@ -23,6 +23,8 @@ scheduleButton.addEventListener('click', buildSchedules);
 // header and tools
 let consoleDiv = document.getElementById('console');
 
+let verboseToggleButton = document.getElementById('verboseToggle');
+
 // headerDiv = document.getElementById('header');
 // contentDiv = document.getElementById('content');
 

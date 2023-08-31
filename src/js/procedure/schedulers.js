@@ -17,7 +17,8 @@ function defaultScheduler(tutor, session, sessionCounts) {
             for (let i = 0; i < day.length; i++) {
                 if (day[i].tag != Tags.Session) continue;
                 if (day[i].start == session.start && day[i].hasRoomAssigned()) {
-                    console.log("Time taken on a different day");
+                    console.log("Time taken on a different day " + day[i].getDayAndStartStr());
+                    if (verbose) output({type: "info", message: "Time taken on a different day " + day[i].getDayAndStartStr()});
                     return NO_SESSION;
                 }
             }
@@ -36,6 +37,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
             
             if (day[i].start == session.start && day[i].hasRoomAssigned()) {
                 console.log("Time taken by another tutor: " + email);
+                if (verbose) output({type: "info", message: "Time taken by another tutor: " + email});
                 return NO_SESSION;
             }
         }
@@ -44,6 +46,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
     // check if tutor wants this session scheduled
     if (session.scheduleByLSS === false) {
         console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
+        if (verbose) output({type: "info", message: "Tutor Scheduling Session: " + session.getDayAndStartStr()});
         session.setRoom(FixedRooms.TutorScheduled);
         return TUTOR_SCHEDULED;
     }
@@ -53,6 +56,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
         let building = buildings[course.preference];
         
         console.log("Searching for rooms in: " + course.preference);
+        if (verbose) output({type: "info", message: "Searching for rooms in: " + course.preference});
         
         // * if preference requires a registrar request
         if (!building.hasRooms && session.day != "Sun") {
@@ -61,6 +65,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
             if (session.start < building.start || building.end < session.end) return NO_SESSION;
 
             console.log("Tutor requesting specific building: " + course.preference);
+            if (verbose) output({type: "info", message: "Tutor requesting specific building: " + course.preference});
             requestRooms[FixedRooms.SpecificRequest + course.preference].schedule.pushTime(session).setTutor(tutor.email);
             session.setRoom(FixedRooms.SpecificRequest + course.preference);
             return REQUEST;
@@ -82,16 +87,19 @@ function defaultScheduler(tutor, session, sessionCounts) {
             // if response is null, space was found
             if (response == null) {
                 console.log("Room found: " + room.name);
+                if (verbose) output({type: "info", message: "Room found: " + room.name});
                 session.setRoom(room.name);
                 return SCHEDULED;
             } else if (response.error == Errors.Replaced) {
                 console.log("Session already scheduled in: " + room.name);
+                if (verbose) output({type: "info", message: "Session already scheduled in: " + room.name});
                 session.setRoom(room.name);
                 return SCHEDULED;
             }
         }
 
         console.log("No space found in: " + course.preference);
+        if (verbose) output({type: "info", message: "No space found in: " + course.preference});
     }
 
     // * for each room without preference
@@ -109,10 +117,12 @@ function defaultScheduler(tutor, session, sessionCounts) {
         // if response is null, space was found
         if (response == null) {
             console.log("Room found: " + room.name);
+            if (verbose) output({type: "info", message: "Room found: " + room.name});
             session.setRoom(room.name);
             return SCHEDULED;
         } else if (response.error == Errors.Replaced) {
             console.log("Session already scheduled in: " + room.name);
+            if (verbose) output({type: "info", message: "Session already scheduled in: " + room.name});
             session.setRoom(room.name);
             return SCHEDULED;
         }
@@ -120,13 +130,15 @@ function defaultScheduler(tutor, session, sessionCounts) {
 
     // * registrar request
     if (session.day != "Sun") {
-        console.log("No Space For: " + session.getDayAndStartStr());
+        console.log("No Space For: " + session.getDayAndStartStr() + " defaulting to " + FixedRooms.Request);
+        if (verbose) output({type: "info", message: "No Space For: " + session.getDayAndStartStr() + " defaulting to " + FixedRooms.Request});
         requestRooms[FixedRooms.Request].schedule.pushTime(session).setTutor(tutor.email);
         session.setRoom(FixedRooms.Request);
         return REQUEST;
     }
 
     console.log("Session could not be scheduled");
+    if (verbose) output({type: "info", message: "Session could not be scheduled"});
     return NO_SESSION;
 }
 
@@ -145,7 +157,8 @@ function writingScheduler(tutor, session, sessionCounts) {
             for (let i = 0; i < day.length; i++) {
                 if (day[i].tag != Tags.Session) continue;
                 if (day[i].start == session.start && day[i].hasRoomAssigned()) {
-                    console.log("Time taken on a different day");
+                    console.log("Time taken on a different day " + day[i].getDayAndStartStr());
+                    if (verbose) output({type: "info", message: "Time taken on a different day " + day[i].getDayAndStartStr()});
                     return NO_SESSION;
                 }
             }
@@ -181,6 +194,7 @@ function writingScheduler(tutor, session, sessionCounts) {
         }
         
         console.log("Searching for rooms in: " + buildingName);
+        if (verbose) output({type: "info", message: "Searching for rooms in: " + buildingName});
         
         // * if preference requires a registrar request
         if (!building.hasRooms && session.day != "Sun") {
@@ -189,6 +203,7 @@ function writingScheduler(tutor, session, sessionCounts) {
             if (session.start < building.start || building.end < session.end) return NO_SESSION;
 
             console.log("Tutor requesting specific building: " + buildingName);
+            if (verbose) output({type: "info", message: "Tutor requesting specific building: " + buildingName});
             requestRooms[FixedRooms.SpecificRequest + buildingName].schedule.pushTime(session).setTutor(tutor.email);
             session.setRoom(FixedRooms.SpecificRequest + buildingName);
             return REQUEST;
@@ -207,19 +222,23 @@ function writingScheduler(tutor, session, sessionCounts) {
             // if response is null, space was found
             if (response == null) {
                 console.log("Room found: " + room.name);
+                if (verbose) output({type: "info", message: "Room found: " + room.name});
                 session.setRoom(room.name);
                 return SCHEDULED;
             } else if (response.error == Errors.Replaced) {
                 console.log("Session already scheduled in: " + room.name);
+                if (verbose) output({type: "info", message: "Session already scheduled in: " + room.name});
                 session.setRoom(room.name);
                 return SCHEDULED;
             }
         }
 
         console.log("No space found in: " + buildingName);
+        if (verbose) output({type: "info", message: "No space found in: " + buildingName});
     }
 
     console.log("Tutor Scheduling Session: " + session.getDayAndStartStr());
+    if (verbose) output({type: "info", message: "Tutor Scheduling Session: " + session.getDayAndStartStr()});
     session.setRoom(FixedRooms.TutorScheduled);
     return TUTOR_SCHEDULED;
 }

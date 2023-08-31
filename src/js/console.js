@@ -20,6 +20,15 @@ function clearConsole() {
     consoleDiv.innerHTML = "";
 }
 
+function toggleVerbose() {
+    verbose = !verbose;
+    if (verbose) {
+        verboseToggleButton.innerHTML = "Disable Verbose Output";
+    } else {
+        verboseToggleButton.innerHTML = "Enable Verbose Output";
+    }
+}
+
 /*let hidden = false;
 function hideConsole() {
     let button = document.getElementById("ConsoleHideButton");
