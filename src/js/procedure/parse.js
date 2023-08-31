@@ -209,6 +209,7 @@ function buildJSON(titles, data) {
                         if (data[i][j].toLowerCase().includes(StatusKeys[key])) {
                             obj.status = StatusOptions[key];
                             statusFound = true;
+                            break;
                         }
                     }
                     if (data[i][j] != "" && !statusFound) {
@@ -264,6 +265,7 @@ function buildTutors(jsonObjs) {
     // build tutors
     for (let i = 0; i < jsonObjs.length; i++) {
         const row = jsonObjs[i];
+        if (row.status == StatusOptions.PastSubmission) continue;
 
         if (row.email in tutors) {
             tutors[row.email].update(row);
