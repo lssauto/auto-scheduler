@@ -326,7 +326,7 @@ function buildRooms(matrix) {
                     cell: `(${j} , ${i})`
                 })
             }
-            const course = formatCourseID(fields[0].trim());
+            const course = formatCourseID(fields[0].trim()) ?? fields[0].trim();
             const tutor = fields[1].split("(")[1].replace(")", "").trim(); // get just the email
             const time = fields[2].trim();
 

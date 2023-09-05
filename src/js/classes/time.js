@@ -129,7 +129,7 @@ class Time {
             } else if (tutors != null && this.tutor in tutors) {
                 body = this.course + " , " + this.getTutor().name + " / " + this.tutor + " , ";
             } else {
-                body = this.tutor + " , ";
+                body = this.course + " , " + this.tutor + " , ";
             }
         } else {
             if (this.hasRoomAssigned()) {

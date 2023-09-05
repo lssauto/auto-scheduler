@@ -128,10 +128,10 @@ function copyTutorSchedules(event) {
         return;
     }
 
-    if (!schedulesCompleted) {
-        output({type: "error", message: "Schedules need to be created before copying schedules."});
-        return;
-    }
+    // if (!schedulesCompleted) {
+    //     output({type: "error", message: "Schedules need to be created before copying schedules."});
+    //     return;
+    // }
 
     let str = "";
 
