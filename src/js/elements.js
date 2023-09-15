@@ -10,8 +10,8 @@ buildingSubmitButton.addEventListener('click', handleInputSubmit);
 let roomSubmitButton = document.getElementById('RoomSubmitButton');
 roomSubmitButton.addEventListener('click', handleInputSubmit);
 
-let expectedSubmitButton = document.getElementById('ExpectedSubmitButton');
-expectedSubmitButton.addEventListener('click', handleInputSubmit);
+let positionSubmitButton = document.getElementById('PositionSubmitButton');
+positionSubmitButton.addEventListener('click', handleInputSubmit);
 
 let tutorSubmitButton = document.getElementById('TutorSubmitButton');
 tutorSubmitButton.addEventListener('click', handleInputSubmit);
@@ -55,7 +55,7 @@ let buildingContainer = document.getElementById("buildingContainer");
 
 let roomContainer = document.getElementById('roomContainer');
 
-let expectedTutorContainer = document.getElementById('expectedTutorContainer');
+let tutorPositionContainer = document.getElementById('tutorPositionContainer');
 
 let tutorContainer = document.getElementById('tutorContainer');
 

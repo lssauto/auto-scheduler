@@ -3,8 +3,8 @@
 
 Functions used for updating the DOM.
 
-> ## `displayExpectedTutors()`
-> Displays the `expectedTutors` map.
+> ## `displayTutorPositions()`
+> Displays the `tutorPositions` map.
 
 > ## `updateTutorDisplay(email: str)`
 > Update a specific tutor's display. `email` is used as the element ID.
@@ -16,7 +16,7 @@ Functions used for updating the DOM.
 > Display all tutors without errors.
 
 > ## `displayAllTutors()`
-> Wrapper to call `displayExpectedTutors()`,`displayErrors()`, and `displayTutors()`.
+> Wrapper to call `displayTutorPositions()`,`displayErrors()`, and `displayTutors()`.
 
 > ## `updateRoomDisplay(name: str)`
 > Update a specific room's display. `name` is used as the element ID.

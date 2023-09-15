@@ -11,10 +11,10 @@
 }
 */
 
-function parseExpectedTutors(matrix) {
+function parseTutorPositions(matrix) {
 
-    if (expectedTutors == null) {
-        expectedTutors = {};
+    if (tutorPositions == null) {
+        tutorPositions = {};
     }
 
     for (let r = 0; r < matrix.length; r++) {
@@ -42,8 +42,8 @@ function parseExpectedTutors(matrix) {
         }
 
         let tutor = null;
-        if (email in expectedTutors) {
-            tutor = expectedTutors[email];
+        if (email in tutorPositions) {
+            tutor = tutorPositions[email];
         } else {
             tutor = { email: email, name: row[1], courses: {} };
         }
@@ -69,12 +69,12 @@ function parseExpectedTutors(matrix) {
 
 
         tutor.courses[course] = position;
-        expectedTutors[email] = tutor;
+        tutorPositions[email] = tutor;
     }
 
     // check tutors with new expected data
     if (tutors != null) {
-        for (const email in expectedTutors) {
+        for (const email in tutorPositions) {
             if (email != tutors) {
                 continue;
             } 
@@ -83,12 +83,12 @@ function parseExpectedTutors(matrix) {
             for (const courseID in tutor.courses) {
                 let course = tutor.courses[courseID];
 
-                if (!(courseID in expectedTutors[email].courses)) {
+                if (!(courseID in tutorPositions[email].courses)) {
                     course.SetStatus(StatusOptions.WrongCourse);
                     output({
                         type: "warning", 
                         message: `${courseID} is not a recognized course for ${tutor.name} (${email}), or is incorrectly formatted. 
-                            Expected one of these options: ${Object.keys(expectedTutors[email].courses)}. Tutor will be labeled as '${StatusOptions.WrongCourse}'.`,
+                            Expected one of these options: ${Object.keys(tutorPositions[email].courses)}. Tutor will be labeled as '${StatusOptions.WrongCourse}'.`,
                         row: course.row
                     });
 
@@ -135,10 +135,10 @@ function buildJSON(titles, data) {
                 obj.timestamp = data[i][j].trim();
 
             } else if (title.includes(Titles.Email)) {
-                if (!(data[i][j].trim() in expectedTutors)) {
+                if (!(data[i][j].trim() in tutorPositions)) {
                     output({
                         type: "warning", 
-                        message: `${data[i][j].trim()} is not a recognized email within the expected tutors list. 
+                        message: `${data[i][j].trim()} is not a recognized email within the tutor position list. 
                         This tutor will be included, but not checked for correct course ID and position.`,
                         row: i + 2
                     });
@@ -157,11 +157,11 @@ function buildJSON(titles, data) {
 
             } else if (title.includes(Titles.CourseID)) {
                 let course = formatCourseID(data[i][j]);
-                if ((obj.email in expectedTutors) && !(course in expectedTutors[obj.email].courses)) {
+                if ((obj.email in tutorPositions) && !(course in tutorPositions[obj.email].courses)) {
                     output({
                         type: "warning", 
                         message: `${data[i][j]} is not a recognized course for ${obj.name} (${obj.email}), or is incorrectly formatted. 
-                            Expected one of these options: ${Object.keys(expectedTutors[obj.email].courses)}. Submission will be labeled as '${StatusOptions.WrongCourse}'.`,
+                            Expected one of these options: ${Object.keys(tutorPositions[obj.email].courses)}. Submission will be labeled as '${StatusOptions.WrongCourse}'.`,
                         row: i + 2
                     });
                     obj.status = StatusOptions.WrongCourse;
@@ -169,8 +169,8 @@ function buildJSON(titles, data) {
                 obj.course = course == null ? data[i][j].trim().replaceAll("–", "-").toUpperCase() : course;
 
             } else if (title.includes(Titles.Position)) {
-                if (obj.email in expectedTutors && !ErrorStatus.includes(obj.status)) {
-                    obj.position = expectedTutors[obj.email].courses[obj.course];
+                if (obj.email in tutorPositions && !ErrorStatus.includes(obj.status)) {
+                    obj.position = tutorPositions[obj.email].courses[obj.course];
                 } else {
                     obj.position = matchPosition(data[i][j]);
                 }

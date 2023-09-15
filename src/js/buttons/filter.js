@@ -2,7 +2,7 @@
 
 function filterErrors() {
     tutorContainer.style.display = "none";
-    expectedTutorContainer.style.display = "block";
+    tutorPositionContainer.style.display = "block";
     errorsContainer.style.display = "block";
 
     let errors = "<h1>Tutors With Errors:</h1></br>";
@@ -16,7 +16,7 @@ function filterErrors() {
 }
 
 function filterComments() {
-    expectedTutorContainer.style.display = "none";
+    tutorPositionContainer.style.display = "none";
     tutorContainer.style.display = "block";
     errorsContainer.style.display = "block";
 
@@ -46,7 +46,7 @@ function filterComments() {
 
 function filterRegistrar() {
     errorsContainer.style.display = "none";
-    expectedTutorContainer.style.display = "none";
+    tutorPositionContainer.style.display = "none";
     tutorContainer.style.display = "block";
 
     let str = "<h1>Tutors With Registrar Requests:</h1></br>";
@@ -73,7 +73,7 @@ function filterRegistrar() {
 }
 
 function filterByPosition(position) {
-    expectedTutorContainer.style.display = "none";
+    tutorPositionContainer.style.display = "none";
     tutorContainer.style.display = "block";
     errorsContainer.style.display = "block";
 
@@ -109,7 +109,7 @@ function filterTutors() {
         case "expected":
             tutorContainer.style.display = "none";
             errorsContainer.style.display = "none";
-            displayExpectedTutors();
+            displayTutorPositions();
             break;
 
         case "comments":

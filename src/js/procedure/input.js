@@ -79,8 +79,8 @@ function handleRoomSubmit(inputText) {
 
 // * =================================================================
 
-function handleExpectedTutorsSubmit(inputText) {
-    output({type: "info", message: "Parsing Expected Tutor Data..."});
+function handleTutorPositionSubmit(inputText) {
+    output({type: "info", message: "Parsing Tutor Position Data..."});
 
     // build matrix
     let matrix = inputText.split("\n");
@@ -99,16 +99,16 @@ function handleExpectedTutorsSubmit(inputText) {
             }
         }
     }
-    console.log("Expected Tutor Input:\n", matrix);
+    console.log("Tutor Position Input:\n", matrix);
 
     if (matrix[0].length != 4) {
-        output({type: "error", message: "Expected tutor data should contain 4 rows: email, name, course, position"});
+        output({type: "error", message: "Tutor position data should contain 4 rows: email, name, course, position"});
         return;
     }
 
-    parseExpectedTutors(matrix); // ? located in parse.js
-    displayExpectedTutors(); // ? located in display.js
-    output({type: "success", message: "Successfully parsed expected tutor data!"});
+    parseTutorPositions(matrix); // ? located in parse.js
+    displayTutorPositions(); // ? located in display.js
+    output({type: "success", message: "Successfully parsed tutor position data!"});
 }
 
 // * =================================================================
@@ -236,17 +236,17 @@ function handleInputSubmit(event) {
 
     } else if (rooms == null || event.srcElement.id == 'RoomSubmitButton') {
         if (rooms == null) {
-            inputSubmitButton.innerHTML = "Parse Expected Tutors";
+            inputSubmitButton.innerHTML = "Parse Tutor Positions";
             roomSubmitButton.style.display = "inline";
         }
         handleRoomSubmit(inputText);
 
-    } else if (expectedTutors == null || event.srcElement.id == 'ExpectedSubmitButton') {
-        if (expectedTutors == null) {
+    } else if (tutorPositions == null || event.srcElement.id == 'PositionSubmitButton') {
+        if (tutorPositions == null) {
             inputSubmitButton.innerHTML = "Parse Tutor Responses";
-            expectedSubmitButton.style.display = "inline";
+            positionSubmitButton.style.display = "inline";
         }
-        handleExpectedTutorsSubmit(inputText);
+        handleTutorPositionSubmit(inputText);
 
     } else if (tutors == null || event.srcElement.id == 'TutorSubmitButton') {
         if (tutors == null) {

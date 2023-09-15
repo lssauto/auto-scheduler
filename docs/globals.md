@@ -77,7 +77,7 @@ Contains enums and global variables used throughout the program. The only global
 
 ### State Containers
 
-- `expectedTutors`: map of expected tutor responses, keys are emails. Contains course IDs, and the position assigned to each course.
+- `tutorPositions`: map of expected tutor responses, keys are emails. Contains course IDs, and the position assigned to each course.
 
 - `tutors`: map of Tutor instances, keys are emails.
 

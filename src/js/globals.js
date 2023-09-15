@@ -255,7 +255,7 @@ const SessionTimes = {
 // The name of scheduler, assigned when user fills in their name.
 let scheduler = null;
 
-let expectedTutors = null;
+let tutorPositions = null;
 let tutors = null;
 
 // Map of positions containing Arrays of emails. Organizes Tutors by position.

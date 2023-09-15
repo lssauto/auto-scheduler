@@ -53,7 +53,7 @@ function searchTutors() {
             }
         }
 
-        expectedTutorContainer.style.display = "none";
+        tutorPositionContainer.style.display = "none";
         tutorContainer.style.display = "block";
         errorsContainer.style.display = "block";
 
@@ -83,7 +83,7 @@ function searchTutors() {
         }
     }
     if (results.length > 0) {
-        expectedTutorContainer.style.display = "none";
+        tutorPositionContainer.style.display = "none";
         tutorContainer.style.display = "block";
         errorsContainer.style.display = "block";
     

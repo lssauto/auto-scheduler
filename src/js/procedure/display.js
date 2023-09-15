@@ -1,19 +1,19 @@
 // displays all tutor's expected courses and positions
-function displayExpectedTutors() {
-    console.log("Expected Tutors Map:\n", expectedTutors);
-    expectedTutorContainer.style.display = "block";
+function displayTutorPositions() {
+    console.log("Expected Tutors Map:\n", tutorPositions);
+    tutorPositionContainer.style.display = "block";
 
     let str = "";
     if (tutors != null) {
         str += "<hr><hr><h1>Missing Tutors:</h1></br>";
     } else {
-        str += "<h1>Expected Tutor Courses and Positions:</h1></br>";
+        str += "<h1>Tutor Positions:</h1></br>";
     }
 
 
-    for (const email in expectedTutors) {
+    for (const email in tutorPositions) {
         if (tutors != null && email in tutors) continue;
-        const expectedTutor = expectedTutors[email];
+        const expectedTutor = tutorPositions[email];
         
         str += `<b>Name: ${expectedTutor.name} ; `;
         str += `Email: ${expectedTutor.email}</b></br>`;
@@ -26,7 +26,7 @@ function displayExpectedTutors() {
         str += ("=".repeat(50)) + "</br>";
     }
 
-    expectedTutorContainer.innerHTML = str;
+    tutorPositionContainer.innerHTML = str;
 }
 
 // * =================================================================
@@ -77,7 +77,7 @@ function displayTutors() {
 function displayAllTutors() {
     displayTutors();
     displayErrors();
-    displayExpectedTutors();
+    displayTutorPositions();
 }
 
 // * =================================================================
