@@ -134,6 +134,7 @@ function filterTutors() {
             } else {
                 displayAllTutors();
                 output({type: "warning", message: "Failed to filter tutors based on " + selection});
+                return;
             }
             break;
     }
