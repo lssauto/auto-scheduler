@@ -75,8 +75,21 @@ function copyTutorTable(event) {
                     tutorMatrix[r][c] = course.scheduler;
 
                 } else if (title.includes(Titles.SessionOption)) {
-
-                }
+                    let time = tutor.schedule.findTimeByCoords(r, c);
+                    if (time == null) {
+                        for (const error of course.errors) {
+                            if (error.time.coords.row == r && error.time.coords.col == c) {
+                                time = error.time;
+                                break;
+                            }
+                        }
+                    }
+                    if (time != null) {
+                        tutorMatrix[r][c] = time.getDayAndStartStr();
+                    }
+                    c++;
+    
+                } 
             }
             continue;
         }

@@ -122,6 +122,7 @@ class Tutor {
                         if (time.room != null) {
                             error.time.setRoom(time.room);
                         }
+                        error.time.setCoords(time.row, time.col);
                         course.errors.push(error);
                     }
                 } else {
