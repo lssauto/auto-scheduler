@@ -1,4 +1,5 @@
 // * Time class used in Schedules
+let timeID = 0;
 
 class Time {
     constructor(schedule) {
@@ -12,6 +13,15 @@ class Time {
         this.start = null;
         this.end = null;
         this.scheduleByLSS = true;
+        this.coords = {row: -1, col: -1};
+        this.id = timeID;
+        timeID++;
+        return this;
+    }
+
+    setCoords(row, col) {
+        this.coords.row = row;
+        this.coords.col = col;
         return this;
     }
 
@@ -123,6 +133,7 @@ class Time {
 
     getFullStr() {
         let body = "";
+        let timeStr = this.getTimeStr();
         if (this.container instanceof Room) {
             if (this.room != null) { // for registrar request rooms
                 body = this.course + " , " + this.getTutor().name + " / " + this.tutor + " , " + " <b>" + this.room + "</b> , ";
@@ -137,8 +148,22 @@ class Time {
             } else {
                 body = this.course;
             }
+            if (this.tag == Tags.Session && !FinishedStatus.includes(this.getCourse().status)) {
+                timeStr = `<select id="${this.id + "-selection"}">`;
+                let isValidTime = isValidSessionTime(this.day, this.start);
+                if (!isValidTime) {
+                    timeStr += `<option value="${this.getDayAndStartStr()}" "selected">${this.getTimeStr()}</option>`;
+                }
+                for (const day in SessionTimes) {
+                    for (const time of SessionTimes[day]) {
+                        timeStr += `<option value="${day} ${time}" ${this.getDayAndStartStr() == `${day} ${time}` ? "selected" : "" }>${day} ${time} - ${convertTimeToString(convertTimeToInt(time) + 60)}</option>`;
+                    }
+                }
+                timeStr += "</select>";
+                timeStr += ` <button type='submit' onclick="changeTime('${this.container.email}', '${this.id}')">Change Time</button>`;
+            }
         }
-        return `${body} ${this.tag}: ${this.getTimeStr()}`;
+        return `${body} ${this.tag}: ${timeStr}`;
     }
 
     isEqual(other) {

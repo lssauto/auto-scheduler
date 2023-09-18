@@ -124,12 +124,15 @@ class Tutor {
                         }
                         course.errors.push(error);
                     }
-                } else if (time.room != null) {
+                } else {
                     let scheduleTime = this.schedule.findTimeByStr(time.time);
-                    scheduleTime.setRoom(time.room);
-                    if (time.room in rooms) {
-                        rooms[time.room].addTime(time.time, id, this.email);
+                    if (time.room != null) {
+                        scheduleTime.setRoom(time.room);
+                        if (time.room in rooms) {
+                            rooms[time.room].addTime(time.time, id, this.email);
+                        }
                     }
+                    scheduleTime.setCoords(time.row, time.col);
                 }
             }
 

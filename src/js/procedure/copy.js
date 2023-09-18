@@ -73,6 +73,9 @@ function copyTutorTable(event) {
 
                 } else if (title.includes(Titles.Scheduler)) {
                     tutorMatrix[r][c] = course.scheduler;
+
+                } else if (title.includes(Titles.SessionOption)) {
+
                 }
             }
             continue;
@@ -86,8 +89,9 @@ function copyTutorTable(event) {
                 tutorMatrix[r][c] = course.id;
 
             } else if (title.includes(Titles.SessionOption)) {
-                let time = tutor.schedule.findTimeByStr(tutorMatrix[r][c]);
+                let time = tutor.schedule.findTimeByCoords(r, c);
                 if (time != null) {
+                    tutorMatrix[r][c] = time.getDayAndStartStr();
                     if (time.hasRoomAssigned()) {
                         tutorMatrix[r][c + 1] = time.room;
                     }

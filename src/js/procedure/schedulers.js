@@ -51,6 +51,14 @@ function defaultScheduler(tutor, session, sessionCounts) {
         return TUTOR_SCHEDULED;
     }
 
+    if (sessionCounts.count - sessionCounts.requests >= PositionRequestLimit[course.position] && session.day != "Sun") {
+        console.log("No Space For: " + session.getDayAndStartStr() + " defaulting to " + FixedRooms.Request);
+        if (verbose) output({type: "info", message: "No Space For: " + session.getDayAndStartStr() + " defaulting to " + FixedRooms.Request});
+        requestRooms[FixedRooms.Request].schedule.pushTime(session).setTutor(tutor.email);
+        session.setRoom(FixedRooms.Request);
+        return REQUEST;
+    }
+
     // * schedule for preferred building
     if (course.preference != "any") {
         let building = buildings[course.preference];
@@ -74,7 +82,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
         // * for each room filtering with preference
         for (let roomID in rooms) {
             // no more sessions to assign, will default to "Request From Registrar"
-            if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
+            if (sessionCounts.count - sessionCounts.requests >= PositionRequestLimit[course.position] && session.day != "Sun") break;
 
             let room = rooms[roomID];
 
@@ -105,7 +113,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
     // * for each room without preference
     for (let roomID in rooms) {
         // no more sessions to assign, will default to "Request From Registrar"
-        if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
+        if (sessionCounts.count - sessionCounts.requests >= PositionRequestLimit[course.position] && session.day != "Sun") break;
         
         let room = rooms[roomID];
 
