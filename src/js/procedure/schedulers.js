@@ -74,7 +74,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
         // * for each room filtering with preference
         for (let roomID in rooms) {
             // no more sessions to assign, will default to "Request From Registrar"
-            if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
+            if (sessionCounts.count - sessionCounts.requests >= PositionRequestLimit[course.position] && session.day != "Sun") break;
 
             let room = rooms[roomID];
 
@@ -105,7 +105,7 @@ function defaultScheduler(tutor, session, sessionCounts) {
     // * for each room without preference
     for (let roomID in rooms) {
         // no more sessions to assign, will default to "Request From Registrar"
-        if (sessionCounts.count - sessionCounts.requests > PositionRequestLimit[course.position] && session.day != "Sun") break;
+        if (sessionCounts.count - sessionCounts.requests >= PositionRequestLimit[course.position] && session.day != "Sun") break;
         
         let room = rooms[roomID];
 
