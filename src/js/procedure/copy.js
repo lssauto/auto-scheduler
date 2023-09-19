@@ -43,12 +43,24 @@ function copyTutorTable(event) {
         let dateObject = new Date(rowObj.timestamp);
         let timestamp = dateObject.getTime();
 
+        // get position key
+        let positionKey = DefaultPosition;
+        for (const position in Positions) {
+            if (Positions[position] == course.position) {
+                positionKey = position;
+                break;
+            }
+        }
+
         if (course.timestamp > timestamp) {
             for (let c = 0; c < responseColumnTitles.length; c++) {
                 const title = responseColumnTitles[c].trim().toLowerCase();
 
                 if (title.includes(Titles.CourseID)) {
                     tutorMatrix[r][c] = course.id;
+
+                } else if (title.includes(Titles.Position)) {
+                    tutorMatrix[r][c] = PositionKeys[positionKey];
 
                 } else if (title.includes(Titles.Status)) {
                     tutorMatrix[r][c] = StatusOptions.PastSubmission;
@@ -67,6 +79,9 @@ function copyTutorTable(event) {
 
                 if (title.includes(Titles.CourseID)) {
                     tutorMatrix[r][c] = course.id;
+
+                } else if (title.includes(Titles.Position)) {
+                    tutorMatrix[r][c] = PositionKeys[positionKey];
 
                 } else if (title.includes(Titles.Status)) {
                     tutorMatrix[r][c] = course.status;
@@ -100,6 +115,9 @@ function copyTutorTable(event) {
 
             if (title.includes(Titles.CourseID)) {
                 tutorMatrix[r][c] = course.id;
+
+            } else if (title.includes(Titles.Position)) {
+                tutorMatrix[r][c] = PositionKeys[positionKey];
 
             } else if (title.includes(Titles.SessionOption)) {
                 let time = tutor.schedule.findTimeByCoords(r, c);
