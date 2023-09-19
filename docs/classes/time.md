@@ -9,6 +9,10 @@ Times are contained in Schedules, and represent individual time blocks for the c
 
 - `container: Tutor | Room`: back reference to the container of the schedule this Time is a part of.
 
+- `id: int`: A unique identifier given to each Time.
+
+- `coords: {row: int, col: int}`: the row and column this time is associated with on the tutor response table. This is only used by session times.
+
 - `tutor: str`: the email of the tutor this time is associated with. Access the actual Tutor instance with `getTutor()`.
 
 - `room: str`: the room name of the room this time is associated with. Access the actual Room instance with `getRoom()`.
@@ -80,7 +84,7 @@ Times are contained in Schedules, and represent individual time blocks for the c
 > returns `"{day} ##:## [AM/PM] - ##:## [AM/PM]"`.
 
 > ### `getFullStr() -> str`
-> Returns a string containing the full time, the tag, and info about `container`.
+> Returns a string containing the full time, the tag, and info about `container`. If the Time is a session, then a dropdown menu will be generated to change the time.
 
 > ### `isEqual(other: Time) -> bool`
 > Compares `other` with `this` to see if they are describing the same time, not if they are the same time instance.

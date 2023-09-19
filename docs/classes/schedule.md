@@ -43,6 +43,12 @@ Each Tutor and Room has a Schedule instance that can be accessed with the `.sche
 > ### `findTimeByStr(timeStr: str, tag: Tags) -> Time | null`
 > Finds a Time within the schedule that matches `timeStr` and has the given tag. `timeStr` should be formatted as `"DAY ##:## AM/PM"`. Returns the Time instance that was found, or `null` if it wasn't found.
 
+> ### `findTimeByID(id: int) -> Time | null`
+> Finds a Time within the schedule that has the given `id`. If no match is found, then `null` is returned.
+
+> ### `findTimeByCoords(row: int, col: int) -> Time | null`
+> Finds a Time with the schedule that has the given coordinates. If no match is found, then `null` is returned.
+
 > ### `display() -> str`
 > Creates a string containing HTML to display the times in the schedule.
 
