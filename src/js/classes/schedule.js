@@ -87,7 +87,7 @@ class Schedule {
         // check if time is valid if it is a session and schedule is for a tutor
         if (this.container instanceof Tutor && tag == Tags.Session) {
             for (const day of days) {
-                if (day == "Sun" || day == "Sat") { continue; }
+                if (day == "Sat") { continue; }
 
                 // returns true if time is valid, isValidSessionTime() in session-times.js
                 if (!isValidSessionTime(day, start)) {
@@ -190,7 +190,7 @@ class Schedule {
     findTimeIndex(givenTime) {
         for (let i = 0;  i < this.week[givenTime.day].length; i++) {
             let time = this.week[givenTime.day][i];
-            if (time.isEqual(givenTime)) {
+            if (time.id == givenTime.id) {
                 return i;
             }
         }
@@ -206,6 +206,28 @@ class Schedule {
         for (const time of this.week[day]) {
             if (timeObj.start == time.start && timeObj.end == time.end && time.tag == tag) {
                 return time;
+            }
+        }
+        return null;
+    }
+
+    findTimeByID(id) {
+        for (const day in this.week) {
+            for (const time of this.week[day]) {
+                if (time.id == id) {
+                    return time;
+                }
+            }
+        }
+        return null;
+    }
+
+    findTimeByCoords(row, col) {
+        for (const day in this.week) {
+            for (const time of this.week[day]) {
+                if (time.coords.row == row && time.coords.col == col) {
+                    return time;
+                }
             }
         }
         return null;

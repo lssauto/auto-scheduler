@@ -165,7 +165,7 @@ function handleTutorSubmit(inputText) {
     // build data field matrix
     let matrix = [];
     buffer = "";
-    i++; // skip over first newline
+    //i++; // skip over first newline
     columnCount = 1;  // makes sure all column fields are filled per row
     rowCount = 1;
     while (i < inputText.length) {

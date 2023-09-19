@@ -218,7 +218,7 @@ const Errors = {
 
 // * Valid Session Times according to https://registrar.ucsc.edu/soc/archive/html/fall2020/schedule_planner1.pdf
 const SessionTimes = {
-    "MW": [
+    "M": [
         "8:00 AM",
         "9:20 AM",
         "10:40 AM",
@@ -226,6 +226,35 @@ const SessionTimes = {
         "1:20 PM",
         "2:40 PM",
         "4:00 PM",
+        "5:20 PM",
+        "7:10 PM"
+    ],
+    "Tu": [
+        "8:00 AM",
+        "9:50 AM",
+        "11:40 AM",
+        "1:30 PM",
+        "3:20 PM",
+        "5:20 PM",
+        "7:10 PM"
+    ],
+    "W": [
+        "8:00 AM",
+        "9:20 AM",
+        "10:40 AM",
+        "12:00 PM",
+        "1:20 PM",
+        "2:40 PM",
+        "4:00 PM",
+        "5:20 PM",
+        "7:10 PM"
+    ],
+    "Th": [
+        "8:00 AM",
+        "9:50 AM",
+        "11:40 AM",
+        "1:30 PM",
+        "3:20 PM",
         "5:20 PM",
         "7:10 PM"
     ],
@@ -238,14 +267,19 @@ const SessionTimes = {
         "2:40 PM",
         "4:00 PM"
     ],
-    "TuTh": [
+    "Sun": [
         "8:00 AM",
-        "9:50 AM",
-        "11:40 AM",
-        "1:30 PM",
-        "3:20 PM",
-        "5:20 PM",
-        "7:10 PM"
+        "9:00 AM",
+        "10:00 AM",
+        "11:00 AM",
+        "12:00 AM",
+        "1:00 PM",
+        "2:00 PM",
+        "3:00 PM",
+        "4:00 PM",
+        "5:00 PM",
+        "6:00 PM",
+        "7:00 PM",
     ]
 }
 
