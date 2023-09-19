@@ -9,6 +9,7 @@ const ConsoleColors = { // use to set the color of the console messages based on
 // * message is expected to be an object with at least a type field
 function output(msg) {
     let p = document.createElement("p");
+    p.style.padding = "5px";
     p.style.backgroundColor = ConsoleColors[msg.type];
     for (let key in msg) {
         p.innerHTML += key + ": " + msg[key] + "<br>";

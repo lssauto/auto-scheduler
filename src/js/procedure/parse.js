@@ -323,7 +323,7 @@ function buildRooms(matrix) {
                 output({
                     type: "warning",
                     message: `A time in ${currentRoom.name}'s schedule is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]'. Skipping time.`,
-                    cell: `(${j + 1} , ${i + 1})`
+                    cell: `(row: ${i + 1} , col: ${j + 1})`
                 });
                 continue;
             }
@@ -335,7 +335,7 @@ function buildRooms(matrix) {
             if (result != null) {
                 output({
                     type: "warning",
-                    message: `The time at (${j} , ${i}) could not be added to the room. Schedule returned the error: ${result.error}. Time will be skipped.`
+                    message: `The time at (row: ${i + 1} , col: ${j + 1}) could not be added to the room. Schedule returned the error: ${result.error}. Time will be skipped.`
                 })
             }
         }
