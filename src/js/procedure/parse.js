@@ -322,7 +322,7 @@ function buildRooms(matrix) {
             if (fields.length < 3) {
                 output({
                     type: "warning",
-                    message: "A time is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]'",
+                    message: `A time in ${currentRoom.name}'s schedule is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]'`,
                     cell: `(${j} , ${i})`
                 });
                 continue;
