@@ -322,9 +322,10 @@ function buildRooms(matrix) {
             if (fields.length < 3) {
                 output({
                     type: "warning",
-                    message: "A time is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]",
+                    message: "A time is missing the needed fields. Expects: 'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]'",
                     cell: `(${j} , ${i})`
-                })
+                });
+                continue;
             }
             const course = formatCourseID(fields[0].trim()) ?? fields[0].trim();
             const tutor = fields[1].split("(")[1].replace(")", "").trim(); // get just the email
