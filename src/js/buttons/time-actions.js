@@ -22,12 +22,16 @@ function changeTime(email, timeID) {
         }
     }
 
-    let dropdown = document.getElementById(timeID + "-selection");
-    let selection = dropdown.options[dropdown.selectedIndex].value;
-    let timeObj = parseTimeStr(selection);
+    let input = document.getElementById(timeID + "-selection");
+    let timeObj = parseTimeStr(input.value);
+
+    if (timeObj == null) {
+        output({type: "error", message: "Invalid time format. Follow this format: [M/Tu/W/Th/F/Sat/Sun] ##:## [AM/PM]"});
+        return;
+    }
 
     let prevDay = time.day;
-    let prevTime = time.getDayAndStartStr();
+    let prevTime = time.getTimeStr();
     
     if (!isError) {
         if (prevDay != timeObj.days[0]) {
@@ -36,7 +40,6 @@ function changeTime(email, timeID) {
                 .setStart(timeObj.start)
                 .setEnd(timeObj.end);
             time.schedule.pushTime(time);
-            console.log("removed time");
         } else {
             time.setDay(timeObj.days[0])
                 .setStart(timeObj.start)

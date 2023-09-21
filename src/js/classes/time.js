@@ -149,17 +149,18 @@ class Time {
                 body = this.course;
             }
             if (this.tag == Tags.Session && !FinishedStatus.includes(this.getCourse().status)) {
-                timeStr = `<select id="${this.id + "-selection"}">`;
-                let isValidTime = isValidSessionTime(this.day, this.start);
-                if (!isValidTime) {
-                    timeStr += `<option value="${this.getDayAndStartStr()}" "selected">${this.getTimeStr()}</option>`;
-                }
-                for (const day in SessionTimes) {
-                    for (const time of SessionTimes[day]) {
-                        timeStr += `<option value="${day} ${time}" ${this.getDayAndStartStr() == `${day} ${time}` ? "selected" : "" }>${day} ${time} - ${convertTimeToString(convertTimeToInt(time) + 60)}</option>`;
-                    }
-                }
-                timeStr += "</select>";
+                timeStr = this.getTimeStr();
+                timeStr += ` | <input type="text" id="${this.id + "-selection"}" placeholder="DAY ##:## [AM/PM]" size="12">`;
+                // let isValidTime = isValidSessionTime(this.day, this.start);
+                // if (!isValidTime) {
+                //     timeStr += `<option value="${this.getDayAndStartStr()}" "selected">${this.getTimeStr()}</option>`;
+                // }
+                // for (const day in SessionTimes) {
+                //     for (const time of SessionTimes[day]) {
+                //         timeStr += `<option value="${day} ${time}" ${this.getDayAndStartStr() == `${day} ${time}` ? "selected" : "" }>${day} ${time} - ${convertTimeToString(convertTimeToInt(time) + 60)}</option>`;
+                //     }
+                // }
+                // timeStr += "</select>";
                 timeStr += ` <button type='submit' onclick="changeTime('${this.container.email}', '${this.id}')">Change Time</button>`;
             }
         }

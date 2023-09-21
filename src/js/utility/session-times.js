@@ -5,17 +5,12 @@
 function isValidSessionTime(day, sessionTime) {
     if (!(day in SessionTimes)) { return false; }
 
+    let sessionEnd = sessionTime + 60;
     for (const time of SessionTimes[day]) {
-        if (sessionTime == convertTimeToInt(time)) { return true; }
-    }
-
-    if ("MW".includes(day)) {
-        if (convertTimeToInt("9:00 PM") <= sessionTime || sessionTime <= convertTimeToInt("10:00 PM")) {
-            return true;
-        }
-    } else if ("F".includes(day)) {
-        if (convertTimeToInt("5:05 PM") <= sessionTime || sessionTime <= convertTimeToInt("10:00 PM")) {
-            return true;
+        let timeBlockStart = convertTimeToInt(time.start);
+        let timeBlockEnd = convertTimeToInt(time.end);
+        if (timeBlockStart <= sessionTime && sessionEnd <= timeBlockEnd) { 
+            return true; 
         }
     }
 
