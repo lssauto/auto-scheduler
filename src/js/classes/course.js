@@ -38,9 +38,9 @@ class Course {
                     if (!time.hasRoomAssigned()) continue;
 
                     // remove time from assigned room
-                    if (time.room in rooms) {
+                    if (time.room in rooms || time.room in requestRooms) {
                         let room = time.getRoom();
-                        let i = room.schedule.findTimeIndex(time);
+                        let i = room.schedule.findMatchingTimeIndex(time);
                         if (i != null) removeTime(time.room, day, i, false); // false flag used to tell removeTime not to update tutor display
                     }
 

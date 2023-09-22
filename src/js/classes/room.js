@@ -3,6 +3,7 @@
 class Room {
     constructor(name, isRequestRoom=false) {
         this.name = name;
+        this.isRequestRoom = isRequestRoom;
         this.type = null;
         if (!isRequestRoom) {
             this.type = DefaultPosition;

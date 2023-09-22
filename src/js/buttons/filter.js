@@ -58,7 +58,7 @@ function filterRegistrar() {
             for (const session of sessions) {
                 if (session.tag != Tags.Session) continue;
                 if (!session.hasRoomAssigned()) continue;
-                if (session.room.toLowerCase().includes("request")) {
+                if (session.getRoom()?.isRequestRoom) {
                     hasRequest = true;
                 }
             }
@@ -117,10 +117,6 @@ function filterTutors() {
             break;
         
         case "registrar":
-            if (!schedulesCompleted) {
-                output({type: "error", message: "Cannot filter for tutors with registrar requests until schedules have been completed."});
-                return;
-            }
             filterRegistrar();
             break;
         

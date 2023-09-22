@@ -91,6 +91,8 @@ class Time {
     getRoom() {
         if (this.room in rooms) {
             return rooms[this.room];
+        } else if (this.room in requestRooms) {
+            return requestRooms[this.room];
         }
         return null;
     }
@@ -183,10 +185,10 @@ class Time {
     }
 
     conflictsWith(other) {
-        if (other.start >= this.start && other.start <= this.end) {
+        if (this.start <= other.start && other.start <= this.end) {
             return true;
         }
-        if (other.end >= this.end && other.end <= this.end) {
+        if (this.start <= other.end && other.end <= this.end) {
             return true;
         }
         return false;

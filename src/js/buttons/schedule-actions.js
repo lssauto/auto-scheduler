@@ -15,6 +15,7 @@ function removeTimeFromTutor(email, day, i) {
 }
 
 function removeTimeFromRoom(name, day, i, updateStatus) {
+    console.log(name);
     let room = name in rooms ? rooms[name] : requestRooms[name];
     let time = room.schedule.removeTime(day, i);
     

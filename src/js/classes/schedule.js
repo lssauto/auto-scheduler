@@ -197,6 +197,16 @@ class Schedule {
         return null;
     }
 
+    findMatchingTimeIndex(givenTime) {
+        for (let i = 0;  i < this.week[givenTime.day].length; i++) {
+            let time = this.week[givenTime.day][i];
+            if (time.isEqual(givenTime)) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     // expects string formatted as "DAY ##:## AM/PM"
     findTimeByStr(timeStr, tag="session") {
         let timeObj = parseTimeStr(timeStr);

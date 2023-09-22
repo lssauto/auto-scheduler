@@ -295,7 +295,7 @@ function buildRooms(matrix) {
         // create a new room
         if (row[0] == "Room") {
             if (currentRoom != null) { // add the previous room to the map
-                if (currentRoom.name.toLowerCase().includes("request")) {
+                if (currentRoom.isRequestRoom) {
                     requestRooms[currentRoom.name] = currentRoom;
                 } else { // if room already exists, do not override the existing room's schedule
                     rooms[currentRoom.name] = currentRoom;
@@ -329,18 +329,42 @@ function buildRooms(matrix) {
             }
             const course = formatCourseID(fields[0].trim()) ?? fields[0].trim();
             const tutor = fields[1].split("(")[1].replace(")", "").trim(); // get just the email
-            const time = fields[2].trim();
+            const timeStr = fields[2].trim();
 
-            let result = currentRoom.addTime(day + " " + time, course, tutor);
-            if (result != null) {
-                output({
-                    type: "warning",
-                    message: `The time at (row: ${i + 1} , col: ${j + 1}) could not be added to the room. Schedule returned the error: ${result.error}. Time will be skipped.`
-                })
+            if (currentRoom.isRequestRoom) {
+                let timeObj = parseTimeStr(timeStr);
+                if (timeObj == null) {
+                    output({
+                        type: "warning",
+                        message: `The time at (row: ${i + 1} , col: ${j + 1}) could not be added to the registrar request room: ${currentRoom.name}. Time will be skipped.`
+                    });
+                    continue;
+                }
+                let time = new Time(currentRoom.schedule);
+                time.setTutor(tutor)
+                    .setCourse(course)
+                    .setTag("session")
+                    .setDay(timeObj.days[0])
+                    .setStart(timeObj.start)
+                    .setEnd(timeObj.end);
+                currentRoom.schedule.pushTime(time);
+            } else {
+                let result = currentRoom.addTime(day + " " + timeStr, course, tutor); // TODO: pushTime for registrar requests
+                if (result != null) {
+                    output({
+                        type: "warning",
+                        message: `The time at (row: ${i + 1} , col: ${j + 1}) could not be added to the room. Schedule returned the error: ${result.error}. Time will be skipped.`
+                    });
+                }
             }
         }
     }
-    if (!currentRoom.name.toLowerCase().includes("request")) rooms[currentRoom.name] = currentRoom; // flush last room to the map
+    // flush last room to the map
+    if (currentRoom.isRequestRoom) {
+        requestRooms[currentRoom.name] = currentRoom;
+    } else {
+        rooms[currentRoom.name] = currentRoom;
+    }
 
     // add registrar request rooms
     for (let buildingName in buildings) {
