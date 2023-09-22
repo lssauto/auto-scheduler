@@ -110,6 +110,12 @@ function removeCourse(email, course, updateDisplay=true) {
 
     let tutor = tutors[email];
 
+    positionList = positionsMap[tutor.courses[course].position];
+    let i = positionList.indexOf(email);
+    if (i != -1) {
+        positionList.splice(i, 1);
+    }
+
     delete tutor.courses[course];
     tutor.fillSchedule();
 
@@ -120,7 +126,7 @@ function removeCourse(email, course, updateDisplay=true) {
     if (Object.keys(tutor.courses).length == 0) {
         output({type: "warning", 
             message: `${course} was the last course in ${tutors[email].name}'s course list. They will be removed from the tutors list.`});
-        delete tutors[email];
+            delete tutors[email];
         let para = document.getElementById(email);
         para.remove();
         return;

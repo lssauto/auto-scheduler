@@ -20,8 +20,24 @@ function copyTutorTable(event) {
     // set new values in matrix
     for (let r = 0; r < tutorMatrix.length; r++) {
         const rowObj = tutorJSONObjs[r];
+
+        // if tutor was deleted
+        if (!(rowObj.email in tutors)) {
+            for (let c = 0; c < responseColumnTitles.length; c++) {
+                const title = responseColumnTitles[c].trim().toLowerCase();
+
+                if (title.includes(Titles.Status)) {
+                    tutorMatrix[r][c] = StatusOptions.PastSubmission;
+
+                } else if (title.includes(Titles.Scheduler)) {
+                    tutorMatrix[r][c] = scheduler;
+                }
+            }
+            continue;
+        }
+
         const tutor = tutors[rowObj.email];
-        const course = tutor.courses[rowObj.course];
+        const course = tutor?.courses[rowObj.course];
         //console.log(rowObj);
 
         // if course was deleted
