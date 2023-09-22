@@ -5,7 +5,7 @@ function removeTimeFromTutor(email, day, i) {
     
     if (time.hasRoomAssigned()) {
         let room = time.getRoom();
-        room.schedule.removeTime(day, room.schedule.findTimeIndex(time));
+        room.schedule.removeTime(day, room.schedule.findMatchingTimeIndex(time));
         updateRoomDisplay(time.room);
         output({type: "info", message: `Time will also be removed from ${time.room}.`});
     }
