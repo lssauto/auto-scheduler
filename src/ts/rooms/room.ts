@@ -1,15 +1,15 @@
 import { RoomSchedule, AvailableRange } from "./room-schedule";
-import { Positions, Position } from "./positions";
+//import { Position } from "../positions";
 
 export class Room {
     name: string;
     schedule: RoomSchedule;
 
     isRequestRoom: boolean;
-    type: Position;
 
-    constructor(name: string, range: AvailableRange) {
+    constructor(name: string, range: AvailableRange, isRequestRoom = false) {
         this.name = name;
+        this.isRequestRoom = isRequestRoom;
         this.schedule = new RoomSchedule(this, range);
     }
 }
