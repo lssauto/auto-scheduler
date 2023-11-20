@@ -11,7 +11,7 @@ export interface Building {
 
 export class Rooms {
   private static _instance: Rooms | null = null;
-  public static getInstance(): Rooms | null {
+  public static get instance(): Rooms | null {
     return this._instance;
   }
 
