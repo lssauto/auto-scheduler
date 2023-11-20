@@ -23,8 +23,10 @@ export class Rooms {
     end: timeConvert.strToInt("10:00 PM")
   };
 
-  rooms?: Map<string, Room>;
-  buildings?: Map<string, Building>;
+  private rooms?: Map<string, Room>;
+  private buildings?: Map<string, Building>;
+
+  div?: HTMLDivElement | null;
 
   constructor() {
     if (Rooms._instance !== null && Rooms._instance !== this) {
@@ -35,6 +37,8 @@ export class Rooms {
 
     this.rooms = new Map<string, Room>();
     this.buildings = new Map<string, Building>();
+
+    this.div = null;
   }
 
   getRoom(name: string): Room | undefined {
@@ -49,6 +53,25 @@ export class Rooms {
     this.buildings!.get(building)!.rooms.push(room);
   }
 
+  removeRoom(room: Room | string): Room {
+    if (room instanceof Room) {
+      this.rooms!.delete(room.name);
+      const building = this.buildings!.get(room.building)!;
+      building.rooms.splice(building.rooms.indexOf(room), 1);
+      return room;
+    } else {
+      const removedRoom = this.rooms!.get(room)!;
+      this.rooms!.delete(removedRoom.name);
+      const building = this.buildings!.get(removedRoom.building)!;
+      building.rooms.splice(building.rooms.indexOf(removedRoom), 1);
+      return removedRoom;
+    }
+  }
+
+  forEachRoom(action: (room: Room) => void) {
+    this.rooms!.forEach(action);
+  }
+
   getBuildingName(room: Room): string {
     let buildingName = Rooms.unknown;
     this.forEachBuilding(building => {
@@ -59,7 +82,36 @@ export class Rooms {
     return buildingName;
   }
 
+  addBuilding(building: Building) {
+    this.buildings!.set(building.name, building);
+    this.forEachRoom(room => {
+      if (this.getBuildingName(room) === building.name) {
+        building.rooms.push(room);
+        room.setBuilding(building.name);
+      }
+    });
+  }
+
+  getBuilding(name: string): Building | undefined {
+    return this.buildings!.get(name);
+  }
+
   forEachBuilding(action: (building: Building) => void) {
     this.buildings!.forEach(action);
+  }
+
+  getDiv(): HTMLDivElement {
+    if (this.div === null) {
+      this.div = this.buildDiv();
+    }
+    return this.div!;
+  }
+
+  private buildDiv(): HTMLDivElement {
+    const div = document.createElement("div");
+    this.forEachRoom(room => {
+      div.append(room.getDiv());
+    });
+    return div;
   }
 }

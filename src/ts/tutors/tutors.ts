@@ -8,8 +8,9 @@ export class Tutors {
   }
 
   private tutors?: Map<string, Tutor>;
-
   private positions?: Map<Position, Tutor[]>;
+
+  div?: HTMLDivElement | null;
 
   constructor() {
     if (Tutors._instance !== null && Tutors._instance !== this) {
@@ -24,6 +25,8 @@ export class Tutors {
     Positions.forEach((pos) => {
       this.positions!.set(pos, []);
     });
+
+    this.div = null;
   }
 
   addTutor(tutor: Tutor) {
@@ -39,7 +42,6 @@ export class Tutors {
   }
 
   removeTutor(tutor: Tutor | string): Tutor {
-    let removedTutor: Tutor;
     if (tutor instanceof Tutor) {
       this.tutors!.delete(tutor.email);
       const positionsMap = this.positions!;
@@ -49,7 +51,7 @@ export class Tutors {
       });
       return tutor;
     } else {
-      removedTutor = this.tutors!.get(tutor)!;
+      const removedTutor = this.tutors!.get(tutor)!;
       this.tutors!.delete(tutor);
       const positionsMap = this.positions!;
       removedTutor.forEachCourse(course => {
@@ -66,5 +68,20 @@ export class Tutors {
 
   forEachPositionList(position: Position, action: (tutor: Tutor) => void) {
     this.positions!.get(position)!.forEach(action);
+  }
+
+  getDiv(): HTMLDivElement {
+    if (this.div === null) {
+      this.div = this.buildDiv();
+    }
+    return this.div!;
+  }
+
+  private buildDiv(): HTMLDivElement {
+    const div = document.createElement("div");
+    this.forEachTutor(tutor => {
+      div.append(tutor.getDiv());
+    });
+    return div;
   }
 }
