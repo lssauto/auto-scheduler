@@ -1,6 +1,7 @@
 import { Schedule, ErrorCodes } from "../schedule/schedule";
 import { TimeBlock, Tags } from "../schedule/time-block";
 import { Room } from "./room";
+import { Rooms } from "./rooms";
 import { Days } from "../enums";
 
 export interface AvailableRange {
@@ -16,10 +17,10 @@ export class RoomSchedule extends Schedule {
   range: AvailableRange;
   sessionCounts: Map<Days, number>;
 
-  constructor(room: Room, range: AvailableRange) {
+  constructor(room: Room) {
     super();
     this.room = room;
-    this.range = range;
+    this.range = Rooms.defaultRange;
     this.sessionCounts = new Map<Days, number>();
     this.sessionCounts.set(Days.mon, 0);
     this.sessionCounts.set(Days.tue, 0);
@@ -28,6 +29,10 @@ export class RoomSchedule extends Schedule {
     this.sessionCounts.set(Days.fri, 0);
     this.sessionCounts.set(Days.sat, 0);
     this.sessionCounts.set(Days.sun, 0);
+  }
+
+  setRange(range: AvailableRange) {
+    this.range = range;
   }
 
   override addTime(time: TimeBlock): ErrorCodes {

@@ -4,6 +4,7 @@ import { Days } from "../enums";
 export enum ErrorCodes {
   conflict,
   overBooked,
+  invalidSession,
   outOfRange,
   success,
 }
