@@ -114,4 +114,12 @@ export class Rooms {
     });
     return div;
   }
+
+  hideDiv() {
+    this.div!.style.display = "none";
+  }
+
+  showDiv() {
+    this.div!.style.display = "block";
+  }
 }

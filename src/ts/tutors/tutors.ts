@@ -3,7 +3,7 @@ import { Position, Positions } from "../positions";
 
 export class Tutors {
   private static _instance: Tutors | null = null;
-  get instance(): Tutors | null {
+  public static get instance(): Tutors | null {
     return Tutors._instance;
   }
 
@@ -83,5 +83,13 @@ export class Tutors {
       div.append(tutor.getDiv());
     });
     return div;
+  }
+
+  hideDiv() {
+    this.div!.style.display = "none";
+  }
+
+  showDiv() {
+    this.div!.style.display = "block";
   }
 }
