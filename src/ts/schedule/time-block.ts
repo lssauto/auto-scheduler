@@ -1,6 +1,11 @@
 import { Schedule } from "./schedule";
 import * as timeConvert from "../utils/time-convert";
 import { Days } from "../enums";
+import { Tutors } from "../tutors/tutors";
+import { Tutor } from "../tutors/tutor";
+import { Rooms } from "../rooms/rooms";
+import { Room } from "../rooms/room";
+import { Course } from "../tutors/course";
 
 export enum Tags {
   session = "session",
@@ -11,7 +16,7 @@ export enum Tags {
   reserve = "reservation",
 }
 
-const tagColors = new Map<
+export const tagColors = new Map<
   Tags,
   { backgroundColor: string; borderColor: string }
 >();
@@ -39,6 +44,19 @@ tagColors.set(Tags.reserve, {
   backgroundColor: "#a3f0e9",
   borderColor: "#569c96",
 });
+
+interface TimeBlockConfig {
+  schedule: Schedule;
+  coords?: { row: number; col: number };
+  tag: Tags;
+  day: Days;
+  start: number;
+  end: number;
+  scheduleByLSS: boolean;
+  tutorEmail?: string;
+  roomName?: string;
+  courseID?: string;
+}
 
 export class TimeBlock {
   schedule: Schedule;
@@ -108,8 +126,14 @@ export class TimeBlock {
     return this;
   }
 
-  getTutor() {
-    //TODO: add refs to container classes
+  getTutor(): Tutor | null {
+    if (
+      this.tutorEmail !== null &&
+      Tutors.instance!.hasTutor(this.tutorEmail)
+    ) {
+      return Tutors.instance!.getTutor(this.tutorEmail)!;
+    }
+    return null;
   }
 
   setRoom(name: string | null): TimeBlock {
@@ -117,8 +141,11 @@ export class TimeBlock {
     return this;
   }
 
-  getRoom() {
-    // TODO: add refs to rooms class
+  getRoom(): Room | null {
+    if (this.roomName !== null && Rooms.instance!.hasRoom(this.roomName)) {
+      return Rooms.instance!.getRoom(this.roomName)!;
+    }
+    return null;
   }
 
   hasRoomAssigned(): boolean {
@@ -130,8 +157,16 @@ export class TimeBlock {
     return this;
   }
 
-  getCourse() {
-    // TODO: add ref to courses in tutor
+  getCourse(): Course | null {
+    const tutor = this.getTutor();
+    if (
+      tutor !== null &&
+      this.courseID !== null &&
+      tutor.hasCourse(this.courseID)
+    ) {
+      return tutor.getCourse(this.courseID)!;
+    }
+    return null;
   }
 
   private buildTimeDiv(): HTMLDivElement {
@@ -206,7 +241,9 @@ export class TimeBlock {
 
     const text: HTMLElement = document.createElement("p");
     // TODO: get tutor name
-    text.innerHTML = `${this.courseID} / ${this.tutorEmail} / ${this.getTimeStr()}`;
+    text.innerHTML = `${this.courseID} / ${
+      this.tutorEmail
+    } / ${this.getTimeStr()}`;
     div.append(text);
 
     div.append(this.buildEditButton());
@@ -256,5 +293,32 @@ export class TimeBlock {
     if (this.start != other.start) return false;
     if (this.end != other.end) return false;
     return true;
+  }
+
+  // statics =================================================
+
+  static buildTimeBlock(config: TimeBlockConfig): TimeBlock {
+    const newTime = new TimeBlock(config.schedule);
+    if (config.coords !== undefined) {
+      newTime.setCoords(config.coords.row, config.coords.col);
+    }
+    newTime
+      .setDay(config.day)
+      .setStart(config.start)
+      .setEnd(config.end)
+      .setTag(config.tag)
+      .setScheduleByLSS(config.scheduleByLSS);
+
+    if (config.tutorEmail !== undefined) {
+      newTime.setTutor(config.tutorEmail);
+    }
+    if (config.roomName !== undefined) {
+      newTime.setRoom(config.roomName);
+    }
+    if (config.courseID !== undefined) {
+      newTime.setCourse(config.courseID);
+    }
+
+    return newTime;
   }
 }

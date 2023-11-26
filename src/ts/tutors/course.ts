@@ -3,6 +3,22 @@ import { TimeBlock, Tags } from "../schedule/time-block";
 import { Position, Positions } from "../positions";
 import { Status, StatusOptions } from "../status-options";
 
+interface CourseConfig {
+  tutor: Tutor;
+  id: string;
+  position: Position;
+  status: Status;
+  preference: string;
+  row: number;
+  timestamp: string;
+  errors: TimeBlock[];
+  lectures: TimeBlock[];
+  officeHours: TimeBlock[];
+  discordHours: TimeBlock[];
+  sessions: TimeBlock[];
+  comments: string;
+}
+
 export class Course {
   tutor: Tutor;
   id: string;
@@ -159,6 +175,25 @@ export class Course {
   }
 
   // statics =================================
+
+  static buildCourse(config: CourseConfig): Course {
+    const newCourse = new Course(config.tutor, config.id);
+    newCourse.setPosition(config.position)
+      .setTimestamp(config.timestamp)
+      .setPosition(config.position)
+      .setPreference(config.preference)
+      .setRow(config.row)
+      .setStatus(config.status)
+      .setComments(config.comments);
+    
+      config.errors.forEach(error => newCourse.addError(error));
+      config.lectures.forEach(lecture => newCourse.addLecture(lecture));
+      config.officeHours.forEach(office => newCourse.addOfficeHours(office));
+      config.discordHours.forEach(discord => newCourse.addDiscordHours(discord));
+      config.sessions.forEach(session => newCourse.addSession(session));
+
+      return newCourse;
+  }
 
   static readonly na = "N/A";
 

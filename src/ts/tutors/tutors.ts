@@ -35,10 +35,17 @@ export class Tutors {
     tutor.forEachCourse(course => {
       positionsMap.get(course.position)!.push(tutor);
     });
+    if (this.div !== null) {
+      this.div!.append(tutor.getDiv());
+    }
   }
 
   getTutor(email: string): Tutor | undefined {
     return this.tutors!.get(email);
+  }
+
+  hasTutor(email: string): boolean {
+    return this.tutors!.has(email);
   }
 
   removeTutor(tutor: Tutor | string): Tutor {

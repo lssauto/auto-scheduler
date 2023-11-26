@@ -30,6 +30,8 @@ export class Content {
     this._body = document.getElementById("body")!;
 
     this.div = document.createElement("div");
+    this.div.style.paddingTop = "100px";
+    this.div.style.width = "70%";
 
     this.tutorsDiv = Tutors.instance!.getDiv();
     this.div.append(this.tutorsDiv);
@@ -38,6 +40,8 @@ export class Content {
     this.div.append(this.roomsDiv);
 
     this.activeDiv = ROOM_MODE;
+    Tutors.instance!.hideDiv();
+    Rooms.instance!.showDiv();
 
     Header.instance!.addEventListener("onToggleRooms", () => { 
       Content.instance!.toggleDivs(); 

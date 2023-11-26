@@ -50,6 +50,14 @@ export class Tutor {
     });
   }
 
+  getCourse(courseId: string): Course | undefined {
+    return this.courses.get(courseId);
+  }
+
+  hasCourse(courseId: string): boolean {
+    return this.courses.has(courseId);
+  }
+
   getErrors(): TimeBlock[] {
     const errors: TimeBlock[] = [];
     this.forEachCourse(course => {
@@ -93,8 +101,12 @@ export class Tutor {
 
   private buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
+    div.style.borderTop = "1px solid black";
+    div.style.borderBottom = "1px solid black";
+    div.style.paddingTop = "5px";
+    div.style.paddingBottom = "5px";
 
-    const title = document.createElement("p");
+    const title = document.createElement("div");
     title.innerHTML = `<b>Name: ${this.name} ; Email: ${this.email}</b>`;
     div.append(title);
     div.append(document.createElement("br"));

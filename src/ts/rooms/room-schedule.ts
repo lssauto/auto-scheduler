@@ -81,10 +81,10 @@ export class RoomSchedule extends Schedule {
   }
 
   override removeTimeAt(day: Days, index: number): TimeBlock | null {
-    if (index < 0 || index >= this.week.get(day)!.length) {
+    if (index < 0 || index >= this.getTimes(day).length) {
       return null;
     }
-    const time = this.week.get(day)!.splice(index, 1)[0];
+    const time = this.getTimes(day).splice(index, 1)[0];
     time.setRoom(null);
     return time;
   }
@@ -92,13 +92,15 @@ export class RoomSchedule extends Schedule {
   protected override buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
 
-    this.forEachDay((day, times) => {
+    this.forEachDay((day, dayObj) => {
+      dayObj.div = document.createElement("div");
       const title = document.createElement("p");
-      title.innerHTML = `<b>${day}</b>`;
-      div.append(title);
-      times.forEach((time) => {
-        div.append(time.getRoomDiv());
+      title.innerHTML = `<b>${day}:</b>`;
+      dayObj.div.append(title);
+      dayObj.times.forEach((time) => {
+        dayObj.div!.append(time.getRoomDiv());
       });
+      div.append(dayObj.div);
     });
 
     return div;

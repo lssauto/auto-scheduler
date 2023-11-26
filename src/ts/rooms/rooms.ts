@@ -53,6 +53,10 @@ export class Rooms {
     this.buildings!.get(building)!.rooms.push(room);
   }
 
+  hasRoom(name: string): boolean {
+    return this.rooms!.has(name);
+  }
+
   removeRoom(room: Room | string): Room {
     if (room instanceof Room) {
       this.rooms!.delete(room.name);

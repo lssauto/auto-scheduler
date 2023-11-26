@@ -24,6 +24,7 @@ export class TutorSchedule extends Schedule {
       }
     });
     if (hasConflict) {
+      time.setHasConflict(true);
       return ErrorCodes.conflict;
     }
 
@@ -34,7 +35,12 @@ export class TutorSchedule extends Schedule {
   }
 
   override pushTime(time: TimeBlock): void {
-    this.insertTime(time);
+    const ind = this.insertTime(time);
+    if (this.getTimes(time.day!).length >= 1) {
+      this.getDayDiv(time.day!)!.insertBefore(this.getTimeAt(time.day!, ind + 1)!.getTutorDiv(), time.getTutorDiv());
+    } else {
+      this.getDayDiv(time.day!)!.append(time.getTutorDiv());
+    }
     time.setTutor(this.tutor.email);
   }
 
@@ -47,10 +53,10 @@ export class TutorSchedule extends Schedule {
   }
 
   override removeTimeAt(day: Days, index: number): TimeBlock | null {
-    if (index < 0 || index >= this.week.get(day)!.length) {
+    if (index < 0 || index >= this.getTimes(day).length) {
       return null;
     }
-    const time = this.week.get(day)!.splice(index, 1)[0];
+    const time = this.getTimes(day).splice(index, 1)[0];
     time.setTutor(null);
     return time;
   }
@@ -62,13 +68,15 @@ export class TutorSchedule extends Schedule {
     title.innerHTML = "<b>Schedule:</b>";
     div.append(title);
 
-    this.forEachDay((day, times) => {
+    this.forEachDay((day, dayObj) => {
+      dayObj.div = document.createElement("div");
       const title = document.createElement("p");
-      title.innerHTML = `<b>${day}</b>`;
-      div.append(title);
-      times.forEach((time) => {
-        div.append(time.getTutorDiv());
+      title.innerHTML = `<b>${day}:</b>`;
+      dayObj.div.append(title);
+      dayObj.times.forEach((time) => {
+        dayObj.div!.append(time.getTutorDiv());
       });
+      div.append(dayObj.div);
     });
 
     return div;
