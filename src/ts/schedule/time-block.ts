@@ -45,7 +45,7 @@ tagColors.set(Tags.reserve, {
   borderColor: "#569c96",
 });
 
-interface TimeBlockConfig {
+export interface TimeBlockConfig {
   schedule: Schedule;
   coords?: { row: number; col: number };
   tag: Tags;
@@ -53,9 +53,9 @@ interface TimeBlockConfig {
   start: number;
   end: number;
   scheduleByLSS: boolean;
-  tutorEmail?: string;
-  roomName?: string;
-  courseID?: string;
+  tutorEmail?: string | null;
+  roomName?: string | null;
+  courseID?: string | null;
 }
 
 export class TimeBlock {
@@ -276,7 +276,10 @@ export class TimeBlock {
     return `${this.day} ${this.getStartToEndStr()}`;
   }
 
-  conflictsWith(other: TimeBlock): boolean {
+  conflictsWith(other: TimeBlock | {day: Days, start: number, end: number}): boolean {
+    if (this.day !== other.day) {
+      return false;
+    }
     if (this.start! < other.start! && other.start! < this.end!) {
       return true;
     }
@@ -293,6 +296,16 @@ export class TimeBlock {
     if (this.start != other.start) return false;
     if (this.end != other.end) return false;
     return true;
+  }
+
+  update(config: TimeBlockConfig) {
+    this.setDay(config.day)
+      .setStart(config.start)
+      .setEnd(config.end)
+      .setTag(config.tag)
+      .setCourse(config.courseID!)
+      .setTutor(config.tutorEmail!)
+      .setRoom(config.roomName!);
   }
 
   // statics =================================================

@@ -75,6 +75,16 @@ export abstract class Schedule {
 
   abstract removeTimeAt(day: Days, index: number): TimeBlock | null;
 
+  hasConflictWith(time: TimeBlock | {day: Days, start: number, end: number}): boolean {
+    let hasConflict = false;
+    this.forEachTimeInDay(time.day!, (t) => {
+      if (t.conflictsWith(time)) {
+        hasConflict = true;
+      }
+    });
+    return hasConflict;
+  }
+
   findTimeIndex(time: TimeBlock): number {
     const times = this.week.get(time.day!)!.times;
     for (let i = 0; i < times.length; i++) {

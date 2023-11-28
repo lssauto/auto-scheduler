@@ -35,11 +35,22 @@ export class RoomSchedule extends Schedule {
     this.range = range;
   }
 
-  override addTime(time: TimeBlock): ErrorCodes {
+  isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
     if (!this.range.days.includes(time.day!)) {
-      return ErrorCodes.outOfRange;
+      return false;
     }
-    if (this.range.start < time.start! || this.range.end < time.end!) {
+    if (time.start === undefined || time.end === undefined) {
+      return true;
+    }
+
+    if (this.range.start < time.start || this.range.end < time.end) {
+      return false;
+    }
+    return true;
+  }
+
+  override addTime(time: TimeBlock): ErrorCodes {
+    if (this.isInRange(time)) {
       return ErrorCodes.outOfRange;
     }
 
@@ -47,13 +58,7 @@ export class RoomSchedule extends Schedule {
       return ErrorCodes.overBooked;
     }
 
-    let hasConflict = false;
-    this.forEachTimeInDay(time.day!, (t) => {
-      if (t.conflictsWith(time)) {
-        hasConflict = true;
-      }
-    });
-    if (hasConflict) {
+    if (this.hasConflictWith(time)) {
       return ErrorCodes.conflict;
     }
 

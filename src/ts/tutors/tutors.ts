@@ -99,4 +99,25 @@ export class Tutors {
   showDiv() {
     this.div!.style.display = "block";
   }
+
+  match(target: string): Tutor | null {
+    if (this.getTutor(target) !== undefined) {
+      return this.getTutor(target)!;
+    }
+    if (this.getTutor(target + "ucsc.edu") !== undefined) {
+      return this.getTutor(target + "ucsc.edu")!;
+    }
+
+    const key = target.toLowerCase();
+    let result: Tutor | null = null;
+    this.forEachTutor((tutor) => {
+      if (tutor.email.toLowerCase().includes(key)) {
+        result = tutor;
+      } else if (tutor.name.toLowerCase().includes(key)) {
+        result = tutor;
+      }
+    });
+
+    return result;
+  }
 }

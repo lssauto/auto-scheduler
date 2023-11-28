@@ -226,7 +226,7 @@ export class Course {
 
       if (courseNums.length == 1) {
         course += "001";
-      } else if (courseNums[1].match(/[a-z]/g) !== null) {
+      } else if (courseNums[1].match(/(All Sections|all sections)/g) !== null) {
         // if the section # contains letters, it's "All Sections"
         course += "(All Sections)";
       } else {

@@ -126,4 +126,20 @@ export class Rooms {
   showDiv() {
     this.div!.style.display = "block";
   }
+
+  match(roomName: string): Room | null {
+    if (this.getRoom(roomName) !== undefined) {
+      return this.getRoom(roomName)!;
+    }
+
+    const key = roomName.toLowerCase();
+    let result: Room | null = null;
+    this.forEachRoom((room) => {
+      if (room.name.toLowerCase().includes(key)) {
+        result = room;
+      }
+    });
+
+    return result;
+  }
 }
