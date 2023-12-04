@@ -63,8 +63,9 @@ export class Positions {
 
   static match(str: string): Position {
     let pos = Positions.defaultPosition;
+    const lower = str.toLowerCase();
     Positions.forEach(p => {
-      if (str.includes(p.match)) {
+      if (lower.includes(p.match) || lower.includes(p.title.toLowerCase())) {
         pos = p;
       }
     });

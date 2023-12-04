@@ -33,3 +33,9 @@ export function intToStr(time: number): string {
     .padStart(2, "0")} ${ampm}`;
   return formattedTime;
 }
+
+export function intTo24hr(time: number): string {
+  const hours = Math.floor(time / 60);
+  const mins = time % 60;
+  return `${hours}:${mins}`;
+}

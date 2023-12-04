@@ -5,6 +5,8 @@ import { Course } from "../../tutors/course";
 import { Tutors } from "../../tutors/tutors";
 import { Rooms } from "../../rooms/rooms";
 import * as timeConvert from "../../utils/time-convert";
+import { TutorSchedule } from "../../tutors/tutor-schedule";
+import { RoomSchedule } from "../../rooms/room-schedule";
 
 export class TimeEditor {
   private static _instance: TimeEditor | null = null;
@@ -12,12 +14,12 @@ export class TimeEditor {
     return TimeEditor._instance;
   }
 
-  curTime: TimeBlock | null = null;
-  curChanges?: TimeBlockConfig;
-  client?: Schedule;
+  static curTime: TimeBlock | null = null;
+  static curChanges?: TimeBlockConfig;
+  static client?: Schedule;
 
   private _body?: HTMLElement;
-  div?: HTMLDivElement;
+  static div?: HTMLDivElement;
   private _menu?: HTMLDivElement;
 
   static tagField?: HTMLSelectElement;
@@ -36,6 +38,7 @@ export class TimeEditor {
 
   static saveButton?: HTMLButtonElement;
   static cancelButton?: HTMLButtonElement;
+  static errorsNotice?: HTMLElement;
 
   constructor() {
     if (TimeEditor.instance !== null && TimeEditor.instance !== this) {
@@ -48,7 +51,7 @@ export class TimeEditor {
 
     this.buildDiv();
 
-    this._body.append(this.div!);
+    this._body.append(TimeEditor.div!);
   }
 
   private buildDiv() {
@@ -67,7 +70,7 @@ export class TimeEditor {
 
     div.append(this._menu!);
 
-    this.div = div;
+    TimeEditor.div = div;
   }
 
   private buildMenu() {
@@ -213,12 +216,20 @@ export class TimeEditor {
     fields.style.display = "flex";
     fields.style.justifyContent = "space-evenly";
 
+    const container = document.createElement("div");
+
     this.buildSaveButton();
     fields.append(TimeEditor.saveButton!);
     this.buildCancelButton();
     fields.append(TimeEditor.cancelButton!);
+    container.append(fields);
 
-    return fields;
+    container.append(document.createElement("br"));
+
+    TimeEditor.errorsNotice = this.buildNotice();
+    container.append(TimeEditor.errorsNotice);
+
+    return container;
   }
 
   private buildTagField() {
@@ -253,7 +264,7 @@ export class TimeEditor {
     const container = document.createElement("div");
 
     const field = document.createElement("input");
-    field.style.marginTop = "8%";
+    field.style.marginTop = "15px";
     field.width = 12;
     TimeEditor.courseField = field;
 
@@ -282,7 +293,7 @@ export class TimeEditor {
     const container = document.createElement("div");
 
     const field = document.createElement("input");
-    field.style.marginTop = "10%";
+    field.style.marginTop = "15px";
     field.width = 20;
     TimeEditor.tutorField = field;
 
@@ -290,6 +301,9 @@ export class TimeEditor {
     TimeEditor.tutorNotice = notice;
 
     field.addEventListener("focusout", () => {
+      if (TimeEditor.client instanceof TutorSchedule) {
+        field.value = TimeEditor.curTime!.tutorEmail!;
+      }
       if (field.value === "") {
         notice.innerHTML = "";
         return;
@@ -315,7 +329,7 @@ export class TimeEditor {
     const container = document.createElement("div");
 
     const field = document.createElement("input");
-    field.style.marginTop = "8%";
+    field.style.marginTop = "15px";
     field.width = 20;
     TimeEditor.roomField = field;
 
@@ -323,6 +337,9 @@ export class TimeEditor {
     TimeEditor.roomNotice = notice;
 
     field.addEventListener("focusout", () => {
+      if (TimeEditor.client instanceof RoomSchedule) {
+        field.value = TimeEditor.curTime!.roomName!;
+      }
       if (field.value === "") {
         notice.innerHTML = "";
         return;
@@ -330,7 +347,15 @@ export class TimeEditor {
       const result = Rooms.instance!.match(field.value);
       if (result !== null) {
         field.value = result.name;
-        notice.innerHTML = result.name;
+        let days = "";
+        result.schedule.range.days.forEach(day => {
+          days += day + " ";
+        });
+        notice.innerHTML = `open on: ${days}</br>from ${
+          timeConvert.intToStr(result.schedule.range.start)
+        } to ${
+          timeConvert.intToStr(result.schedule.range.end)
+        }`;
       } else {
         notice.innerHTML = "name was not found in the Rooms list";
       }
@@ -359,7 +384,11 @@ export class TimeEditor {
     }
 
     field.addEventListener("change", () => {
-      TimeEditor.verifyTime();
+      if (TimeEditor.validateTime()) {
+        TimeEditor.curChanges!.day = TimeEditor.dayField!.value as Days;
+      } else {
+        TimeEditor.curChanges!.day = undefined;
+      }
     });
 
     TimeEditor.dayField = field;
@@ -370,7 +399,11 @@ export class TimeEditor {
     field.type = "time";
     field.step = "60";
     field.addEventListener("change", () => {
-      TimeEditor.verifyTime();
+      if (TimeEditor.validateTime()) {
+        TimeEditor.curChanges!.start = timeConvert.strToInt(TimeEditor.startField!.value);
+      } else {
+        TimeEditor.curChanges!.start = undefined;
+      }
     });
     TimeEditor.startField = field;
   }
@@ -380,7 +413,11 @@ export class TimeEditor {
     field.type = "time";
     field.step = "60";
     field.addEventListener("change", () => {
-      TimeEditor.verifyTime();
+      if (TimeEditor.validateTime()) {
+        TimeEditor.curChanges!.end = timeConvert.strToInt(TimeEditor.endField!.value);
+      } else {
+        TimeEditor.curChanges!.end = undefined;
+      }
     });
     TimeEditor.endField = field;
   }
@@ -390,9 +427,12 @@ export class TimeEditor {
     button.style.padding = "10px";
     button.innerHTML = "Save";
     button.addEventListener("click", () => {
-      this.curTime!.update(this.curChanges!);
+      if (!TimeEditor.validateChanges()) {
+        return;
+      }
+      TimeEditor.curTime!.update(TimeEditor.curChanges!);
       // TODO: add console message
-      TimeEditor.instance!.hideMenu();
+      TimeEditor.hideMenu();
     });
     TimeEditor.saveButton = button;
   }
@@ -403,7 +443,7 @@ export class TimeEditor {
     button.innerHTML = "Cancel";
     button.addEventListener("click", () => {
       // TODO: add console message
-      TimeEditor.instance!.hideMenu();
+      TimeEditor.hideMenu();
     });
     TimeEditor.cancelButton = button;
   }
@@ -413,8 +453,6 @@ export class TimeEditor {
     notice.style.padding = "0px";
     notice.style.margin = "0px";
     notice.style.fontSize = "0.9em";
-    // notice.style.color = "orange";
-    // notice.style.textShadow = "0px 0px 3px black";
     return notice;
   }
 
@@ -423,37 +461,42 @@ export class TimeEditor {
     this._menu!.style.borderColor = colors.borderColor;
   }
 
-  showMenu() {
+  static showMenu() {
     this.div!.style.display = "flex";
   }
 
-  hideMenu() {
+  static hideMenu() {
     this.div!.style.display = "none";
   }
 
   // # Input Validation Checks =====================================
 
-  static validateCourseID() {
+  static validateCourseID(): boolean {
     const result = Tutors.instance!.getTutor(TimeEditor.tutorField!.value);
     if (result === undefined) {
       TimeEditor.courseNotice!.innerHTML = "";
-      return;
+      return true;
     }
     if (TimeEditor.courseField!.value !== "") {
       if (result.hasCourse(TimeEditor.courseField!.value)) {
         TimeEditor.courseNotice!.innerHTML = result.getCourse(
           TimeEditor.courseField!.value
         )!.position.title;
+        return true;
       } else {
         TimeEditor.courseNotice!.innerHTML = `${result.name} is not assigned to this course`;
+        return false;
       }
     }
+    return true;
   }
 
-  static verifyTime() {
+  static validateTime(): boolean {
     let notice = "";
+    let result = true;
     if (TimeEditor.dayField!.value === "---") {
       notice = "please select a day";
+      result = false;
     } else if (TimeEditor.startField!.value !== "" && TimeEditor.endField!.value !== "") {
 
       const timeObj = {
@@ -466,6 +509,7 @@ export class TimeEditor {
         const tutor = Tutors.instance!.getTutor(TimeEditor.tutorField!.value)!;
         if (tutor.schedule.hasConflictWith(timeObj)) {
           notice = "time conflicts with tutor's current schedule";
+          result = false;
         }
       }
 
@@ -473,14 +517,114 @@ export class TimeEditor {
         const room = Rooms.instance!.getRoom(TimeEditor.roomField!.value)!;
         if (room.schedule.hasConflictWith(timeObj)) {
           notice = "time conflicts with room's current schedule";
+          result = false;
+        }
+        if (!room.schedule.isInRange(timeObj)) {
+          notice = "time is outside the room's open time range";
+          result = false;
         }
       }
 
       if (timeObj.end < timeObj.start) {
         notice = "start must be before end";
+        result = false;
       }
     }
 
     TimeEditor.timeNotice!.innerHTML = notice;
+    return result;
+  }
+
+  static validateChanges(): boolean {
+    let notice = "";
+    let result = true;
+    if (!TimeEditor.validateTime()) {
+      notice = "time must be valid";
+      result = false;
+    }
+
+    if (TimeEditor.courseField!.value === "") {
+      notice = "time must be assigned to a course";
+      result = false;
+    } else if (!TimeEditor.validateCourseID()) {
+      notice = "tutor must be assigned to the given course";
+      result = false;
+    }
+    if (TimeEditor.tagField!.value === "---") {
+      notice = "times must have a tag";
+      result = false;
+    }
+
+    TimeEditor.errorsNotice!.innerHTML = notice;
+    return result;
+  }
+
+  // # Editor Access Methods ===================================
+
+  private static reset(time?: TimeBlock) {
+    if (time) {
+      TimeEditor.tagField!.value = time.tag!;
+      TimeEditor.courseField!.value = time.courseID!;
+      TimeEditor.tutorField!.value = time.tutorEmail!;
+      TimeEditor.roomField!.value = time.roomName!;
+      TimeEditor.dayField!.value = time.day!;
+      TimeEditor.startField!.value = timeConvert.intTo24hr(time.start!);
+      TimeEditor.endField!.value = timeConvert.intTo24hr(time.end!);
+    } else {
+      TimeEditor.tagField!.value = "---";
+      TimeEditor.courseField!.value = "";
+      TimeEditor.tutorField!.value = "";
+      TimeEditor.roomField!.value = "";
+      TimeEditor.dayField!.value = "---";
+      TimeEditor.startField!.value = "";
+      TimeEditor.endField!.value = "";
+    }
+    TimeEditor.courseNotice!.innerHTML = "";
+    TimeEditor.tutorNotice!.innerHTML = "";
+    TimeEditor.roomNotice!.innerHTML = "";
+    TimeEditor.timeNotice!.innerHTML = "";
+  }
+
+  static createNewTime(client: Schedule) {
+    TimeEditor.reset();
+    if (client instanceof TutorSchedule) {
+      TimeEditor.curChanges = {
+        tutorSchedule: client,
+        scheduleByLSS: true
+      };
+      TimeEditor.curTime = new TimeBlock(client);
+    } else if (client instanceof RoomSchedule) {
+      TimeEditor.curChanges = {
+        roomSchedule: client,
+        scheduleByLSS: true
+      };
+      TimeEditor.curTime = new TimeBlock(undefined, client);
+    }
+    TimeEditor.client = client;
+    TimeEditor.showMenu();
+  }
+
+  static editTime(client: Schedule, time: TimeBlock) {
+    TimeEditor.reset(time);
+    if (client instanceof TutorSchedule) {
+      TimeEditor.curChanges = {
+        tutorSchedule: client,
+        scheduleByLSS: true
+      };
+    } else if (client instanceof RoomSchedule) {
+      TimeEditor.curChanges = {
+        roomSchedule: client,
+        scheduleByLSS: true
+      };
+    }
+    TimeEditor.curChanges!.tag = time.tag;
+    TimeEditor.curChanges!.day = time.day;
+    TimeEditor.curChanges!.start = time.start;
+    TimeEditor.curChanges!.end = time.end;
+    TimeEditor.curChanges!.scheduleByLSS = time.scheduleByLSS!;
+    TimeEditor.curChanges!.tutorEmail = time.tutorEmail!;
+    TimeEditor.client = client;
+    TimeEditor.curTime = time;
+    TimeEditor.showMenu();
   }
 }

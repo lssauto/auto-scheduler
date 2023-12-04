@@ -46,11 +46,16 @@ export class Rooms {
   }
 
   addRoom(room: Room) {
-    const building = this.getBuildingName(room);
     this.rooms!.set(room.name, room);
+    const building = this.getBuildingName(room);
     room.setBuilding(building);
-    room.setRange(this.buildings!.get(building)!.range);
-    this.buildings!.get(building)!.rooms.push(room);
+    if (building !== Rooms.unknown) {
+      room.setRange(this.buildings!.get(building)!.range);
+      this.buildings!.get(building)!.rooms.push(room);
+    }
+    if (this.div !== null) {
+      this.div!.append(room.getDiv());
+    }
   }
 
   hasRoom(name: string): boolean {

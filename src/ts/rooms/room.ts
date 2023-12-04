@@ -38,6 +38,8 @@ export class Room {
 
   private buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
+    div.style.borderTop = "1px solid black";
+    div.style.borderBottom = "1px solid black";
     const title = document.createElement("p");
     title.innerHTML = `<b>Room: ${this.name} ; Building: ${this.building} ; type: ${this.type.title}</b>`;
     div.append(title);

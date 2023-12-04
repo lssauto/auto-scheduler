@@ -1,4 +1,3 @@
-import { Schedule } from "./schedule";
 import * as timeConvert from "../utils/time-convert";
 import { Days } from "../enums";
 import { Tutors } from "../tutors/tutors";
@@ -6,6 +5,10 @@ import { Tutor } from "../tutors/tutor";
 import { Rooms } from "../rooms/rooms";
 import { Room } from "../rooms/room";
 import { Course } from "../tutors/course";
+import { TutorSchedule } from "../tutors/tutor-schedule";
+import { RoomSchedule } from "../rooms/room-schedule";
+import { TimeEditor } from "../elements/editors/time-editor";
+import { Schedule } from "./schedule";
 
 export enum Tags {
   session = "session",
@@ -46,20 +49,22 @@ tagColors.set(Tags.reserve, {
 });
 
 export interface TimeBlockConfig {
-  schedule: Schedule;
+  tutorSchedule?: TutorSchedule;
+  roomSchedule?: RoomSchedule;
   coords?: { row: number; col: number };
-  tag: Tags;
-  day: Days;
-  start: number;
-  end: number;
+  tag?: Tags;
+  day?: Days;
+  start?: number;
+  end?: number;
   scheduleByLSS: boolean;
-  tutorEmail?: string | null;
-  roomName?: string | null;
+  tutorEmail?: string;
+  roomName?: string;
   courseID?: string | null;
 }
 
 export class TimeBlock {
-  schedule: Schedule;
+  tutorSchedule: TutorSchedule | null;
+  roomSchedule: RoomSchedule | null;
   coords?: { row: number; col: number };
 
   tag?: Tags;
@@ -76,8 +81,17 @@ export class TimeBlock {
   tutorDiv: HTMLDivElement | null;
   roomDiv: HTMLDivElement | null;
 
-  constructor(schedule: Schedule) {
-    this.schedule = schedule;
+  constructor(tutorSchedule?: TutorSchedule, roomSchedule?: RoomSchedule) {
+    if (tutorSchedule) {
+      this.tutorSchedule = tutorSchedule;
+    } else {
+      this.tutorSchedule = null;
+    }
+    if (roomSchedule) {
+      this.roomSchedule = roomSchedule;
+    } else {
+      this.roomSchedule = null;
+    }
     this.hasConflict = false;
     this.tutorEmail = null;
     this.roomName = null;
@@ -121,8 +135,12 @@ export class TimeBlock {
     return this;
   }
 
-  setTutor(email: string | null): TimeBlock {
-    this.tutorEmail = email;
+  setTutor(tutorEmail: string | null): TimeBlock {
+    if (tutorEmail) {
+      const tutor = Tutors.instance!.getTutor(tutorEmail);
+      this.tutorSchedule = tutor ? tutor.schedule : null;
+    }
+    this.tutorEmail = tutorEmail;
     return this;
   }
 
@@ -136,8 +154,12 @@ export class TimeBlock {
     return null;
   }
 
-  setRoom(name: string | null): TimeBlock {
-    this.roomName = name;
+  setRoom(roomName: string | null): TimeBlock {
+    if (roomName) {
+      const room = Rooms.instance!.getRoom(roomName);
+      this.roomSchedule = room ? room.schedule : null;
+    }
+    this.roomName = roomName;
     return this;
   }
 
@@ -187,11 +209,20 @@ export class TimeBlock {
     return div;
   }
 
-  private buildEditButton(): HTMLButtonElement {
+  private buildTutorEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
     edit.innerHTML = "Edit Time";
     edit.addEventListener("click", () => {
-      this.editTime();
+      this.editTime(this.getTutor()!.schedule);
+    });
+    return edit;
+  }
+
+  private buildRoomEditButton(): HTMLButtonElement {
+    const edit: HTMLButtonElement = document.createElement("button");
+    edit.innerHTML = "Edit Time";
+    edit.addEventListener("click", () => {
+      this.editTime(this.getRoom()!.schedule);
     });
     return edit;
   }
@@ -219,7 +250,7 @@ export class TimeBlock {
     text.innerHTML += ` / ${this.getTimeStr()}`;
     div.append(text);
 
-    div.append(this.buildEditButton());
+    div.append(this.buildTutorEditButton());
 
     return div;
   }
@@ -240,20 +271,22 @@ export class TimeBlock {
     const div: HTMLDivElement = this.buildTimeDiv();
 
     const text: HTMLElement = document.createElement("p");
-    // TODO: get tutor name
+    let tutorName = "";
+    if (this.getTutor()) {
+      tutorName = `(${this.getTutor()!.name})`;
+    }
     text.innerHTML = `${this.courseID} / ${
       this.tutorEmail
-    } / ${this.getTimeStr()}`;
+    } ${tutorName} / ${this.getTimeStr()}`;
     div.append(text);
 
-    div.append(this.buildEditButton());
+    div.append(this.buildRoomEditButton());
 
     return div;
   }
 
-  editTime() {
-    console.log("edit time");
-    //TODO: add call to time edit window
+  editTime(schedule: Schedule) {
+    TimeEditor.editTime(schedule, this);
   }
 
   getStartStr(): string {
@@ -299,10 +332,10 @@ export class TimeBlock {
   }
 
   update(config: TimeBlockConfig) {
-    this.setDay(config.day)
-      .setStart(config.start)
-      .setEnd(config.end)
-      .setTag(config.tag)
+    this.setDay(config.day!)
+      .setStart(config.start!)
+      .setEnd(config.end!)
+      .setTag(config.tag!)
       .setCourse(config.courseID!)
       .setTutor(config.tutorEmail!)
       .setRoom(config.roomName!);
@@ -311,15 +344,15 @@ export class TimeBlock {
   // statics =================================================
 
   static buildTimeBlock(config: TimeBlockConfig): TimeBlock {
-    const newTime = new TimeBlock(config.schedule);
+    const newTime = new TimeBlock(config.tutorSchedule, config.roomSchedule);
     if (config.coords !== undefined) {
       newTime.setCoords(config.coords.row, config.coords.col);
     }
     newTime
-      .setDay(config.day)
-      .setStart(config.start)
-      .setEnd(config.end)
-      .setTag(config.tag)
+      .setDay(config.day!)
+      .setStart(config.start!)
+      .setEnd(config.end!)
+      .setTag(config.tag!)
       .setScheduleByLSS(config.scheduleByLSS);
 
     if (config.tutorEmail !== undefined) {
