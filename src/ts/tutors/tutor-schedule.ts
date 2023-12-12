@@ -12,6 +12,23 @@ export class TutorSchedule extends Schedule {
     this.tutor = tutor;
   }
 
+  protected insertTime(time: TimeBlock): number {
+    const times = this.week.get(time.day!)!.times;
+    if (times.length === 0) {
+      times.push(time);
+      this.week.get(time.day!)!.div!.append(time.getTutorDiv());
+      return 0;
+    }
+    for (let i = 0; i < times.length; i++) {
+      if (times[i].start! > time.start!) {
+        this.week.get(time.day!)!.div!.insertBefore(times[i].getTutorDiv(), time.getTutorDiv());
+        times.splice(i, 0, time);
+        return i;
+      }
+    }
+    return -1;
+  }
+
   override addTime(time: TimeBlock): ErrorCodes {
     if (time.tag === Tags.session && !isValidSessionTime(time)) {
       return ErrorCodes.invalidSession;

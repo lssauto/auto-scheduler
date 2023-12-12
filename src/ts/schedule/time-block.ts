@@ -9,6 +9,8 @@ import { TutorSchedule } from "../tutors/tutor-schedule";
 import { RoomSchedule } from "../rooms/room-schedule";
 import { TimeEditor } from "../elements/editors/time-editor";
 import { Schedule } from "./schedule";
+import { NotifyEvent } from "../events/notify";
+import { VariableElement } from "../events/var-elem";
 
 export enum Tags {
   session = "session",
@@ -79,7 +81,11 @@ export class TimeBlock {
   courseID: string | null;
 
   tutorDiv: HTMLDivElement | null;
+  tutorDivContent: VariableElement | null;
   roomDiv: HTMLDivElement | null;
+  roomDivContent: VariableElement | null;
+
+  onEdited: NotifyEvent = new NotifyEvent("onEdited");
 
   constructor(tutorSchedule?: TutorSchedule, roomSchedule?: RoomSchedule) {
     if (tutorSchedule) {
@@ -97,7 +103,9 @@ export class TimeBlock {
     this.roomName = null;
     this.courseID = null;
     this.tutorDiv = null;
+    this.tutorDivContent = null;
     this.roomDiv = null;
+    this.roomDivContent = null;
   }
 
   setCoords(row: number, col: number): TimeBlock {
@@ -220,16 +228,12 @@ export class TimeBlock {
 
   private buildRoomEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
+    edit.style.display = "inline-block";
     edit.innerHTML = "Edit Time";
     edit.addEventListener("click", () => {
       this.editTime(this.getRoom()!.schedule);
     });
     return edit;
-  }
-
-  setTutorDiv(elem: HTMLDivElement) {
-    this.tutorDiv = elem;
-    return this;
   }
 
   getTutorDiv(): HTMLDivElement {
@@ -243,21 +247,25 @@ export class TimeBlock {
     const div: HTMLDivElement = this.buildTimeDiv();
 
     const text: HTMLElement = document.createElement("p");
+    text.style.display = "inline";
     text.innerHTML = `${this.courseID}`;
     if (this.hasRoomAssigned()) {
       text.innerHTML += ` / <b>${this.roomName}</b>`;
     }
-    text.innerHTML += ` / ${this.getTimeStr()}`;
+    text.innerHTML += ` / ${this.getTimeStr()} | `;
     div.append(text);
+
+    this.tutorDivContent = new VariableElement(text, this.onEdited, () => {
+      text.innerHTML = `${this.courseID}`;
+      if (this.hasRoomAssigned()) {
+        text.innerHTML += ` / <b>${this.roomName}</b>`;
+      }
+      text.innerHTML += ` / ${this.getTimeStr()} | `;
+    });
 
     div.append(this.buildTutorEditButton());
 
     return div;
-  }
-
-  setRoomDiv(elem: HTMLDivElement) {
-    this.roomDiv = elem;
-    return this;
   }
 
   getRoomDiv(): HTMLDivElement {
@@ -271,14 +279,25 @@ export class TimeBlock {
     const div: HTMLDivElement = this.buildTimeDiv();
 
     const text: HTMLElement = document.createElement("p");
+    text.style.display = "inline";
     let tutorName = "";
     if (this.getTutor()) {
       tutorName = `(${this.getTutor()!.name})`;
     }
     text.innerHTML = `${this.courseID} / ${
       this.tutorEmail
-    } ${tutorName} / ${this.getTimeStr()}`;
+    } ${tutorName} / ${this.getTimeStr()} | `;
     div.append(text);
+
+    this.roomDivContent = new VariableElement(text, this.onEdited, () => {
+      let tutorName = "";
+      if (this.getTutor()) {
+        tutorName = `(${this.getTutor()!.name})`;
+      }
+      text.innerHTML = `${this.courseID} / ${
+        this.tutorEmail
+      } ${tutorName} / ${this.getTimeStr()} | `;
+    });
 
     div.append(this.buildRoomEditButton());
 
@@ -339,6 +358,19 @@ export class TimeBlock {
       .setCourse(config.courseID!)
       .setTutor(config.tutorEmail!)
       .setRoom(config.roomName!);
+    this.onEditedDispatch();
+  }
+
+  addEditedListener(subscriber: object, action: () => void) {
+    this.onEdited.addListener(subscriber, action);
+  }
+
+  removeEditedListener(subscriber: object) {
+    this.onEdited.removeListener(subscriber);
+  }
+
+  onEditedDispatch() {
+    this.onEdited.dispatch();
   }
 
   // statics =================================================

@@ -3,6 +3,7 @@ import { TimeBlock, Tags } from "../schedule/time-block";
 import { Room } from "./room";
 import { Rooms } from "./rooms";
 import { Days } from "../enums";
+import { TimeEditor } from "../elements/editors/time-editor";
 
 export interface AvailableRange {
   days: Days[];
@@ -37,20 +38,39 @@ export class RoomSchedule extends Schedule {
 
   isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
     if (!this.range.days.includes(time.day!)) {
+      console.log("day mismatch");
       return false;
     }
     if (time.start === undefined || time.end === undefined) {
       return true;
     }
 
-    if (this.range.start < time.start || this.range.end < time.end) {
+    if (time.start < this.range.start || this.range.end < time.end) {
+      console.log("time mismatch");
       return false;
     }
     return true;
   }
 
+  protected insertTime(time: TimeBlock): number {
+    const times = this.week.get(time.day!)!.times;
+    if (times.length === 0) {
+      times.push(time);
+      this.week.get(time.day!)!.div!.append(time.getRoomDiv());
+      return 0;
+    }
+    for (let i = 0; i < times.length; i++) {
+      if (times[i].start! > time.start!) {
+        this.week.get(time.day!)!.div!.insertBefore(times[i].getRoomDiv(), time.getRoomDiv());
+        times.splice(i, 0, time);
+        return i;
+      }
+    }
+    return -1;
+  }
+
   override addTime(time: TimeBlock): ErrorCodes {
-    if (this.isInRange(time)) {
+    if (!this.isInRange(time)) {
       return ErrorCodes.outOfRange;
     }
 
@@ -96,6 +116,17 @@ export class RoomSchedule extends Schedule {
 
   protected override buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
+
+    const title = document.createElement("p");
+    title.innerHTML = "<b>Schedule:</b>";
+    div.append(title);
+
+    const addTime = document.createElement("button");
+    addTime.innerHTML = "Add Time";
+    addTime.addEventListener("click", () => {
+      TimeEditor.createNewTime(this);
+    });
+    div.append(addTime);
 
     this.forEachDay((day, dayObj) => {
       dayObj.div = document.createElement("div");

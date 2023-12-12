@@ -255,6 +255,7 @@ export class TimeEditor {
         });
       } else {
         TimeEditor.instance!.setColor(tagColors.get(field.value as Tags)!);
+        TimeEditor.curChanges!.tag = field.value as Tags;
       }
     });
     TimeEditor.tagField = field;
@@ -276,9 +277,12 @@ export class TimeEditor {
       if (formatted !== Course.na) {
         field.value = formatted;
         notice.innerHTML = "";
-        TimeEditor.validateCourseID();
+        if (TimeEditor.validateCourseID()) {
+          TimeEditor.curChanges!.courseID = field.value;
+        }
       } else {
         notice.innerHTML = "course ID could not be formatted";
+        TimeEditor.curChanges!.courseID = field.value;
       }
     });
 
@@ -302,7 +306,7 @@ export class TimeEditor {
 
     field.addEventListener("focusout", () => {
       if (TimeEditor.client instanceof TutorSchedule) {
-        field.value = TimeEditor.curTime!.tutorEmail!;
+        field.value = TimeEditor.client.tutor.email;
       }
       if (field.value === "") {
         notice.innerHTML = "";
@@ -317,6 +321,7 @@ export class TimeEditor {
         notice.innerHTML = "email/name was not found in tutors list";
         TimeEditor.courseNotice!.innerHTML = "";
       }
+      TimeEditor.curChanges!.tutorEmail = field.value;
     });
 
     container.append(field);
@@ -338,7 +343,7 @@ export class TimeEditor {
 
     field.addEventListener("focusout", () => {
       if (TimeEditor.client instanceof RoomSchedule) {
-        field.value = TimeEditor.curTime!.roomName!;
+        field.value = TimeEditor.client.room.name;
       }
       if (field.value === "") {
         notice.innerHTML = "";
@@ -359,6 +364,7 @@ export class TimeEditor {
       } else {
         notice.innerHTML = "name was not found in the Rooms list";
       }
+      TimeEditor.curChanges!.roomName = field.value;
     });
 
     container.append(field);
@@ -431,6 +437,10 @@ export class TimeEditor {
         return;
       }
       TimeEditor.curTime!.update(TimeEditor.curChanges!);
+      if (!TimeEditor.client!.hasTime(TimeEditor.curTime!)) {
+        console.log(TimeEditor.curTime);
+        console.log(TimeEditor.client!.addTime(TimeEditor.curTime!));
+      }
       // TODO: add console message
       TimeEditor.hideMenu();
     });
@@ -593,12 +603,23 @@ export class TimeEditor {
         scheduleByLSS: true
       };
       TimeEditor.curTime = new TimeBlock(client);
+      TimeEditor.tutorField!.value = client.tutor.email;
     } else if (client instanceof RoomSchedule) {
       TimeEditor.curChanges = {
         roomSchedule: client,
         scheduleByLSS: true
       };
       TimeEditor.curTime = new TimeBlock(undefined, client);
+      TimeEditor.roomField!.value = client.room.name;
+      let days = "";
+      client.room.schedule.range.days.forEach(day => {
+        days += day + " ";
+      });
+      TimeEditor.roomNotice!.innerHTML = `open on: ${days}</br>from ${
+        timeConvert.intToStr(client.room.schedule.range.start)
+      } to ${
+        timeConvert.intToStr(client.room.schedule.range.end)
+      }`;
     }
     TimeEditor.client = client;
     TimeEditor.showMenu();

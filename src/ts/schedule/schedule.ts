@@ -52,20 +52,7 @@ export abstract class Schedule {
     }
   }
 
-  protected insertTime(time: TimeBlock): number {
-    const times = this.week.get(time.day!)!.times;
-    if (times.length === 0) {
-      times.push(time);
-      return 0;
-    }
-    for (let i = 0; i < times.length; i++) {
-      if (times[i].start! > time.start!) {
-        times.splice(i, 0, time);
-        return i;
-      }
-    }
-    return -1;
-  }
+  protected abstract insertTime(time: TimeBlock): number;
 
   abstract addTime(time: TimeBlock): ErrorCodes;
 
@@ -86,13 +73,17 @@ export abstract class Schedule {
   }
 
   findTimeIndex(time: TimeBlock): number {
-    const times = this.week.get(time.day!)!.times;
+    const times = this.getTimes(time.day!);
     for (let i = 0; i < times.length; i++) {
       if (times[i] === time) {
         return i;
       }
     }
     return -1;
+  }
+
+  hasTime(time: TimeBlock): boolean {
+    return this.findTimeIndex(time) !== -1;
   }
 
   getTimeAt(day: Days, index: number): TimeBlock | null {
