@@ -3,6 +3,7 @@ import { TimeBlock, Tags } from "../schedule/time-block";
 import { Tutor } from "./tutor";
 import { Days } from "../enums";
 import { isValidSessionTime } from "../utils/session-times";
+import { TimeEditor } from "../elements/editors/time-editor";
 
 export class TutorSchedule extends Schedule {
   tutor: Tutor;
@@ -52,12 +53,7 @@ export class TutorSchedule extends Schedule {
   }
 
   override pushTime(time: TimeBlock): void {
-    const ind = this.insertTime(time);
-    if (this.getTimes(time.day!).length >= 1) {
-      this.getDayDiv(time.day!)!.insertBefore(this.getTimeAt(time.day!, ind + 1)!.getTutorDiv(), time.getTutorDiv());
-    } else {
-      this.getDayDiv(time.day!)!.append(time.getTutorDiv());
-    }
+    this.insertTime(time);
     time.setTutor(this.tutor.email);
   }
 
@@ -84,6 +80,13 @@ export class TutorSchedule extends Schedule {
     const title = document.createElement("p");
     title.innerHTML = "<b>Schedule:</b>";
     div.append(title);
+
+    const addTime = document.createElement("button");
+    addTime.innerHTML = "Add Time";
+    addTime.addEventListener("click", () => {
+      TimeEditor.createNewTime(this);
+    });
+    div.append(addTime);
 
     this.forEachDay((day, dayObj) => {
       dayObj.div = document.createElement("div");

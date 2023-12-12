@@ -52,6 +52,8 @@ export class TimeEditor {
     this.buildDiv();
 
     this._body.append(TimeEditor.div!);
+
+    TimeEditor.hideMenu();
   }
 
   private buildDiv() {
@@ -392,6 +394,8 @@ export class TimeEditor {
     field.addEventListener("change", () => {
       if (TimeEditor.validateTime()) {
         TimeEditor.curChanges!.day = TimeEditor.dayField!.value as Days;
+        TimeEditor.curChanges!.start = timeConvert.strToInt(TimeEditor.startField!.value);
+        TimeEditor.curChanges!.end = timeConvert.strToInt(TimeEditor.endField!.value);
       } else {
         TimeEditor.curChanges!.day = undefined;
       }
@@ -406,7 +410,9 @@ export class TimeEditor {
     field.step = "60";
     field.addEventListener("change", () => {
       if (TimeEditor.validateTime()) {
+        TimeEditor.curChanges!.day = TimeEditor.dayField!.value as Days;
         TimeEditor.curChanges!.start = timeConvert.strToInt(TimeEditor.startField!.value);
+        TimeEditor.curChanges!.end = timeConvert.strToInt(TimeEditor.endField!.value);
       } else {
         TimeEditor.curChanges!.start = undefined;
       }
@@ -420,6 +426,8 @@ export class TimeEditor {
     field.step = "60";
     field.addEventListener("change", () => {
       if (TimeEditor.validateTime()) {
+        TimeEditor.curChanges!.day = TimeEditor.dayField!.value as Days;
+        TimeEditor.curChanges!.start = timeConvert.strToInt(TimeEditor.startField!.value);
         TimeEditor.curChanges!.end = timeConvert.strToInt(TimeEditor.endField!.value);
       } else {
         TimeEditor.curChanges!.end = undefined;
@@ -436,10 +444,14 @@ export class TimeEditor {
       if (!TimeEditor.validateChanges()) {
         return;
       }
+      const prevDay = TimeEditor.curTime!.day;
       TimeEditor.curTime!.update(TimeEditor.curChanges!);
-      if (!TimeEditor.client!.hasTime(TimeEditor.curTime!)) {
-        console.log(TimeEditor.curTime);
-        console.log(TimeEditor.client!.addTime(TimeEditor.curTime!));
+      console.log(TimeEditor.curChanges);
+      if (TimeEditor.curTime!.getRoom()) {
+        TimeEditor.curTime!.roomSchedule!.updateTime(TimeEditor.curTime!, prevDay);
+      }
+      if (TimeEditor.curTime!.getTutor()) {
+        TimeEditor.curTime!.tutorSchedule!.updateTime(TimeEditor.curTime!, prevDay);
       }
       // TODO: add console message
       TimeEditor.hideMenu();
@@ -482,6 +494,9 @@ export class TimeEditor {
   // # Input Validation Checks =====================================
 
   static validateCourseID(): boolean {
+    if (TimeEditor.tagField!.value as Tags === Tags.reserve) {
+      return true;
+    }
     const result = Tutors.instance!.getTutor(TimeEditor.tutorField!.value);
     if (result === undefined) {
       TimeEditor.courseNotice!.innerHTML = "";
@@ -580,6 +595,7 @@ export class TimeEditor {
       TimeEditor.dayField!.value = time.day!;
       TimeEditor.startField!.value = timeConvert.intTo24hr(time.start!);
       TimeEditor.endField!.value = timeConvert.intTo24hr(time.end!);
+      TimeEditor.instance!.setColor(tagColors.get(time.tag!)!);
     } else {
       TimeEditor.tagField!.value = "---";
       TimeEditor.courseField!.value = "";
@@ -588,6 +604,10 @@ export class TimeEditor {
       TimeEditor.dayField!.value = "---";
       TimeEditor.startField!.value = "";
       TimeEditor.endField!.value = "";
+      TimeEditor.instance!.setColor({
+        backgroundColor: "#F0F0F0",
+        borderColor: "black",
+      });
     }
     TimeEditor.courseNotice!.innerHTML = "";
     TimeEditor.tutorNotice!.innerHTML = "";
@@ -600,13 +620,16 @@ export class TimeEditor {
     if (client instanceof TutorSchedule) {
       TimeEditor.curChanges = {
         tutorSchedule: client,
+        tutorEmail: client.tutor.email,
         scheduleByLSS: true
       };
       TimeEditor.curTime = new TimeBlock(client);
       TimeEditor.tutorField!.value = client.tutor.email;
+      TimeEditor.tutorNotice!.innerHTML = client.tutor.name;
     } else if (client instanceof RoomSchedule) {
       TimeEditor.curChanges = {
         roomSchedule: client,
+        roomName: client.room.name,
         scheduleByLSS: true
       };
       TimeEditor.curTime = new TimeBlock(undefined, client);

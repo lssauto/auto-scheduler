@@ -59,8 +59,26 @@ export abstract class Schedule {
   abstract pushTime(time: TimeBlock): void;
 
   abstract removeTime(time: TimeBlock): TimeBlock | null;
-
+  
   abstract removeTimeAt(day: Days, index: number): TimeBlock | null;
+  
+  updateTime(time: TimeBlock, prevDay?: Days): void {
+    if (prevDay !== undefined) {
+      const times = this.getTimes(prevDay);
+      let index = -1;
+      for (let i = 0; i < times.length; i++) {
+        if (times[i] === time) {
+          index = i;
+        }
+      }
+
+      if (index !== -1) {
+        times.splice(index, 1);
+      }
+    }
+
+    this.pushTime(time);
+  }
 
   hasConflictWith(time: TimeBlock | {day: Days, start: number, end: number}): boolean {
     let hasConflict = false;

@@ -38,7 +38,6 @@ export class RoomSchedule extends Schedule {
 
   isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
     if (!this.range.days.includes(time.day!)) {
-      console.log("day mismatch");
       return false;
     }
     if (time.start === undefined || time.end === undefined) {
@@ -46,7 +45,6 @@ export class RoomSchedule extends Schedule {
     }
 
     if (time.start < this.range.start || this.range.end < time.end) {
-      console.log("time mismatch");
       return false;
     }
     return true;
@@ -95,6 +93,9 @@ export class RoomSchedule extends Schedule {
   override pushTime(time: TimeBlock): void {
     this.insertTime(time);
     time.setRoom(this.room.name);
+    if (time.tag === Tags.session) {
+      this.sessionCounts.set(time.day!, this.sessionCounts.get(time.day!)! + 1);
+    }
   }
 
   override removeTime(time: TimeBlock): TimeBlock | null {

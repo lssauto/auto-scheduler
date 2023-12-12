@@ -14,6 +14,7 @@ export class VariableElement {
     this.event = event;
     this.updateAction = updateAction;
     this.event.addListener(this, this.updateAction);
+    this.updateAction();
   }
 
   destroy() {
