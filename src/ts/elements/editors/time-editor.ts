@@ -312,6 +312,7 @@ export class TimeEditor {
       }
       if (field.value === "") {
         notice.innerHTML = "";
+        TimeEditor.curChanges!.tutorEmail = null;
         return;
       }
       const result = Tutors.instance!.match(field.value);
@@ -349,6 +350,7 @@ export class TimeEditor {
       }
       if (field.value === "") {
         notice.innerHTML = "";
+        TimeEditor.curChanges!.roomName = null;
         return;
       }
       const result = Rooms.instance!.match(field.value);
@@ -445,11 +447,18 @@ export class TimeEditor {
         return;
       }
       const prevDay = TimeEditor.curTime!.day;
-      TimeEditor.curTime!.update(TimeEditor.curChanges!);
+      const tutorSchedule = TimeEditor.curTime!.tutorSchedule;
+      const roomSchedule = TimeEditor.curTime!.roomSchedule;
       console.log(TimeEditor.curChanges);
+
+      TimeEditor.curTime!.update(TimeEditor.curChanges!);
+
+      roomSchedule?.updateTime(TimeEditor.curTime!, prevDay);
       if (TimeEditor.curTime!.getRoom()) {
         TimeEditor.curTime!.roomSchedule!.updateTime(TimeEditor.curTime!, prevDay);
       }
+
+      tutorSchedule?.updateTime(TimeEditor.curTime!, prevDay);
       if (TimeEditor.curTime!.getTutor()) {
         TimeEditor.curTime!.tutorSchedule!.updateTime(TimeEditor.curTime!, prevDay);
       }
@@ -493,6 +502,18 @@ export class TimeEditor {
 
   // # Input Validation Checks =====================================
 
+  static getCourseList(): string {
+    const result = Tutors.instance!.getTutor(TimeEditor.tutorField!.value);
+    if (result === undefined) {
+      return "";
+    }
+    let str = `${result.name}'s courses:</br>`;
+    result.forEachCourse(course => {
+      str += `${course.id}: ${course.position.title}</br>`;
+    });
+    return str;
+  }
+
   static validateCourseID(): boolean {
     if (TimeEditor.tagField!.value as Tags === Tags.reserve) {
       return true;
@@ -509,9 +530,11 @@ export class TimeEditor {
         )!.position.title;
         return true;
       } else {
-        TimeEditor.courseNotice!.innerHTML = `${result.name} is not assigned to this course`;
+        TimeEditor.courseNotice!.innerHTML = `${result.name} is not assigned to this course.</br>${TimeEditor.getCourseList()}`;
         return false;
       }
+    } else {
+      TimeEditor.courseNotice!.innerHTML = TimeEditor.getCourseList();
     }
     return true;
   }
@@ -532,7 +555,7 @@ export class TimeEditor {
 
       if (TimeEditor.tutorField!.value !== "" && Tutors.instance!.hasTutor(TimeEditor.tutorField!.value)) {
         const tutor = Tutors.instance!.getTutor(TimeEditor.tutorField!.value)!;
-        if (tutor.schedule.hasConflictWith(timeObj)) {
+        if (tutor.schedule.hasConflictWith(timeObj, TimeEditor.curTime!)) {
           notice = "time conflicts with tutor's current schedule";
           result = false;
         }
@@ -540,7 +563,7 @@ export class TimeEditor {
 
       if (TimeEditor.roomField!.value !== "" && Rooms.instance!.hasRoom(TimeEditor.roomField!.value)) {
         const room = Rooms.instance!.getRoom(TimeEditor.roomField!.value)!;
-        if (room.schedule.hasConflictWith(timeObj)) {
+        if (room.schedule.hasConflictWith(timeObj, TimeEditor.curTime!)) {
           notice = "time conflicts with room's current schedule";
           result = false;
         }
@@ -617,22 +640,19 @@ export class TimeEditor {
 
   static createNewTime(client: Schedule) {
     TimeEditor.reset();
+    TimeEditor.curTime = new TimeBlock();
     if (client instanceof TutorSchedule) {
       TimeEditor.curChanges = {
-        tutorSchedule: client,
         tutorEmail: client.tutor.email,
         scheduleByLSS: true
       };
-      TimeEditor.curTime = new TimeBlock(client);
       TimeEditor.tutorField!.value = client.tutor.email;
       TimeEditor.tutorNotice!.innerHTML = client.tutor.name;
     } else if (client instanceof RoomSchedule) {
       TimeEditor.curChanges = {
-        roomSchedule: client,
         roomName: client.room.name,
         scheduleByLSS: true
       };
-      TimeEditor.curTime = new TimeBlock(undefined, client);
       TimeEditor.roomField!.value = client.room.name;
       let days = "";
       client.room.schedule.range.days.forEach(day => {
@@ -650,23 +670,9 @@ export class TimeEditor {
 
   static editTime(client: Schedule, time: TimeBlock) {
     TimeEditor.reset(time);
-    if (client instanceof TutorSchedule) {
-      TimeEditor.curChanges = {
-        tutorSchedule: client,
-        scheduleByLSS: true
-      };
-    } else if (client instanceof RoomSchedule) {
-      TimeEditor.curChanges = {
-        roomSchedule: client,
-        scheduleByLSS: true
-      };
-    }
-    TimeEditor.curChanges!.tag = time.tag;
-    TimeEditor.curChanges!.day = time.day;
-    TimeEditor.curChanges!.start = time.start;
-    TimeEditor.curChanges!.end = time.end;
-    TimeEditor.curChanges!.scheduleByLSS = time.scheduleByLSS!;
-    TimeEditor.curChanges!.tutorEmail = time.tutorEmail!;
+    TimeEditor.curChanges = {
+      scheduleByLSS: time.scheduleByLSS!
+    };
     TimeEditor.client = client;
     TimeEditor.curTime = time;
     TimeEditor.showMenu();

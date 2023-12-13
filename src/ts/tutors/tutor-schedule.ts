@@ -27,7 +27,9 @@ export class TutorSchedule extends Schedule {
         return i;
       }
     }
-    return -1;
+    times.push(time);
+    this.week.get(time.day!)!.div!.append(time.getRoomDiv());
+    return times.length - 1;
   }
 
   override addTime(time: TimeBlock): ErrorCodes {
@@ -55,6 +57,26 @@ export class TutorSchedule extends Schedule {
   override pushTime(time: TimeBlock): void {
     this.insertTime(time);
     time.setTutor(this.tutor.email);
+  }
+
+  override updateTime(time: TimeBlock, prevDay?: Days): void {
+    if (prevDay !== undefined) {
+      const times = this.getTimes(prevDay);
+      let index = -1;
+      for (let i = 0; i < times.length; i++) {
+        if (times[i] === time) {
+          index = i;
+        }
+      }
+
+      if (index !== -1) {
+        times.splice(index, 1);
+      }
+    }
+
+    if (time.tutorSchedule === this) {
+      this.pushTime(time);
+    }
   }
 
   override removeTime(time: TimeBlock): TimeBlock | null {

@@ -2,8 +2,11 @@ import "../css/style.css";
 import { Content } from "./elements/content/content";
 import { TimeEditor } from "./elements/editors/time-editor";
 import { HeaderFactory } from "./elements/header/header-factory";
+import { Positions } from "./positions";
 import { Room } from "./rooms/room";
 import { Rooms } from "./rooms/rooms";
+import { StatusOptions } from "./status-options";
+import { Course } from "./tutors/course";
 import { Tutor } from "./tutors/tutor";
 import { Tutors } from "./tutors/tutors";
 
@@ -19,6 +22,21 @@ const header = HeaderFactory.buildHeader();
 const content = new Content();
 
 const tutor1 = new Tutor("billyb@ucsc.edu", "Billy Bob", true);
+tutor1.addCourse(Course.buildCourse({
+    tutor: tutor1,
+    id: "CSE 101-001",
+    position: Positions.sgt,
+    status: StatusOptions.inProgress,
+    preference: Course.noPref,
+    row: 1,
+    timestamp: "28/2023 16:44:53",
+    errors: [],
+    lectures: [],
+    officeHours: [],
+    discordHours: [],
+    sessions: [],
+    comments: ""
+}));
 tutors.addTutor(tutor1);
 
 const room1 = new Room("ARC 221 - Large");

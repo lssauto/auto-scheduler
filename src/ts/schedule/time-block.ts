@@ -51,16 +51,14 @@ tagColors.set(Tags.reserve, {
 });
 
 export interface TimeBlockConfig {
-  tutorSchedule?: TutorSchedule;
-  roomSchedule?: RoomSchedule;
   coords?: { row: number; col: number };
   tag?: Tags;
   day?: Days;
   start?: number;
   end?: number;
   scheduleByLSS: boolean;
-  tutorEmail?: string;
-  roomName?: string;
+  tutorEmail?: string | null;
+  roomName?: string | null;
   courseID?: string | null;
 }
 
@@ -87,17 +85,9 @@ export class TimeBlock {
 
   onEdited: NotifyEvent = new NotifyEvent("onEdited");
 
-  constructor(tutorSchedule?: TutorSchedule, roomSchedule?: RoomSchedule) {
-    if (tutorSchedule) {
-      this.tutorSchedule = tutorSchedule;
-    } else {
-      this.tutorSchedule = null;
-    }
-    if (roomSchedule) {
-      this.roomSchedule = roomSchedule;
-    } else {
-      this.roomSchedule = null;
-    }
+  constructor() {
+    this.tutorSchedule = null;
+    this.roomSchedule = null;
     this.hasConflict = false;
     this.tutorEmail = null;
     this.roomName = null;
@@ -243,6 +233,8 @@ export class TimeBlock {
 
   private buildTutorEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
+    edit.style.display = "inline-block";
+    edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
     edit.addEventListener("click", () => {
       this.editTime(this.getTutor()!.schedule);
@@ -253,6 +245,7 @@ export class TimeBlock {
   private buildRoomEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
     edit.style.display = "inline-block";
+    edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
     edit.addEventListener("click", () => {
       this.editTime(this.getRoom()!.schedule);
@@ -263,6 +256,7 @@ export class TimeBlock {
   private buildDeleteButton(): HTMLButtonElement {
     const button: HTMLButtonElement = document.createElement("button");
     button.style.display = "inline-block";
+    button.style.marginLeft = "3px";
     button.innerHTML = "Delete";
     button.addEventListener("click", () => {
       this.tutorSchedule?.removeTime(this);
@@ -314,13 +308,15 @@ export class TimeBlock {
     div.append(text);
 
     this.roomDivContent = new VariableElement(text, this.onEdited, () => {
+      text.innerHTML = `${this.courseID}`;
       let tutorName = "";
       if (this.getTutor()) {
         tutorName = `(${this.getTutor()!.name})`;
       }
-      text.innerHTML = `${this.courseID} / ${
-        this.tutorEmail
-      } ${tutorName} / ${this.getTimeStr()} | `;
+      if (this.tutorEmail) {
+        text.innerHTML += ` / ${this.tutorEmail} ${tutorName}`;
+      } 
+      text.innerHTML += ` / ${this.getTimeStr()} | `;
     });
 
     div.append(this.buildRoomEditButton());
@@ -376,6 +372,9 @@ export class TimeBlock {
   }
 
   update(config: TimeBlockConfig) {
+    if (config.coords !== undefined) {
+      this.setCoords(config.coords.row, config.coords.col);
+    }
     if (config.day !== undefined) {
       this.setDay(config.day);
     }
@@ -397,6 +396,7 @@ export class TimeBlock {
     if (config.roomName !== undefined) {
       this.setRoom(config.roomName);
     }
+    this.setScheduleByLSS(config.scheduleByLSS);
     this.onEditedDispatch();
   }
 
@@ -415,7 +415,7 @@ export class TimeBlock {
   // statics =================================================
 
   static buildTimeBlock(config: TimeBlockConfig): TimeBlock {
-    const newTime = new TimeBlock(config.tutorSchedule, config.roomSchedule);
+    const newTime = new TimeBlock();
     if (config.coords !== undefined) {
       newTime.setCoords(config.coords.row, config.coords.col);
     }

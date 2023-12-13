@@ -165,7 +165,7 @@ export class Course {
     div.style.borderRadius = "5px";
 
     const p = document.createElement("p");
-    p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || ${this.status.title} || ${this.preference}</br>`;
+    p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference}</br>`;
     p.innerHTML += `Comments: ${this.comments}`;
     div.append(p);
 
