@@ -2,6 +2,7 @@ import { Tutor } from "./tutor";
 import { TimeBlock, Tags } from "../schedule/time-block";
 import { Position, Positions } from "../positions";
 import { Status, StatusOptions } from "../status-options";
+import { CourseEditor } from "../elements/editors/course-editor";
 
 interface CourseConfig {
   tutor: Tutor;
@@ -60,6 +61,10 @@ export class Course {
 
   setStatus(status: Status): Course {
     this.status = status;
+    if (this.div) {
+      this.div.style.backgroundColor = this.status.color.backgroundColor;
+      this.div.style.borderColor = this.status.color.borderColor;
+    }
     return this;
   }
 
@@ -140,13 +145,36 @@ export class Course {
     div.style.margin = "3px";
     div.style.marginRight = "20px";
     div.style.borderRadius = "5px";
+    div.style.backgroundColor = this.status.color.backgroundColor;
+    div.style.borderColor = this.status.color.borderColor;
 
     const p = document.createElement("p");
-    p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference}</br>`;
+    p.style.display = "inline-block";
+    p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference} || </br>`;
     p.innerHTML += `Comments: ${this.comments}`;
     div.append(p);
 
-    //TODO: add edit course button
+    const edit = document.createElement("button");
+    edit.style.display = "inline-block";
+    edit.style.verticalAlign = "top";
+    edit.style.marginLeft = "3px";
+    edit.style.marginTop = "15px";
+    edit.innerHTML = "Edit";
+    edit.addEventListener("click", () => {
+      CourseEditor.instance!.editCourse(this.tutor, this);
+    });
+    div.append(edit);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.style.display = "inline-block";
+    deleteButton.style.verticalAlign = "top";
+    deleteButton.style.marginLeft = "3px";
+    deleteButton.style.marginTop = "15px";
+    deleteButton.innerHTML = "Delete";
+    deleteButton.addEventListener("click", () => {
+      console.log("delete course");
+    });
+    div.append(deleteButton);
 
     return div;
   }

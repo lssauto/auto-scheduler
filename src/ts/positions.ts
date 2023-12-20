@@ -57,6 +57,14 @@ export class Positions {
     Positions.wr
   ];
 
+  static getTitles(): string[] {
+    const titles: string[] = [];
+    Positions.forEach((position) => {
+      titles.push(position.title);
+    });
+    return titles;
+  }
+
   static forEach(action: (position: Position) => void) {
     Positions.positions.forEach(action);
   }

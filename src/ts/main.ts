@@ -1,5 +1,6 @@
 import "../css/style.css";
 import { Content } from "./elements/content/content";
+import { CourseEditor } from "./elements/editors/course-editor";
 import { TimeEditor } from "./elements/editors/time-editor";
 import { HeaderFactory } from "./elements/header/header-factory";
 import { Positions } from "./positions";
@@ -41,8 +42,12 @@ rooms.addRoom(room1);
 
 const timeEditor = new TimeEditor();
 
+const courseEditor = new CourseEditor();
+courseEditor.openMenu();
+
 console.log(tutors);
 console.log(rooms);
 console.log(header);
 console.log(content);
 console.log(timeEditor);
+console.log(courseEditor);
