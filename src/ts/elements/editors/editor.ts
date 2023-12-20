@@ -223,6 +223,17 @@ export abstract class Editor {
     this._rows[row].addField(field);
   }
 
+  addTextField(row: number, title: string, validate: (input: string) => boolean, valid: (field: fields.MenuTextField) => void, invalid: (field: fields.MenuTextField) => void) {
+    if (row < 0 || this._rows.length <= row) return;
+    const field = new fields.MenuTextField(
+      title,
+      validate,
+      valid,
+      invalid
+    );
+    this._rows[row].addField(field);
+  }
+
   getField(title: string): fields.MenuField | null {
     for (const row of this._rows) {
       const result = row.getField(title);

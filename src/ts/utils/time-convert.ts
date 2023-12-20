@@ -44,3 +44,19 @@ export function intTo24hr(time: number): string {
     .toString()
     .padStart(2, "0")}`;
 }
+
+export function fromTimestamp(time: number): string {
+  const u = new Date(time);
+
+    return ("0" + (u.getMonth() + 1)).slice(-2) +
+      "/" + ("0" + (u.getDate())).slice(-2) + 
+      "/" + u.getFullYear() + 
+      " " + ("0" + u.getHours()).slice(-2) +
+      ":" + ("0" + u.getMinutes()).slice(-2) +
+      ":" + ("0" + u.getSeconds()).slice(-2);
+}
+
+export function toTimestamp(time: string): number {
+  const dateObject = new Date(time);
+  return dateObject.getTime(); // convert to milliseconds for comparison
+}

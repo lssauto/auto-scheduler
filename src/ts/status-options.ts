@@ -118,14 +118,23 @@ export class StatusOptions {
     StatusOptions.confirmed,
   ];
 
+  static getTitles(): string[] {
+    const titles: string[] = [];
+    StatusOptions.forEach((status) => {
+      titles.push(status.title);
+    });
+    return titles;
+  }
+
   static forEach(action: (status: Status) => void) {
     StatusOptions.statusList.forEach(action);
   }
 
   static match(str: string): Status {
     let status = StatusOptions.inProgress;
+    const lower = str.toLowerCase();
     StatusOptions.forEach((s) => {
-      if (str.includes(s.match)) {
+      if (lower.includes(s.match)) {
         status = s;
       }
     });
@@ -137,7 +146,7 @@ export class StatusOptions {
     StatusOptions.inProgress
   ];
 
-  static isProgressOption(status: Status): boolean {
+  static isProgressStatus(status: Status): boolean {
     let isProgressOption = false;
     StatusOptions.progressOptions.forEach(option => {
       if (option.title === status.title) {
@@ -153,7 +162,7 @@ export class StatusOptions {
     StatusOptions.missing
   ];
 
-  static isErrorOption(status: Status): boolean {
+  static isErrorStatus(status: Status): boolean {
     let isErrorOption = false;
     StatusOptions.errorOptions.forEach(option => {
       if (option.title === status.title) {
@@ -171,7 +180,7 @@ export class StatusOptions {
     StatusOptions.confirmed
   ];
 
-  static isScheduledOption(status: Status): boolean {
+  static isScheduledStatus(status: Status): boolean {
     let isScheduledOption = false;
     StatusOptions.scheduledOptions.forEach(option => {
       if (option.title === status.title) {

@@ -1,6 +1,6 @@
 export abstract class MenuField {
   readonly title: string;
-  readonly field: HTMLInputElement | HTMLSelectElement;
+  readonly field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
   readonly notice: HTMLElement;
   readonly div: HTMLDivElement;
 
@@ -32,7 +32,7 @@ export abstract class MenuField {
     container.append(this.notice);
   }
 
-  abstract buildField(): HTMLInputElement | HTMLSelectElement;
+  abstract buildField(): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
   abstract reset(): void;
 
@@ -127,6 +127,14 @@ export class MenuSelectField extends MenuField {
     this._options.push(option);
   }
 
+  clearOptions() {
+    this.field.innerHTML = "";
+    const emptyOption = document.createElement("option");
+    emptyOption.value = MenuSelectField.emptyOption;
+    emptyOption.innerHTML = MenuSelectField.emptyOption;
+    this.field.append(emptyOption);
+  }
+
   onChange(action: (value: string) => void) {
     this.field.addEventListener("change", () => { 
       action(this.getValue());
@@ -176,6 +184,43 @@ export class MenuTimeField extends MenuField {
 
   override validate(): boolean {
     if (this._validate(this.getTime())) {
+      this._valid(this);
+      return true;
+    } else {
+      this._invalid(this);
+      return false;
+    }
+  }
+}
+
+export class MenuTextField extends MenuField {
+  private _validate: (input: string) => boolean;
+  private _valid: (field: MenuTextField) => void;
+  private _invalid: (field: MenuTextField) => void;
+
+  constructor(title: string, validate: (input: string) => boolean, valid: (field: MenuTextField) => void, invalid: (field: MenuTextField) => void) {
+    super(title);
+    this._validate = validate;
+    this._valid = valid;
+    this._invalid = invalid;
+  }
+
+  override buildField(): HTMLTextAreaElement {
+    const field = document.createElement("textarea");
+    field.style.display = "block";
+    field.style.padding = "3px";
+    field.cols = 70;
+    field.rows = 3;
+    return field;
+  }
+
+  override reset() {
+    this.setValue("");
+    this.setNotice("");
+  }
+
+  override validate(): boolean {
+    if (this._validate(this.getValue())) {
       this._valid(this);
       return true;
     } else {

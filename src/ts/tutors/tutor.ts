@@ -3,6 +3,7 @@ import { Status } from "../status-options";
 import { Course } from "./course";
 import { ErrorCodes } from "../schedule/schedule";
 import { TimeBlock } from "../schedule/time-block";
+import { CourseEditor } from "../elements/editors/course-editor";
 
 export class Tutor {
   readonly email: string;
@@ -13,7 +14,8 @@ export class Tutor {
 
   readonly courses: Map<string, Course>;
 
-  div: HTMLDivElement | null;
+  private _div: HTMLDivElement | null;
+  private _courseDiv: HTMLDivElement | null;
 
   constructor(email: string, name: string, returnee: boolean) {
     this.email = email;
@@ -24,7 +26,8 @@ export class Tutor {
 
     this.courses = new Map<string, Course>();
 
-    this.div = null;
+    this._div = null;
+    this._courseDiv = null;
   }
 
   addCourse(course: Course) {
@@ -32,15 +35,17 @@ export class Tutor {
 
     if (this.courses.has(course.id)) {
       if (this.courses.get(course.id)!.isOlderThan(course)) {
-        course.forEveryTime(time => {
+        this.courses.get(course.id)!.forEveryTime(time => {
           schedule.removeTime(time);
         });
+        this.courses.get(course.id)!.removeDiv();
       } else {
         return;
       }
     }
 
     this.courses.set(course.id, course);
+    this._courseDiv?.append(course.getDiv());
 
     course.forEveryTime((time) => {
       const errorCode = schedule.addTime(time);
@@ -48,6 +53,14 @@ export class Tutor {
         course.addError(time);
       }
     });
+  }
+
+  setCourse(course: Course) {
+    this.courses.set(course.id, course);
+  }
+
+  removeCourse(courseId: string) {
+    this.courses.delete(courseId);
   }
 
   getCourse(courseId: string): Course | undefined {
@@ -93,10 +106,10 @@ export class Tutor {
   }
 
   getDiv(): HTMLDivElement {
-    if (this.div === null) {
-      this.div = this.buildDiv();
+    if (this._div === null) {
+      this._div = this.buildDiv();
     }
-    return this.div;
+    return this._div;
   }
 
   private buildDiv(): HTMLDivElement {
@@ -111,7 +124,16 @@ export class Tutor {
     div.append(title);
     div.append(document.createElement("br"));
 
-    this.forEachCourse(course => div.append(course.getDiv()));
+    const addCourse = document.createElement("button");
+    addCourse.innerHTML = "AddCourse";
+    addCourse.addEventListener("click", () => {
+      CourseEditor.instance!.createNewCourse(this);
+    });
+    div.append(addCourse);
+
+    this._courseDiv = document.createElement("div");
+    this.forEachCourse(course => this._courseDiv!.append(course.getDiv()));
+    div.append(this._courseDiv);
 
     div.append(this.schedule.getDiv());
 

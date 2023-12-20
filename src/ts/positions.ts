@@ -3,6 +3,7 @@ export interface Position {
   readonly match: string;        // used to str match form responses
   readonly sessionLimit: number; // max number of sessions allowed
   readonly requestLimit: number; // when any remaining sessions will default to registrar requests
+  readonly roomFilter: string[]; // what room types this position can be scheduled in
 }
 
 export class Positions {
@@ -10,42 +11,48 @@ export class Positions {
     title: "SGT",
     match: "small",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["SGT", "EMB SGT"]
   };
 
   static readonly esgt: Position = {
     title: "EMB SGT",
     match: "embedded small",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["SGT", "EMB SGT"]
   };
 
   static readonly lgt: Position = {
     title: "LGT",
     match: "large",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["LGT", "EMB LGT", "SI"]
   };
 
   static readonly elgt: Position = {
     title: "EMB LGT",
     match: "embedded large",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["LGT", "EMB LGT", "SI"]
   };
 
   static readonly si: Position = {
     title: "SI",
     match: "si leader",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["LGT", "EMB LGT", "SI"]
   };
 
   static readonly wr: Position = {
     title: "WR",
     match: "writing",
     sessionLimit: 3,
-    requestLimit: 3
+    requestLimit: 3,
+    roomFilter: ["WR"]
   };
 
   static readonly positions: Position[] = [

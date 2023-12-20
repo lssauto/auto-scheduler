@@ -1,8 +1,11 @@
 import { Positions } from "../../positions.ts";
-import { Course } from "../../tutors/course.ts";
+import { Rooms } from "../../rooms/rooms.ts";
+import { StatusOptions } from "../../status-options.ts";
+import { Course, CourseConfig } from "../../tutors/course.ts";
 import { Tutor } from "../../tutors/tutor.ts";
 import { Editor } from "./editor";
 import * as fields from "./menu-field.ts";
+import * as timeConvert from "../../utils/time-convert.ts";
 
 export class CourseEditor extends Editor {
   private static _instance: CourseEditor | null = null;
@@ -54,14 +57,22 @@ export class CourseEditor extends Editor {
           const position = Positions.match(this.getValue(CourseEditor.position));
           if (Positions.courseless.includes(position)) {
             this.getField(CourseEditor.id)!.setValue(Course.na);
-            return true;
+            if (this.client!.hasCourse(Course.na) && Course.na !== this.curCourse?.id) {
+              return false;
+            } else {
+              return true;
+            }
           }
         }
 
         const formatted = Course.formatID(input);
         if (formatted !== Course.na) {
           this.getField(CourseEditor.id)!.setValue(formatted);
-          return true;
+          if (this.client!.hasCourse(formatted) && formatted !== this.curCourse?.id) {
+            return false;
+          } else {
+            return true;
+          }
         }
         return false;
       },
@@ -69,6 +80,9 @@ export class CourseEditor extends Editor {
         field.setNotice("");
       },
       (field: fields.MenuInputField) => {
+        if (this.client!.hasCourse(field.getValue()) && field.getValue() !== this.curCourse?.id) {
+          field.setNotice(`the tutor is already assigned to ${field.getValue()}</br>delete the other course before renaming this one`);
+        }
         field.setNotice("course ID format must follow:</br>DEP COURSE-SECTION (e.g. CSE 13S-001)");
       }
     );
@@ -92,6 +106,7 @@ export class CourseEditor extends Editor {
       (field: fields.MenuSelectField) => {
         const position = Positions.match(field.getValue());
         field.setNotice(`session limit: ${position.sessionLimit}`);
+        this.getField(CourseEditor.preference)!.validate();
       },
       (field: fields.MenuSelectField) => {
         field.setNotice("tutors must have a position for each assigned course");
@@ -101,21 +116,136 @@ export class CourseEditor extends Editor {
 
   private buildStatusRow() {
     this.addRow();
+
+    this.addSelectField(
+      CourseEditor.statusRow,
+      CourseEditor.status,
+      StatusOptions.getTitles(),
+      (input: string) => {
+        if (input === fields.MenuSelectField.emptyOption) {
+          return false;
+        }
+        return true;
+      },
+      (field: fields.MenuSelectField) => {
+        const status = StatusOptions.match(field.getValue());
+        this.setColor(status.color);
+        field.setNotice("");
+        if (!StatusOptions.isErrorStatus(status) && StatusOptions.isErrorStatus(this.curCourse?.status ?? StatusOptions.inProgress)) {
+          field.setNotice("changing to a non-error status will remove all errors");
+        }
+      },
+      (field: fields.MenuSelectField) => {
+        field.setNotice("courses must have a progress status");
+        this.setColor(Editor.blankColor);
+      }
+    );
+    
+    const options = Rooms.instance!.getBuildingNames();
+    options.push(Course.noPref);
+    this.addSelectField(
+      CourseEditor.statusRow,
+      CourseEditor.preference,
+      options,
+      (input: string) => {
+        if (input === fields.MenuSelectField.emptyOption) {
+          return false;
+        }
+        if (input === Course.noPref) {
+          let found = false;
+          Rooms.instance!.forEachRoom((room) => {
+            if (Positions.match(this.getValue(CourseEditor.position)).roomFilter.includes(room.type.title)) {
+              found = true;
+            }
+          });
+          if (!found) {
+            return false;
+          }
+          return true;
+        }
+        let found = false;
+        Rooms.instance!.forEachRoomInBuilding(input, (room) => {
+          if (Positions.match(this.getValue(CourseEditor.position)).roomFilter.includes(room.type.title)) {
+            found = true;
+          }
+        });
+        if (!found) {
+          return false;
+        }
+        return true;
+      },
+      (field: fields.MenuSelectField) => {
+        field.setNotice("");
+      },
+      (field: fields.MenuSelectField) => {
+        if (field.getValue() === fields.MenuSelectField.emptyOption) {
+          field.setNotice(`building preference will default to "${Course.noPref}"`);
+          field.setValue(Course.noPref);
+        } else {
+          field.setNotice(`${field.getValue()} has no rooms</br>available for ${this.getValue(CourseEditor.position)} sessions`);
+        }
+      }
+    );
   }
 
   private buildCommentsRow() {
     this.addRow();
+
+    this.addTextField(
+      CourseEditor.commentsRow,
+      CourseEditor.comments,
+      () => {
+        return true;
+      },
+      () => {
+        return;
+      },
+      () => {
+        return;
+      }
+    );
   }
 
   override applyChanges() {
+    const changes: CourseConfig = {
+      tutor: this.client!,
+      id: this.getValue(CourseEditor.id),
+      position: Positions.match(this.getValue(CourseEditor.position)),
+      status: StatusOptions.match(this.getValue(CourseEditor.status)),
+      preference: this.getValue(CourseEditor.preference),
+      row: this.curCourse?.row ?? -1,
+      timestamp: timeConvert.fromTimestamp(this.curCourse?.timestamp ?? (new Date()).getTime()),
+      errors: [],
+      times: [],
+      comments: this.getValue(CourseEditor.comments)
+    };
+    if (this.curCourse) {
+      if (changes.id !== this.curCourse.id) {
+        this.client!.removeCourse(this.curCourse.id);
+      }
+      this.curCourse.update(changes);
+      this.client!.setCourse(this.curCourse);
+    } else {
+      const newCourse = Course.buildCourse(changes);
+      this.client!.addCourse(newCourse);
+    }
     return;
   }
 
   createNewCourse(client: Tutor) {
-    console.log(client);
+    this.openMenu();
+    this.client = client;
+    this.curCourse = null;
   }
 
   editCourse(client: Tutor, course: Course) {
-    console.log(client, course);
+    this.createNewCourse(client);
+    this.curCourse = course;
+    this.getField(CourseEditor.id)!.setValue(course.id);
+    this.getField(CourseEditor.position)!.setValue(course.position.title);
+    this.getField(CourseEditor.status)!.setValue(course.status.title);
+    this.setColor(course.status.color);
+    this.getField(CourseEditor.preference)!.setValue(course.preference);
+    this.getField(CourseEditor.comments)!.setValue(course.comments);
   }
 }

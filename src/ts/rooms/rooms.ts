@@ -105,8 +105,20 @@ export class Rooms {
     return this.buildings!.get(name);
   }
 
+  getBuildingNames(): string[] {
+    const names: string[] = [];
+    this.forEachBuilding(building => {
+      names.push(building.name);
+    });
+    return names;
+  }
+
   forEachBuilding(action: (building: Building) => void) {
     this.buildings!.forEach(action);
+  }
+
+  forEachRoomInBuilding(name: string, action: (room: Room) => void) {
+    this.buildings!.get(name)?.rooms.forEach(action);
   }
 
   getDiv(): HTMLDivElement {

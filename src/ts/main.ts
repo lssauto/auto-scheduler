@@ -43,7 +43,6 @@ rooms.addRoom(room1);
 const timeEditor = new TimeEditor();
 
 const courseEditor = new CourseEditor();
-courseEditor.openMenu();
 
 console.log(tutors);
 console.log(rooms);

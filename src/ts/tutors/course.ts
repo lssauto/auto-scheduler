@@ -3,39 +3,43 @@ import { TimeBlock, Tags } from "../schedule/time-block";
 import { Position, Positions } from "../positions";
 import { Status, StatusOptions } from "../status-options";
 import { CourseEditor } from "../elements/editors/course-editor";
+import * as timeConvert from "../utils/time-convert.ts";
+import { Notify, NotifyEvent } from "../events/notify.ts";
+import { VariableElement } from "../events/var-elem.ts";
 
-interface CourseConfig {
-  tutor: Tutor;
-  id: string;
-  position: Position;
-  status: Status;
-  preference: string;
-  row: number;
-  timestamp: string;
-  errors: TimeBlock[];
-  times: TimeBlock[];
-  comments: string;
+// TODO: add scheduler
+export interface CourseConfig {
+  readonly tutor: Tutor;
+  readonly id: string;
+  readonly position: Position;
+  readonly status: Status;
+  readonly preference: string;
+  readonly row: number;
+  readonly timestamp: string;
+  readonly errors: TimeBlock[];
+  readonly times: TimeBlock[];
+  readonly comments: string;
 }
 
 export class Course {
-  tutor: Tutor;
+  static readonly noPref = "Any Building";
+
+  readonly tutor: Tutor;
   id: string;
   position: Position;
   status: Status;
   preference: string;
-
-  static readonly noPref = "Any Building";
-
   row: number;
-
   timestamp: number;
-
   readonly times: Map<Tags, TimeBlock[]>;
   comments: string;
-
   scheduler: string;
 
-  div: HTMLDivElement | null;
+  private _div: HTMLDivElement | null;
+  private _divContent: VariableElement | null;
+
+  private onEdited: NotifyEvent = new NotifyEvent("onEdited");
+  private onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
   constructor(tutor: Tutor, id: string) {
     this.tutor = tutor;
@@ -46,12 +50,18 @@ export class Course {
     this.row = 0;
     this.timestamp = 0;
     this.times = new Map<Tags, TimeBlock[]>();
-    for (const tag in Tags) {
-      this.times.set(tag as Tags, []);
+    for (const tag of Object.values(Tags)) {
+      this.times.set(tag, []);
     }
     this.comments = "";
     this.scheduler = "";
-    this.div = null;
+    this._div = null;
+    this._divContent = null;
+  }
+
+  setID(id: string) {
+    this.id = Course.formatID(id);
+    return this;
   }
 
   setPosition(position: Position): Course {
@@ -61,9 +71,9 @@ export class Course {
 
   setStatus(status: Status): Course {
     this.status = status;
-    if (this.div) {
-      this.div.style.backgroundColor = this.status.color.backgroundColor;
-      this.div.style.borderColor = this.status.color.borderColor;
+    if (this._div) {
+      this._div.style.backgroundColor = this.status.color.backgroundColor;
+      this._div.style.borderColor = this.status.color.borderColor;
     }
     return this;
   }
@@ -79,8 +89,7 @@ export class Course {
   }
 
   setTimestamp(timestamp: string): Course {
-    const dateObject = new Date(timestamp);
-    this.timestamp = dateObject.getTime(); // convert to milliseconds for comparison
+    this.timestamp = timeConvert.toTimestamp(timestamp);
     return this;
   }
 
@@ -130,10 +139,15 @@ export class Course {
   }
 
   getDiv(): HTMLDivElement {
-    if (this.div === null) {
-      this.div = this.buildDiv();
+    if (this._div === null) {
+      this._div = this.buildDiv();
     }
-    return this.div;
+    return this._div;
+  }
+
+  removeDiv() {
+    this._div?.remove();
+    this._divContent?.destroy();
   }
 
   private buildDiv(): HTMLDivElement {
@@ -150,8 +164,10 @@ export class Course {
 
     const p = document.createElement("p");
     p.style.display = "inline-block";
-    p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference} || </br>`;
-    p.innerHTML += `Comments: ${this.comments}`;
+    this._divContent = new VariableElement(p, this.onEdited, () => {
+      p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference} || </br>`;
+      p.innerHTML += `Comments: ${this.comments !== "" ? "</br>" + this.comments : ""}`;
+    });
     div.append(p);
 
     const edit = document.createElement("button");
@@ -172,11 +188,56 @@ export class Course {
     deleteButton.style.marginTop = "15px";
     deleteButton.innerHTML = "Delete";
     deleteButton.addEventListener("click", () => {
-      console.log("delete course");
+      this.delete();
     });
     div.append(deleteButton);
 
     return div;
+  }
+
+  update(config: CourseConfig) {
+    this.setPosition(config.position)
+      .setTimestamp(config.timestamp)
+      .setPosition(config.position)
+      .setPreference(config.preference)
+      .setRow(config.row)
+      .setStatus(config.status)
+      .setComments(config.comments);
+    
+    if (this.id !== config.id) {
+      this.setID(config.id);
+    }
+
+    this.onEditedDispatch();
+  }
+
+  delete() {
+    this.removeDiv();
+    this.tutor.removeCourse(this.id);
+  }
+
+  addEditedListener(subscriber: object, action: Notify) {
+    this.onEdited.addListener(subscriber, action);
+  }
+
+  removeEditedListener(subscriber: object) {
+    this.onEdited.removeListener(subscriber);
+  }
+
+  onEditedDispatch() {
+    this.onEdited.dispatch(this);
+  }
+
+  addDeletedListener(subscriber: object, action: Notify) {
+    this.onDeleted.addListener(subscriber, action);
+  }
+
+  removeDeletedListener(subscriber: object) {
+    this.onDeleted.removeListener(subscriber);
+  }
+
+  onDeletedDispatch() {
+    this.onDeleted.dispatch(this);
   }
 
   // statics =================================

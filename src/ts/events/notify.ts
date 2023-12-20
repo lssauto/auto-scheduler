@@ -1,4 +1,4 @@
-export type Notify = () => void;
+export type Notify = (event: object) => void;
 
 export interface NotifyListener {
     subscriber: object;
@@ -32,7 +32,7 @@ export class NotifyEvent {
         }
     }
 
-    dispatch() {
-        this.listeners.forEach(listener => listener.action());
+    dispatch(event: object) {
+        this.listeners.forEach(listener => listener.action(event));
     }
 }

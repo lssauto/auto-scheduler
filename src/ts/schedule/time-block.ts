@@ -9,7 +9,7 @@ import { TutorSchedule } from "../tutors/tutor-schedule";
 import { RoomSchedule } from "../rooms/room-schedule";
 import { TimeEditor } from "../elements/editors/time-editor";
 import { Schedule } from "./schedule";
-import { NotifyEvent } from "../events/notify";
+import { Notify, NotifyEvent } from "../events/notify";
 import { VariableElement } from "../events/var-elem";
 
 export enum Tags {
@@ -51,15 +51,15 @@ tagColors.set(Tags.reserve, {
 });
 
 export interface TimeBlockConfig {
-  coords: { row: number; col: number };
-  tag: Tags;
-  day: Days;
-  start: number;
-  end: number;
-  scheduleByLSS: boolean;
-  tutorEmail: string | null;
-  roomName: string | null;
-  courseID: string | null;
+  readonly coords: { row: number; col: number };
+  readonly tag: Tags;
+  readonly day: Days;
+  readonly start: number;
+  readonly end: number;
+  readonly scheduleByLSS: boolean;
+  readonly tutorEmail: string | null;
+  readonly roomName: string | null;
+  readonly courseID: string | null;
 }
 
 export class TimeBlock {
@@ -213,11 +213,21 @@ export class TimeBlock {
     if (id === null) {
       if (this.getCourse()) {
         this.getCourse()!.removeTime(this);
+        this.getCourse()!.removeEditedListener(this);
+        this.getCourse()!.removeDeletedListener(this);
       }
     }
     this.courseID = id;
     if (this.getCourse()) {
       this.getCourse()!.addTime(this);
+      this.getCourse()!.addEditedListener(this, (event) => {
+        const course = event as Course;
+        this.courseID = course.id;
+        this.onEditedDispatch();
+      });
+      this.getCourse()!.addDeletedListener(this, () => {
+        this.setCourse(null);
+      });
     }
     return this;
   }
@@ -422,7 +432,7 @@ export class TimeBlock {
     this.onEditedDispatch();
   }
 
-  addEditedListener(subscriber: object, action: () => void) {
+  addEditedListener(subscriber: object, action: Notify) {
     this.onEdited.addListener(subscriber, action);
   }
 
@@ -431,10 +441,10 @@ export class TimeBlock {
   }
 
   onEditedDispatch() {
-    this.onEdited.dispatch();
+    this.onEdited.dispatch(this);
   }
 
-  addDeletedListener(subscriber: object, action: () => void) {
+  addDeletedListener(subscriber: object, action: Notify) {
     this.onDeleted.addListener(subscriber, action);
   }
 
@@ -443,7 +453,7 @@ export class TimeBlock {
   }
 
   onDeletedDispatch() {
-    this.onDeleted.dispatch();
+    this.onDeleted.dispatch(this);
   }
 
   // statics =================================================
