@@ -66,7 +66,7 @@ export abstract class Schedule {
 
   hasConflictWith(time: TimeBlock | {day: Days, start: number, end: number}, ignore?: TimeBlock): boolean {
     let hasConflict = false;
-    this.forEachTimeInDay(time.day!, (t) => {
+    this.forEachTimeInDay(time.day, (t) => {
       if (t === time || t === ignore) {
         return;
       }
@@ -78,7 +78,7 @@ export abstract class Schedule {
   }
 
   findTimeIndex(time: TimeBlock): number {
-    const times = this.getTimes(time.day!);
+    const times = this.getTimes(time.day);
     for (let i = 0; i < times.length; i++) {
       if (times[i] === time) {
         return i;
@@ -110,7 +110,7 @@ export abstract class Schedule {
   findTimeByCoords(row: number, col: number): TimeBlock | null {
     let result = null;
     this.forEachTime((time) => {
-      if (time.coords!.row === row && time.coords!.col === col) {
+      if (time.coords.row === row && time.coords.col === col) {
         result = time;
       }
     });

@@ -51,28 +51,28 @@ tagColors.set(Tags.reserve, {
 });
 
 export interface TimeBlockConfig {
-  coords?: { row: number; col: number };
-  tag?: Tags;
-  day?: Days;
-  start?: number;
-  end?: number;
+  coords: { row: number; col: number };
+  tag: Tags;
+  day: Days;
+  start: number;
+  end: number;
   scheduleByLSS: boolean;
-  tutorEmail?: string | null;
-  roomName?: string | null;
-  courseID?: string | null;
+  tutorEmail: string | null;
+  roomName: string | null;
+  courseID: string | null;
 }
 
 export class TimeBlock {
   tutorSchedule: TutorSchedule | null;
   roomSchedule: RoomSchedule | null;
-  coords?: { row: number; col: number };
+  coords: { row: number; col: number };
 
-  tag?: Tags;
+  tag: Tags;
   hasConflict: boolean;
-  day?: Days;
-  start?: number;
-  end?: number;
-  scheduleByLSS?: boolean;
+  day: Days;
+  start: number;
+  end: number;
+  scheduleByLSS: boolean;
 
   tutorEmail: string | null;
   roomName: string | null;
@@ -84,8 +84,15 @@ export class TimeBlock {
   roomDivContent: VariableElement | null;
 
   onEdited: NotifyEvent = new NotifyEvent("onEdited");
+  onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
   constructor() {
+    this.coords = {row: -1, col: -1};
+    this.tag = Tags.reserve;
+    this.day = Days.mon;
+    this.start = 0;
+    this.end = 0;
+    this.scheduleByLSS = true;
     this.tutorSchedule = null;
     this.roomSchedule = null;
     this.hasConflict = false;
@@ -156,6 +163,9 @@ export class TimeBlock {
       this.tutorDiv?.remove();
       this.tutorDiv = null;
       this.tutorSchedule = null;
+      if (this.roomName === null) {
+        this.onDeletedDispatch();
+      }
     }
     this.tutorEmail = tutorEmail;
     return this;
@@ -180,6 +190,9 @@ export class TimeBlock {
       this.roomDiv?.remove();
       this.roomDiv = null;
       this.roomSchedule = null;
+      if (this.tutorEmail === null) {
+        this.onDeletedDispatch();
+      }
     }
     this.roomName = roomName;
     return this;
@@ -197,7 +210,15 @@ export class TimeBlock {
   }
 
   setCourse(id: string | null): TimeBlock {
+    if (id === null) {
+      if (this.getCourse()) {
+        this.getCourse()!.removeTime(this);
+      }
+    }
     this.courseID = id;
+    if (this.getCourse()) {
+      this.getCourse()!.addTime(this);
+    }
     return this;
   }
 
@@ -225,8 +246,8 @@ export class TimeBlock {
       div.style.backgroundColor = tagColors.get(Tags.conflict)!.backgroundColor;
       div.style.borderColor = tagColors.get(Tags.conflict)!.borderColor;
     } else {
-      div.style.backgroundColor = tagColors.get(this.tag!)!.backgroundColor;
-      div.style.borderColor = tagColors.get(this.tag!)!.borderColor;
+      div.style.backgroundColor = tagColors.get(this.tag)!.backgroundColor;
+      div.style.borderColor = tagColors.get(this.tag)!.borderColor;
     }
     return div;
   }
@@ -261,6 +282,7 @@ export class TimeBlock {
     button.addEventListener("click", () => {
       this.tutorSchedule?.removeTime(this);
       this.roomSchedule?.removeTime(this);
+      this.onDeletedDispatch();
     });
     return button;
   }
@@ -326,15 +348,15 @@ export class TimeBlock {
   }
 
   editTime(schedule: Schedule) {
-    TimeEditor.editTime(schedule, this);
+    TimeEditor.instance!.editTime(schedule, this);
   }
 
   getStartStr(): string {
-    return timeConvert.intToStr(this.start!);
+    return timeConvert.intToStr(this.start);
   }
 
   getEndStr(): string {
-    return timeConvert.intToStr(this.end!);
+    return timeConvert.intToStr(this.end);
   }
 
   getStartToEndStr(): string {
@@ -353,10 +375,10 @@ export class TimeBlock {
     if (this.day !== other.day) {
       return false;
     }
-    if (this.start! < other.start! && other.start! < this.end!) {
+    if (this.start < other.start && other.start < this.end) {
       return true;
     }
-    if (this.start! < other.end! && other.end! < this.end!) {
+    if (this.start < other.end && other.end < this.end) {
       return true;
     }
     return false;
@@ -372,31 +394,31 @@ export class TimeBlock {
   }
 
   update(config: TimeBlockConfig) {
-    if (config.coords !== undefined) {
-      this.setCoords(config.coords.row, config.coords.col);
-    }
-    if (config.day !== undefined) {
+    this.setCoords(config.coords.row, config.coords.col);
+    if (config.day !== this.day) {
       this.setDay(config.day);
     }
-    if (config.start !== undefined) {
+    if (config.start !== this.start) {
       this.setStart(config.start);
     }
-    if (config.end !== undefined) {
+    if (config.end !== this.end) {
       this.setEnd(config.end);
     }
-    if (config.tag !== undefined) {
+    if (config.tag !== this.tag) {
       this.setTag(config.tag);
     }
-    if (config.courseID !== undefined) {
+    if (config.courseID !== this.courseID) {
       this.setCourse(config.courseID);
     }
-    if (config.tutorEmail !== undefined) {
+    if (config.tutorEmail !== this.tutorEmail) {
       this.setTutor(config.tutorEmail);
     }
-    if (config.roomName !== undefined) {
+    if (config.roomName !== this.roomName) {
       this.setRoom(config.roomName);
     }
-    this.setScheduleByLSS(config.scheduleByLSS);
+    if (config.scheduleByLSS !== this.scheduleByLSS) {
+      this.setScheduleByLSS(config.scheduleByLSS);
+    }
     this.onEditedDispatch();
   }
 
@@ -412,29 +434,32 @@ export class TimeBlock {
     this.onEdited.dispatch();
   }
 
+  addDeletedListener(subscriber: object, action: () => void) {
+    this.onDeleted.addListener(subscriber, action);
+  }
+
+  removeDeletedListener(subscriber: object) {
+    this.onDeleted.removeListener(subscriber);
+  }
+
+  onDeletedDispatch() {
+    this.onDeleted.dispatch();
+  }
+
   // statics =================================================
 
   static buildTimeBlock(config: TimeBlockConfig): TimeBlock {
     const newTime = new TimeBlock();
-    if (config.coords !== undefined) {
-      newTime.setCoords(config.coords.row, config.coords.col);
-    }
     newTime
-      .setDay(config.day!)
-      .setStart(config.start!)
-      .setEnd(config.end!)
-      .setTag(config.tag!)
-      .setScheduleByLSS(config.scheduleByLSS);
-
-    if (config.tutorEmail !== undefined) {
-      newTime.setTutor(config.tutorEmail);
-    }
-    if (config.roomName !== undefined) {
-      newTime.setRoom(config.roomName);
-    }
-    if (config.courseID !== undefined) {
-      newTime.setCourse(config.courseID);
-    }
+      .setCoords(config.coords.row, config.coords.col)
+      .setDay(config.day)
+      .setStart(config.start)
+      .setEnd(config.end)
+      .setTag(config.tag)
+      .setScheduleByLSS(config.scheduleByLSS)
+      .setTutor(config.tutorEmail)
+      .setRoom(config.roomName)
+      .setCourse(config.courseID);
 
     return newTime;
   }

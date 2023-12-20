@@ -31,10 +31,7 @@ tutor1.addCourse(Course.buildCourse({
     row: 1,
     timestamp: "28/2023 16:44:53",
     errors: [],
-    lectures: [],
-    officeHours: [],
-    discordHours: [],
-    sessions: [],
+    times: [],
     comments: ""
 }));
 tutors.addTutor(tutor1);

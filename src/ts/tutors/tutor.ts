@@ -32,7 +32,7 @@ export class Tutor {
 
     if (this.courses.has(course.id)) {
       if (this.courses.get(course.id)!.isOlderThan(course)) {
-        course.forEachTime(time => {
+        course.forEveryTime(time => {
           schedule.removeTime(time);
         });
       } else {
@@ -42,7 +42,7 @@ export class Tutor {
 
     this.courses.set(course.id, course);
 
-    course.forEachTime((time) => {
+    course.forEveryTime((time) => {
       const errorCode = schedule.addTime(time);
       if (errorCode !== ErrorCodes.success) {
         course.addError(time);
@@ -69,7 +69,7 @@ export class Tutor {
   hasErrors(): boolean {
     let hasErrors = false;
     this.forEachCourse(course => {
-      if (course.errors.length > 0) {
+      if (course.getErrors().length > 0) {
         hasErrors = true;
       }
     });

@@ -14,21 +14,21 @@ export class TutorSchedule extends Schedule {
   }
 
   protected insertTime(time: TimeBlock): number {
-    const times = this.week.get(time.day!)!.times;
+    const times = this.week.get(time.day)!.times;
     if (times.length === 0) {
       times.push(time);
-      this.week.get(time.day!)!.div!.append(time.getTutorDiv());
+      this.week.get(time.day)!.div!.append(time.getTutorDiv());
       return 0;
     }
     for (let i = 0; i < times.length; i++) {
-      if (times[i].start! > time.start!) {
-        this.week.get(time.day!)!.div!.insertBefore(times[i].getTutorDiv(), time.getTutorDiv());
+      if (times[i].start > time.start) {
+        this.week.get(time.day)!.div!.insertBefore(times[i].getTutorDiv(), time.getTutorDiv());
         times.splice(i, 0, time);
         return i;
       }
     }
     times.push(time);
-    this.week.get(time.day!)!.div!.append(time.getRoomDiv());
+    this.week.get(time.day)!.div!.append(time.getRoomDiv());
     return times.length - 1;
   }
 
@@ -38,7 +38,7 @@ export class TutorSchedule extends Schedule {
     }
 
     let hasConflict = false;
-    this.forEachTimeInDay(time.day!, (t) => {
+    this.forEachTimeInDay(time.day, (t) => {
       if (t.tag === Tags.session && t.conflictsWith(time)) {
         hasConflict = true;
       }
@@ -84,7 +84,7 @@ export class TutorSchedule extends Schedule {
     if (index === -1) {
       return null;
     }
-    return this.removeTimeAt(time.day!, index);
+    return this.removeTimeAt(time.day, index);
   }
 
   override removeTimeAt(day: Days, index: number): TimeBlock | null {
@@ -106,7 +106,7 @@ export class TutorSchedule extends Schedule {
     const addTime = document.createElement("button");
     addTime.innerHTML = "Add Time";
     addTime.addEventListener("click", () => {
-      TimeEditor.createNewTime(this);
+      TimeEditor.instance!.createNewTime(this);
     });
     div.append(addTime);
 

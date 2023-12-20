@@ -12,10 +12,7 @@ interface CourseConfig {
   row: number;
   timestamp: string;
   errors: TimeBlock[];
-  lectures: TimeBlock[];
-  officeHours: TimeBlock[];
-  discordHours: TimeBlock[];
-  sessions: TimeBlock[];
+  times: TimeBlock[];
   comments: string;
 }
 
@@ -31,11 +28,8 @@ export class Course {
   row: number;
 
   timestamp: number;
-  errors: TimeBlock[];
-  lectures: TimeBlock[];
-  officeHours: TimeBlock[];
-  discordHours: TimeBlock[];
-  sessions: TimeBlock[];
+
+  readonly times: Map<Tags, TimeBlock[]>;
   comments: string;
 
   scheduler: string;
@@ -50,11 +44,10 @@ export class Course {
     this.preference = Course.noPref;
     this.row = 0;
     this.timestamp = 0;
-    this.errors = [];
-    this.lectures = [];
-    this.officeHours = [];
-    this.discordHours = [];
-    this.sessions = [];
+    this.times = new Map<Tags, TimeBlock[]>();
+    for (const tag in Tags) {
+      this.times.set(tag as Tags, []);
+    }
     this.comments = "";
     this.scheduler = "";
     this.div = null;
@@ -101,50 +94,34 @@ export class Course {
   }
 
   addError(time: TimeBlock) {
-    this.errors.push(time);
+    this.times.get(Tags.conflict)!.push(time);
   }
 
   forEachError(action: (error: TimeBlock) => void) {
-    this.errors.forEach(action);
+    this.times.get(Tags.conflict)!.forEach(action);
   }
 
-  addLecture(time: TimeBlock) {
-    if (time.tag !== Tags.lecture) {
-      console.error("non-lecture time added to lecture array for: " + this.tutor.name + ", " + this.id);
-      return;
-    }
-    this.lectures.push(time);
+  getErrors(): TimeBlock[] {
+    return this.times.get(Tags.conflict)!;
   }
 
-  addOfficeHours(time: TimeBlock) {
-    if (time.tag !== Tags.officeHours) {
-      console.error("non-office hours time added to lecture array for: " + this.tutor.name + ", " + this.id);
-      return;
-    }
-    this.officeHours.push(time);
+  addTime(time: TimeBlock) {
+    this.times.get(time.tag)!.push(time);
   }
 
-  addDiscordHours(time: TimeBlock) {
-    if (time.tag !== Tags.discord) {
-      console.error("non-discord time added to lecture array for: " + this.tutor.name + ", " + this.id);
-      return;
-    }
-    this.discordHours.push(time);
+  forEachTime(tag: Tags, action: (time: TimeBlock) => void) {
+    this.times.get(tag)!.forEach(action);
   }
 
-  addSession(time: TimeBlock) {
-    if (time.tag !== Tags.session) {
-      console.error("non-session time added to lecture array for: " + this.tutor.name + ", " + this.id);
-      return;
-    }
-    this.sessions.push(time);
+  forEveryTime(action: (time: TimeBlock) => void) {
+    this.times.forEach((times) => {
+      times.forEach(action);
+    });
   }
 
-  forEachTime(action: (time: TimeBlock) => void) {
-    this.lectures.forEach(action);
-    this.officeHours.forEach(action);
-    this.discordHours.forEach(action);
-    this.sessions.forEach(action);
+  removeTime(time: TimeBlock) {
+    const ind = this.times.get(time.tag)!.indexOf(time);
+    this.times.get(time.tag)!.splice(ind, 1);
   }
 
   getDiv(): HTMLDivElement {
@@ -187,10 +164,7 @@ export class Course {
       .setComments(config.comments);
     
       config.errors.forEach(error => newCourse.addError(error));
-      config.lectures.forEach(lecture => newCourse.addLecture(lecture));
-      config.officeHours.forEach(office => newCourse.addOfficeHours(office));
-      config.discordHours.forEach(discord => newCourse.addDiscordHours(discord));
-      config.sessions.forEach(session => newCourse.addSession(session));
+      config.times.forEach(time => newCourse.addTime(time));
 
       return newCourse;
   }

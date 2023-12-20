@@ -75,11 +75,11 @@ sessionTimes.set(Days.sun, [
 ]);
 
 // checks if a given session time is valid
-export function isValidSessionTime(time: TimeBlock) {
-  for (const block of sessionTimes.get(time.day!)!) {
+export function isValidSessionTime(time: TimeBlock | {day: Days, start: number, end: number}) {
+  for (const block of sessionTimes.get(time.day)!) {
     const timeBlockStart = timeConvert.strToInt(block.start);
     const timeBlockEnd = timeConvert.strToInt(block.end);
-    if (timeBlockStart <= time.start! && time.end! <= timeBlockEnd) {
+    if (timeBlockStart <= time.start && time.end <= timeBlockEnd) {
       return true;
     }
   }

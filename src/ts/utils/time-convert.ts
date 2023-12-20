@@ -5,6 +5,7 @@
 
 // ! does not work for times from 12:00 AM to 12:59 AM, this is left unfixed since it's not a valid time
 export function strToInt(time: string): number {
+  if (time === "") return 0;
   time = time.toUpperCase();
 
   const [hours, minutes] = time.split(":");
@@ -37,5 +38,9 @@ export function intToStr(time: number): string {
 export function intTo24hr(time: number): string {
   const hours = Math.floor(time / 60);
   const mins = time % 60;
-  return `${hours}:${mins}`;
+  return `${hours
+    .toString()
+    .padStart(2, "0")}:${mins
+    .toString()
+    .padStart(2, "0")}`;
 }
