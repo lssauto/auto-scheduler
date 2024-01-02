@@ -223,9 +223,22 @@ export abstract class Editor {
     this._rows[row].addField(field);
   }
 
-  addTextField(row: number, title: string, validate: (input: string) => boolean, valid: (field: fields.MenuTextField) => void, invalid: (field: fields.MenuTextField) => void) {
+  addTextField(row: number, title: string, cols: number, rows: number, validate: (input: string) => boolean, valid: (field: fields.MenuTextField) => void, invalid: (field: fields.MenuTextField) => void) {
     if (row < 0 || this._rows.length <= row) return;
     const field = new fields.MenuTextField(
+      title,
+      cols,
+      rows,
+      validate,
+      valid,
+      invalid
+    );
+    this._rows[row].addField(field);
+  }
+
+  addCheckboxField(row: number, title: string, validate: (input: boolean) => boolean, valid: (field: fields.MenuCheckboxField) => void, invalid: (field: fields.MenuCheckboxField) => void) {
+    if (row < 0 || this._rows.length <= row) return;
+    const field = new fields.MenuCheckboxField(
       title,
       validate,
       valid,

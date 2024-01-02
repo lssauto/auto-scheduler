@@ -2,8 +2,9 @@ import { TutorSchedule } from "./tutor-schedule";
 import { Status } from "../status-options";
 import { Course } from "./course";
 import { ErrorCodes } from "../schedule/schedule";
-import { TimeBlock } from "../schedule/time-block";
+import { Tags, TimeBlock, TimeBlockMatcher } from "../schedule/time-block";
 import { CourseEditor } from "../elements/editors/course-editor";
+import { Days } from "../days";
 
 export class Tutor {
   readonly email: string;
@@ -34,7 +35,7 @@ export class Tutor {
     const schedule = this.schedule;
 
     if (this.courses.has(course.id)) {
-      if (this.courses.get(course.id)!.isOlderThan(course)) {
+      if (this.courses.get(course.id)!.isOlderThan(course.timestamp)) {
         this.courses.get(course.id)!.forEveryTime(time => {
           schedule.removeTime(time);
         });
@@ -51,6 +52,7 @@ export class Tutor {
       const errorCode = schedule.addTime(time);
       if (errorCode !== ErrorCodes.success) {
         course.addError(time);
+        time.setHasConflict(true);
       }
     });
   }
@@ -105,6 +107,26 @@ export class Tutor {
     this.courses.forEach(action);
   }
 
+  addTime(time: TimeBlock): ErrorCodes {
+    return this.schedule.addTime(time);
+  }
+
+  hasTime(time: TimeBlock | TimeBlockMatcher): boolean {
+    return this.schedule.hasTime(time);
+  }
+
+  findTime(time: {
+    courseID: string,
+    tag: Tags,
+    day: Days,
+    start: number,
+    end: number,
+    roomName: string | null,
+    tutorEmail: string | null
+  }): TimeBlock | null {
+    return this.schedule.findTime(time);
+  }
+
   getDiv(): HTMLDivElement {
     if (this._div === null) {
       this._div = this.buildDiv();
@@ -120,11 +142,22 @@ export class Tutor {
     div.style.paddingBottom = "5px";
 
     const title = document.createElement("div");
+    title.style.marginTop = "5px";
+    title.style.fontSize = "1.2em";
     title.innerHTML = `<b>Name: ${this.name} ; Email: ${this.email}</b>`;
     div.append(title);
     div.append(document.createElement("br"));
 
     const addCourse = document.createElement("button");
+    addCourse.style.backgroundColor = "#f8f8f8";
+    addCourse.style.border = "1px solid #565656";
+    addCourse.style.borderRadius = "2px";
+    addCourse.addEventListener("mouseover", () => {
+      addCourse.style.backgroundColor = "#e8e8e8";
+    });
+    addCourse.addEventListener("mouseout", () => {
+      addCourse.style.backgroundColor = "#f8f8f8";
+    });
     addCourse.innerHTML = "AddCourse";
     addCourse.addEventListener("click", () => {
       CourseEditor.instance!.createNewCourse(this);

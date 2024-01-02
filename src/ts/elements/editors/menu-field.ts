@@ -135,6 +135,11 @@ export class MenuSelectField extends MenuField {
     this.field.append(emptyOption);
   }
 
+  updateOptions(options: string[]) {
+    this.clearOptions();
+    options.forEach(option => this.addOption(option));
+  }
+
   onChange(action: (value: string) => void) {
     this.field.addEventListener("change", () => { 
       action(this.getValue());
@@ -198,8 +203,11 @@ export class MenuTextField extends MenuField {
   private _valid: (field: MenuTextField) => void;
   private _invalid: (field: MenuTextField) => void;
 
-  constructor(title: string, validate: (input: string) => boolean, valid: (field: MenuTextField) => void, invalid: (field: MenuTextField) => void) {
+  constructor(title: string, cols: number, rows: number, validate: (input: string) => boolean, valid: (field: MenuTextField) => void, invalid: (field: MenuTextField) => void) {
     super(title);
+    (this.field as HTMLTextAreaElement).cols = cols;
+    (this.field as HTMLTextAreaElement).rows = rows;
+    (this.div.firstElementChild! as HTMLElement).style.display = "block";
     this._validate = validate;
     this._valid = valid;
     this._invalid = invalid;
@@ -209,8 +217,6 @@ export class MenuTextField extends MenuField {
     const field = document.createElement("textarea");
     field.style.display = "block";
     field.style.padding = "3px";
-    field.cols = 70;
-    field.rows = 3;
     return field;
   }
 
@@ -221,6 +227,51 @@ export class MenuTextField extends MenuField {
 
   override validate(): boolean {
     if (this._validate(this.getValue())) {
+      this._valid(this);
+      return true;
+    } else {
+      this._invalid(this);
+      return false;
+    }
+  }
+}
+
+export class MenuCheckboxField extends MenuField {
+  private _validate: (input: boolean) => boolean;
+  private _valid: (field: MenuCheckboxField) => void;
+  private _invalid: (field: MenuCheckboxField) => void;
+
+  constructor(title: string, validate: (input: boolean) => boolean, valid: (field: MenuCheckboxField) => void, invalid: (field: MenuCheckboxField) => void) {
+    super(title);
+    this._validate = validate;
+    this._valid = valid;
+    this._invalid = invalid;
+    this.field.addEventListener("change", () => {
+      this.validate();
+    });
+  }
+
+  override buildField(): HTMLInputElement {
+    const field = document.createElement("input");
+    field.type = "checkbox";
+    return field;
+  }
+
+  setChecked(checked: boolean) {
+    (this.field as HTMLInputElement).checked = checked;
+  }
+
+  getChecked(): boolean {
+    return (this.field as HTMLInputElement).checked;
+  }
+
+  override reset() {
+    this.setChecked(false);
+    this.setNotice("");
+  }
+
+  override validate(): boolean {
+    if (this._validate(this.getChecked())) {
       this._valid(this);
       return true;
     } else {

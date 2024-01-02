@@ -1,5 +1,5 @@
 import { TimeBlock } from "../schedule/time-block";
-import { Days } from "../enums";
+import { Days } from "../days";
 import * as timeConvert from "./time-convert";
 // * checks if a given session time is valid, expects an int
 

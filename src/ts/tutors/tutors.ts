@@ -86,6 +86,11 @@ export class Tutors {
 
   private buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
+
+    const title = document.createElement("h2");
+    title.innerHTML = "Tutor Schedules:";
+    div.append(title);
+
     this.forEachTutor(tutor => {
       div.append(tutor.getDiv());
     });

@@ -30,8 +30,12 @@ export class Content {
     this._body = document.getElementById("body")!;
 
     this.div = document.createElement("div");
-    this.div.style.paddingTop = "100px";
-    this.div.style.width = "70%";
+    this.div.style.marginTop = "55px";
+    this.div.style.width = "68%";
+    this.div.style.height = "92%";
+    this.div.style.overflowY = "auto";
+    this.div.style.paddingLeft = "10px";
+    this.div.style.paddingBottom = "15px";
 
     this.tutorsDiv = Tutors.instance!.getDiv();
     this.div.append(this.tutorsDiv);

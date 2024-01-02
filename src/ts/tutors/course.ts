@@ -93,8 +93,12 @@ export class Course {
     return this;
   }
 
-  isOlderThan(course: Course): boolean {
-    return this.timestamp < course.timestamp;
+  isOlderThan(timestamp: number | string): boolean {
+    if (typeof timestamp === "string") {
+      return this.timestamp < timeConvert.toTimestamp(timestamp);
+    } else {
+      return this.timestamp < timestamp;
+    }
   }
 
   setComments(comments: string): Course {
@@ -117,6 +121,18 @@ export class Course {
 
   getErrors(): TimeBlock[] {
     return this.times.get(Tags.conflict)!;
+  }
+
+  hasTime(time: TimeBlock): boolean {
+    if (this.times.get(time.tag)!.indexOf(time) !== -1) {
+      return true;
+    }
+    for (const t of this.times.get(time.tag)!) {
+      if (t.isEqual(time)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   addTime(time: TimeBlock) {
@@ -163,9 +179,10 @@ export class Course {
     div.style.borderColor = this.status.color.borderColor;
 
     const p = document.createElement("p");
+    p.style.margin = "4px";
     p.style.display = "inline-block";
     this._divContent = new VariableElement(p, this.onEdited, () => {
-      p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || Status: ${this.status.title} || Building Preference: ${this.preference} || </br>`;
+      p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || <b>Status:</b> ${this.status.title} || <b>Bldg Pref:</b> ${this.preference} || </br>`;
       p.innerHTML += `Comments: ${this.comments !== "" ? "</br>" + this.comments : ""}`;
     });
     div.append(p);
@@ -174,7 +191,7 @@ export class Course {
     edit.style.display = "inline-block";
     edit.style.verticalAlign = "top";
     edit.style.marginLeft = "3px";
-    edit.style.marginTop = "15px";
+    edit.style.marginTop = "4px";
     edit.innerHTML = "Edit";
     edit.addEventListener("click", () => {
       CourseEditor.instance!.editCourse(this.tutor, this);
@@ -185,7 +202,7 @@ export class Course {
     deleteButton.style.display = "inline-block";
     deleteButton.style.verticalAlign = "top";
     deleteButton.style.marginLeft = "3px";
-    deleteButton.style.marginTop = "15px";
+    deleteButton.style.marginTop = "4px";
     deleteButton.innerHTML = "Delete";
     deleteButton.addEventListener("click", () => {
       this.delete();
@@ -214,6 +231,7 @@ export class Course {
   delete() {
     this.removeDiv();
     this.tutor.removeCourse(this.id);
+    this.onDeletedDispatch();
   }
 
   addEditedListener(subscriber: object, action: Notify) {

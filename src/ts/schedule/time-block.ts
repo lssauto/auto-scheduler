@@ -1,5 +1,5 @@
 import * as timeConvert from "../utils/time-convert";
-import { Days } from "../enums";
+import { Days } from "../days";
 import { Tutors } from "../tutors/tutors";
 import { Tutor } from "../tutors/tutor";
 import { Rooms } from "../rooms/rooms";
@@ -60,6 +60,16 @@ export interface TimeBlockConfig {
   readonly tutorEmail: string | null;
   readonly roomName: string | null;
   readonly courseID: string | null;
+}
+
+export interface TimeBlockMatcher {
+  readonly tag: Tags;
+  readonly day: Days;
+  readonly start: number;
+  readonly end: number;
+  readonly courseID: string | null;
+  readonly tutorEmail: string | null;
+  readonly roomName: string | null;
 }
 
 export class TimeBlock {
@@ -184,8 +194,15 @@ export class TimeBlock {
   setRoom(roomName: string | null): TimeBlock {
     if (roomName) {
       const room = Rooms.instance!.getRoom(roomName);
-      this.roomSchedule = room ? room.schedule : null;
+      if (room) {
+        this.roomSchedule = room.schedule;
+        room.addDeletedListener(this, () => {
+          this.setRoom(null);
+          this.onEditedDispatch();
+        });
+      }
     } else {
+      this.getRoom()?.removeDeletedListener(this);
       this.roomDivContent?.destroy();
       this.roomDiv?.remove();
       this.roomDiv = null;
@@ -226,7 +243,7 @@ export class TimeBlock {
         this.onEditedDispatch();
       });
       this.getCourse()!.addDeletedListener(this, () => {
-        this.setCourse(null);
+        this.delete();
       });
     }
     return this;
@@ -290,11 +307,15 @@ export class TimeBlock {
     button.style.marginLeft = "3px";
     button.innerHTML = "Delete";
     button.addEventListener("click", () => {
-      this.tutorSchedule?.removeTime(this);
-      this.roomSchedule?.removeTime(this);
-      this.onDeletedDispatch();
+      this.delete();
     });
     return button;
+  }
+
+  private delete() {
+    this.tutorSchedule?.removeTime(this);
+    this.roomSchedule?.removeTime(this);
+    this.onDeletedDispatch();
   }
 
   getTutorDiv(): HTMLDivElement {
@@ -312,7 +333,7 @@ export class TimeBlock {
     div.append(text);
 
     this.tutorDivContent = new VariableElement(text, this.onEdited, () => {
-      text.innerHTML = `${this.courseID}`;
+      text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
       if (this.hasRoomAssigned()) {
         text.innerHTML += ` / <b>${this.roomName}</b>`;
       }
@@ -340,7 +361,7 @@ export class TimeBlock {
     div.append(text);
 
     this.roomDivContent = new VariableElement(text, this.onEdited, () => {
-      text.innerHTML = `${this.courseID}`;
+      text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
       let tutorName = "";
       if (this.getTutor()) {
         tutorName = `(${this.getTutor()!.name})`;
@@ -394,12 +415,14 @@ export class TimeBlock {
     return false;
   }
 
-  isEqual(other: TimeBlock): boolean {
-    if (this.courseID != other.courseID) return false;
-    if (this.tag != other.tag) return false;
-    if (this.day != other.day) return false;
-    if (this.start != other.start) return false;
-    if (this.end != other.end) return false;
+  isEqual(other: TimeBlock | TimeBlockMatcher): boolean {
+    if (this.courseID !== other.courseID) return false;
+    if (this.tag !== other.tag) return false;
+    if (this.day !== other.day) return false;
+    if (this.start !== other.start) return false;
+    if (this.end !== other.end) return false;
+    if (this.tutorEmail !== other.tutorEmail) return false;
+    if (this.roomName !== other.roomName) return false;
     return true;
   }
 

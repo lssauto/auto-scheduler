@@ -1,5 +1,5 @@
-import { TimeBlock } from "./time-block";
-import { Days } from "../enums";
+import { TimeBlock, TimeBlockMatcher } from "./time-block";
+import { Days } from "../days";
 
 export enum ErrorCodes {
   conflict,
@@ -77,18 +77,22 @@ export abstract class Schedule {
     return hasConflict;
   }
 
-  findTimeIndex(time: TimeBlock): number {
+  findTimeIndex(time: TimeBlock | TimeBlockMatcher): number {
     const times = this.getTimes(time.day);
     for (let i = 0; i < times.length; i++) {
-      if (times[i] === time) {
+      if (times[i] === time || times[i].isEqual(time)) {
         return i;
       }
     }
     return -1;
   }
 
-  hasTime(time: TimeBlock): boolean {
+  hasTime(time: TimeBlock | TimeBlockMatcher): boolean {
     return this.findTimeIndex(time) !== -1;
+  }
+
+  findTime(time: TimeBlockMatcher): TimeBlock | null {
+    return this.getTimeAt(time.day, this.findTimeIndex(time));
   }
 
   getTimeAt(day: Days, index: number): TimeBlock | null {

@@ -164,7 +164,7 @@ export class CourseEditor extends Editor {
           return true;
         }
         let found = false;
-        Rooms.instance!.forEachRoomInBuilding(input, (room) => {
+        Rooms.instance!.getBuilding(input)!.forEachRoom((room) => {
           if (Positions.match(this.getValue(CourseEditor.position)).roomFilter.includes(room.type.title)) {
             found = true;
           }
@@ -194,6 +194,7 @@ export class CourseEditor extends Editor {
     this.addTextField(
       CourseEditor.commentsRow,
       CourseEditor.comments,
+      70, 3,
       () => {
         return true;
       },
@@ -246,6 +247,10 @@ export class CourseEditor extends Editor {
     this.getField(CourseEditor.status)!.setValue(course.status.title);
     this.setColor(course.status.color);
     this.getField(CourseEditor.preference)!.setValue(course.preference);
+    const options = Rooms.instance!.getBuildingNames();
+    options.push(Course.noPref);
+    (this.getField(CourseEditor.preference)! as fields.MenuSelectField)
+      .updateOptions(options);
     this.getField(CourseEditor.comments)!.setValue(course.comments);
   }
 }

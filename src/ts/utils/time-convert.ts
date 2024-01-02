@@ -1,5 +1,7 @@
 // * utility function to convert individual times to an integer representation to make comparison easier
 
+import { Days } from "../days";
+
 // * times given as "HH:MM [AM/PM]" are converted to an integer representing the number of minutes
 // * from midnight. This means all times will be between 0 (12:00 AM) and 1439 (11:59 PM).
 
@@ -38,9 +40,7 @@ export function intToStr(time: number): string {
 export function intTo24hr(time: number): string {
   const hours = Math.floor(time / 60);
   const mins = time % 60;
-  return `${hours
-    .toString()
-    .padStart(2, "0")}:${mins
+  return `${hours.toString().padStart(2, "0")}:${mins
     .toString()
     .padStart(2, "0")}`;
 }
@@ -48,15 +48,63 @@ export function intTo24hr(time: number): string {
 export function fromTimestamp(time: number): string {
   const u = new Date(time);
 
-    return ("0" + (u.getMonth() + 1)).slice(-2) +
-      "/" + ("0" + (u.getDate())).slice(-2) + 
-      "/" + u.getFullYear() + 
-      " " + ("0" + u.getHours()).slice(-2) +
-      ":" + ("0" + u.getMinutes()).slice(-2) +
-      ":" + ("0" + u.getSeconds()).slice(-2);
+  return (
+    ("0" + (u.getMonth() + 1)).slice(-2) +
+    "/" +
+    ("0" + u.getDate()).slice(-2) +
+    "/" +
+    u.getFullYear() +
+    " " +
+    ("0" + u.getHours()).slice(-2) +
+    ":" +
+    ("0" + u.getMinutes()).slice(-2) +
+    ":" +
+    ("0" + u.getSeconds()).slice(-2)
+  );
 }
 
 export function toTimestamp(time: string): number {
   const dateObject = new Date(time);
   return dateObject.getTime(); // convert to milliseconds for comparison
+}
+
+export function parseTimeStr(
+  timeStr: string,
+  dayDefault = [Days.sun]
+): {
+  days: Days[];
+  start: number;
+  end: number;
+} | null {
+  // split string at an arbitrary space to prevent days from including the "M" from PM/AM
+  const halves = timeStr.split(":");
+
+  let days: Days[] | null = halves[0].match(/(M|Tu|W|Th|F|Sat|Sun)/g) as Days[]; // get all days
+  const hours = timeStr.match(/[0-9]{1,2}:[0-9]{1,2}[\s]?(AM|PM|am|pm)?/g); // get all hours
+
+  if (hours == null) return null;
+
+  // if there are no days, then this is a Sun time
+  if (days == null) {
+    days = dayDefault;
+  }
+
+  // add AM or PM to first time if it's missing
+  if (hours[0].match(/(AM|PM|am|pm)/g) == null) {
+    if (hours[1].split(":")[0].trim() == "12") {
+      hours[0] += hours[1].match(/(AM|am)/g) == null ? "AM" : "PM";
+    } else {
+      hours[0] += hours[1].match(/(AM|am)/g) == null ? "PM" : "AM";
+    }
+  }
+
+  // get int time values
+  const start = strToInt(hours[0]);
+  const end = hours.length > 1 ? strToInt(hours[1]) : start + 60; // add 60 minutes if no second time
+
+  return {
+    days: days,
+    start: start,
+    end: end,
+  };
 }

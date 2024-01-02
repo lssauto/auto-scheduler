@@ -1,7 +1,7 @@
 import { Schedule, ErrorCodes } from "../schedule/schedule";
 import { TimeBlock, Tags } from "../schedule/time-block";
 import { Tutor } from "./tutor";
-import { Days } from "../enums";
+import { Days } from "../days";
 import { isValidSessionTime } from "../utils/session-times";
 import { TimeEditor } from "../elements/editors/time-editor";
 
@@ -104,6 +104,15 @@ export class TutorSchedule extends Schedule {
     div.append(title);
 
     const addTime = document.createElement("button");
+    addTime.style.backgroundColor = "#f8f8f8";
+    addTime.style.border = "1px solid #565656";
+    addTime.style.borderRadius = "2px";
+    addTime.addEventListener("mouseover", () => {
+      addTime.style.backgroundColor = "#e8e8e8";
+    });
+    addTime.addEventListener("mouseout", () => {
+      addTime.style.backgroundColor = "#f8f8f8";
+    });
     addTime.innerHTML = "Add Time";
     addTime.addEventListener("click", () => {
       TimeEditor.instance!.createNewTime(this);

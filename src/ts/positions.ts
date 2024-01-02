@@ -12,7 +12,7 @@ export class Positions {
     match: "small",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["SGT", "EMB SGT"]
+    roomFilter: ["SGT", "EMB SGT", "N/A"]
   };
 
   static readonly esgt: Position = {
@@ -20,7 +20,7 @@ export class Positions {
     match: "embedded small",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["SGT", "EMB SGT"]
+    roomFilter: ["SGT", "EMB SGT", "N/A"]
   };
 
   static readonly lgt: Position = {
@@ -28,7 +28,7 @@ export class Positions {
     match: "large",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
   };
 
   static readonly elgt: Position = {
@@ -36,7 +36,7 @@ export class Positions {
     match: "embedded large",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
   };
 
   static readonly si: Position = {
@@ -44,7 +44,7 @@ export class Positions {
     match: "si leader",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
   };
 
   static readonly wr: Position = {
@@ -52,7 +52,15 @@ export class Positions {
     match: "writing",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["WR"]
+    roomFilter: ["WR", "N/A"]
+  };
+
+  static readonly na: Position = {
+    title: "N/A",
+    match: "n/a",
+    sessionLimit: 3,
+    requestLimit: 3,
+    roomFilter: ["N/A", "SGT", "EMB SGT", "LGT", "EMB LGT", "SI", "WR"]
   };
 
   static readonly positions: Position[] = [
@@ -61,7 +69,8 @@ export class Positions {
     Positions.elgt,
     Positions.esgt,
     Positions.si,
-    Positions.wr
+    Positions.wr,
+    Positions.na
   ];
 
   static getTitles(): string[] {
@@ -80,20 +89,34 @@ export class Positions {
     let pos = Positions.defaultPosition;
     const lower = str.toLowerCase();
     Positions.forEach(p => {
-      if (lower.includes(p.match) || lower.includes(p.title.toLowerCase())) {
+      const regexMatch = new RegExp(`\\b${p.match}\\b`);
+      const regexTitle = new RegExp(`\\b${p.title.toLowerCase()}\\b`);
+      if (lower.match(regexMatch) !== null || lower.match(regexTitle) !== null) {
         pos = p;
       }
     });
     return pos;
   }
 
-  static readonly defaultPosition: Position = Positions.sgt;
+  static readonly defaultPosition: Position = Positions.na;
 
-  static readonly courseless: Position[] = [Positions.wr];
+  static readonly courseless: Position[] = [
+    Positions.wr,
+    Positions.na
+  ];
+
+  static isCourseless(position: Position): boolean {
+    return Positions.courseless.includes(position);
+  }
 
   static readonly selfSchedulable: Position[] = [
     Positions.wr,
     Positions.esgt,
     Positions.sgt,
+    Positions.na
   ];
+
+  static isSelfSchedulable(position: Position): boolean {
+    return Positions.selfSchedulable.includes(position);
+  }
 }

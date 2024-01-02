@@ -1,3 +1,5 @@
+import { ParserMenu } from "../../parsers/parser-menu";
+
 const TUTORS_MODE = true;
 const ROOMS_MODE = false;
 
@@ -8,26 +10,26 @@ export class Header {
     return Header._instance;
   }
 
-  private _body?: HTMLElement;
-  private _headerElem?: HTMLDivElement;
+  private _body: HTMLElement;
+  private _headerElem: HTMLDivElement;
 
-  private _schedulerElem?: HTMLElement;
+  private _schedulerElem: HTMLElement;
 
-  private _toggleMode?: boolean;
-  private _toggleButton?: HTMLButtonElement;
-  private _scheduleButton?: HTMLButtonElement;
+  private _toggleMode: boolean;
+  private _toggleButton: HTMLButtonElement;
+  private _scheduleButton: HTMLButtonElement;
+  private _parseButton: HTMLButtonElement;
   public onToggleTutors: Event = new Event("onToggleTutors");
   public onToggleRooms: Event = new Event("onToggleRooms");
 
-  private _tutorToolsElem?: HTMLDivElement;
-  private _tutorTools?: Map<string, HTMLElement>;
-  private _roomToolsElem?: HTMLDivElement;
-  private _roomTools?: Map<string, HTMLElement>;
+  private _tutorToolsElem: HTMLDivElement;
+  private _tutorTools: Map<string, HTMLElement>;
+  private _roomToolsElem: HTMLDivElement;
+  private _roomTools: Map<string, HTMLElement>;
 
   constructor() {
     if (Header.instance !== null) {
       console.error("Singleton Header class instantiated twice");
-      return;
     }
 
     Header._instance = this;
@@ -38,7 +40,9 @@ export class Header {
     this._headerElem.style.backgroundColor = "white";
     this._headerElem.style.position = "fixed";
     this._headerElem.style.top = "0px";
+    this._headerElem.style.left = "0px";
     this._headerElem.style.width = "100%";
+    this._headerElem.style.borderBottom = "2px black solid";
 
     this._body.append(this._headerElem);
 
@@ -48,6 +52,7 @@ export class Header {
 
     // toggle button
     this._toggleButton = document.createElement("button");
+    this._toggleButton.style.marginLeft = "10px";
     this._toggleButton.innerHTML = "Switch To Tutors";
     this._toggleMode = ROOMS_MODE;
 
@@ -58,12 +63,22 @@ export class Header {
 
     // create schedules button
     this._scheduleButton = document.createElement("button");
+    this._scheduleButton.style.marginLeft = "10px";
     this._scheduleButton.innerHTML = "Create Schedules";
     this._scheduleButton.addEventListener("click", () => {
       // TODO: call the scheduler
       console.log("this will create all of the schedules");
     });
     this._headerElem.append(this._scheduleButton);
+
+    // open parser button
+    this._parseButton = document.createElement("button");
+    this._parseButton.style.marginLeft = "10px";
+    this._parseButton.innerHTML = "Open Table Parser";
+    this._parseButton.addEventListener("click", () => {
+      ParserMenu.instance!.openMenu();
+    });
+    this._headerElem.append(this._parseButton);
 
     // tutor options
     this._tutorToolsElem = document.createElement("div");
@@ -80,44 +95,44 @@ export class Header {
 
   toggleModes() {
     if (this._toggleMode === ROOMS_MODE) {
-      this._toggleButton!.innerHTML = "Switch To Rooms";
+      this._toggleButton.innerHTML = "Switch To Rooms";
       this._toggleMode = TUTORS_MODE;
-      this._roomToolsElem!.style.display = "none";
-      this._tutorToolsElem!.style.display = "block";
-      this._headerElem!.dispatchEvent(this.onToggleTutors);
+      this._roomToolsElem.style.display = "none";
+      this._tutorToolsElem.style.display = "block";
+      this._headerElem.dispatchEvent(this.onToggleTutors);
 
     } else if (this._toggleMode === TUTORS_MODE) {
-      this._toggleButton!.innerHTML = "Switch To Tutors";
+      this._toggleButton.innerHTML = "Switch To Tutors";
       this._toggleMode = ROOMS_MODE;
-      this._roomToolsElem!.style.display = "block";
-      this._tutorToolsElem!.style.display = "none";
-      this._headerElem!.dispatchEvent(this.onToggleRooms);
+      this._roomToolsElem.style.display = "block";
+      this._tutorToolsElem.style.display = "none";
+      this._headerElem.dispatchEvent(this.onToggleRooms);
     }
   }
 
   setSchedulerName(name: string) {
-    this._schedulerElem!.innerHTML = name;
+    this._schedulerElem.innerHTML = name;
   }
 
   addEventListener(name: string, listener: () => undefined) {
-    this._headerElem!.addEventListener(name, listener);
+    this._headerElem.addEventListener(name, listener);
   }
 
   addTutorTool(name: string, tool: HTMLElement) {
-    this._tutorToolsElem!.append(tool);
-    this._tutorTools!.set(name, tool);
+    this._tutorToolsElem.append(tool);
+    this._tutorTools.set(name, tool);
   }
 
   getTutorTool(name: string): HTMLElement | undefined {
-    return this._tutorTools!.get(name);
+    return this._tutorTools.get(name);
   }
 
   addRoomTool(name: string, tool: HTMLElement) {
-    this._roomToolsElem!.append(tool);
-    this._roomTools!.set(name, tool);
+    this._roomToolsElem.append(tool);
+    this._roomTools.set(name, tool);
   }
 
   getRoomTool(name: string): HTMLElement | undefined {
-    return this._roomTools!.get(name);
+    return this._roomTools.get(name);
   }
 }

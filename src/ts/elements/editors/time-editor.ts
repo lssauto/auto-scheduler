@@ -4,7 +4,7 @@ import {
   tagColors,
   TimeBlockConfig,
 } from "../../schedule/time-block";
-import { Days } from "../../enums";
+import { Days } from "../../days.ts";
 import { Schedule } from "../../schedule/schedule";
 import { Course } from "../../tutors/course";
 import { Tutors } from "../../tutors/tutors";
