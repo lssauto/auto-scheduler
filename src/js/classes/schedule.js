@@ -108,36 +108,38 @@ class Schedule {
         }
 
         // check for overlapping times
-        for (let i = 0; i < days.length; i++) {
-            const dayName = days[i];
-
-            for (let j = 0; j < this.week[dayName].length; j++) {
-                let day = this.week[dayName];
-
-                if (day[j].conflictsWith({start: start, end: end})) {
-                    let errorTime = new Time(this);
-                    errorTime.setTutor(tutor)
-                        .setCourse(course)
-                        .setTag(tag)
-                        .setDay(dayName)
-                        .setStart(start)
-                        .setEnd(end)
-                        .setScheduleByLSS(scheduleByLSS);
-
-                    // if this is the same session time for the same tutor, just replace it
-                    if (this.container instanceof Room && day[j].isEqual(errorTime)) {
-                        day[j] = errorTime;
+        if (this.container instanceof Room || (this.container instanceof Tutor && tag === Tags.Session)) {
+            for (let i = 0; i < days.length; i++) {
+                const dayName = days[i];
+    
+                for (let j = 0; j < this.week[dayName].length; j++) {
+                    let day = this.week[dayName];
+    
+                    if (day[j].conflictsWith({start: start, end: end})) {
+                        let errorTime = new Time(this);
+                        errorTime.setTutor(tutor)
+                            .setCourse(course)
+                            .setTag(tag)
+                            .setDay(dayName)
+                            .setStart(start)
+                            .setEnd(end)
+                            .setScheduleByLSS(scheduleByLSS);
+    
+                        // if this is the same session time for the same tutor, just replace it
+                        if (this.container instanceof Room && day[j].isEqual(errorTime)) {
+                            day[j] = errorTime;
+                            return {
+                                time: day[j],
+                                error: Errors.Replaced
+                            };
+                        }
+    
                         return {
-                            time: day[j],
-                            error: Errors.Replaced
+                            time: errorTime,
+                            error: Errors.Conflict
                         };
+                        
                     }
-
-                    return {
-                        time: errorTime,
-                        error: Errors.Conflict
-                    };
-                    
                 }
             }
         }

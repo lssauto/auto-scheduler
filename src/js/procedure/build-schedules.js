@@ -1,3 +1,27 @@
+const dayOrder = [
+    "Sun",
+    "Tu",
+    "F",
+    "M",
+    "W",
+    "Th",
+    "Sat",
+]
+
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    // While there remain elements to shuffle.
+    while (currentIndex > 0) {
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
 // * Assign rooms to tutor's requested session times
 function buildSchedules() {
     clearConsole();
@@ -51,7 +75,9 @@ function buildSchedules() {
         }
 
         // * for each day of the week
-        for (let dayName in tutor.schedule.week) {
+        shuffle(dayOrder);
+        console.log("order used: ", dayOrder);
+        for (let dayName of dayOrder) {
             if (sessions >= maxSessions) break; // no more sessions to assign
             let day = tutor.schedule.week[dayName];
             

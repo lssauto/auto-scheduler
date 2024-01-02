@@ -185,10 +185,10 @@ class Time {
     }
 
     conflictsWith(other) {
-        if (this.start <= other.start && other.start <= this.end) {
+        if (this.start < other.start && other.start < this.end) {
             return true;
         }
-        if (this.start <= other.end && other.end <= this.end) {
+        if (this.start < other.end && other.end < this.end) {
             return true;
         }
         return false;
