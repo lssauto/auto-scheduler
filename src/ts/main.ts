@@ -5,7 +5,6 @@ import { TimeEditor } from "./elements/editors/time-editor";
 import { BuildingEditor } from "./elements/editors/building-editor";
 import { HeaderFactory } from "./elements/header/header-factory";
 import { Positions } from "./positions";
-import { Building } from "./rooms/building";
 import { Room } from "./rooms/room";
 import { Rooms } from "./rooms/rooms";
 import { StatusOptions } from "./status-options";
