@@ -103,26 +103,6 @@ export class RoomSchedule extends Schedule {
     }
   }
 
-  override updateTime(time: TimeBlock, prevDay?: Days): void {
-    if (prevDay !== undefined) {
-      const times = this.getTimes(prevDay);
-      let index = -1;
-      for (let i = 0; i < times.length; i++) {
-        if (times[i] === time) {
-          index = i;
-        }
-      }
-
-      if (index !== -1) {
-        times.splice(index, 1);
-      }
-    }
-
-    if (time.roomSchedule === this) {
-      this.pushTime(time);
-    }
-  }
-
   override removeTime(time: TimeBlock): TimeBlock | null {
     const index = this.findTimeIndex(time);
     if (index === -1) {

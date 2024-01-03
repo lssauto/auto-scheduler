@@ -34,49 +34,26 @@ export class TutorSchedule extends Schedule {
 
   override addTime(time: TimeBlock): ErrorCodes {
     if (time.tag === Tags.session && !isValidSessionTime(time)) {
+      time.setError(ErrorCodes.invalidSession);
       return ErrorCodes.invalidSession;
     }
 
-    let hasConflict = false;
-    this.forEachTimeInDay(time.day, (t) => {
+    for(const t of this.week.get(time.day)!.times) {
       if (t.tag === Tags.session && t.conflictsWith(time)) {
-        hasConflict = true;
+        time.setError(ErrorCodes.conflict);
+        return ErrorCodes.conflict;
       }
-    });
-    if (hasConflict) {
-      time.setHasConflict(true);
-      return ErrorCodes.conflict;
     }
 
     this.insertTime(time);
     time.setTutor(this.tutor.email);
-
+    time.setError(ErrorCodes.success);
     return ErrorCodes.success;
   }
 
   override pushTime(time: TimeBlock): void {
     this.insertTime(time);
     time.setTutor(this.tutor.email);
-  }
-
-  override updateTime(time: TimeBlock, prevDay?: Days): void {
-    if (prevDay !== undefined) {
-      const times = this.getTimes(prevDay);
-      let index = -1;
-      for (let i = 0; i < times.length; i++) {
-        if (times[i] === time) {
-          index = i;
-        }
-      }
-
-      if (index !== -1) {
-        times.splice(index, 1);
-      }
-    }
-
-    if (time.tutorSchedule === this) {
-      this.pushTime(time);
-    }
   }
 
   override removeTime(time: TimeBlock): TimeBlock | null {

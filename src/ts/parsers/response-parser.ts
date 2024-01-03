@@ -4,6 +4,7 @@ import { ResponseTableMaker, Titles } from "../table-makers/response-maker";
 import { ErrorCodes } from "../schedule/schedule";
 
 export function parseResponses(input: string) {
+  Messages.clear();
   Messages.output(Messages.info, "Parsing response table...");
   const ind = parseColumnTitles(input);
   if (ind === -1) {
@@ -134,6 +135,17 @@ function addResponseData() {
       continue;
     }
 
+    course.update({
+      tutor: tutor,
+      id: course.id,
+      position: response.position,
+      timestamp: response.timestamp,
+      preference: course.preference,
+      row: response.row,
+      status: response.status,
+      comments: response.comments,
+    });
+
     for (const lecture of response.lectures) {
       if (tutor.schedule.hasTime(lecture)) {
         course.removeTime(lecture);
@@ -181,8 +193,11 @@ function addResponseData() {
 
       const errorCode = tutor.addTime(time);
       if (errorCode !== ErrorCodes.success) {
-        console.log(errorCode);
-        course.addError(time);
+        Messages.output(Messages.error, {
+          message: `"${errorCode}" error encountered for one of ${tutor.name}'s (${tutor.email}) sessions.`,
+          session: `${time.getTimeStr()} for ${course.id}`
+        });
+        tutor.addError(time);
       }
       time.getRoom()?.addTime(time);
     }

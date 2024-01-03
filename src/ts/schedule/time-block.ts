@@ -8,7 +8,7 @@ import { Course } from "../tutors/course";
 import { TutorSchedule } from "../tutors/tutor-schedule";
 import { RoomSchedule } from "../rooms/room-schedule";
 import { TimeEditor } from "../elements/editors/time-editor";
-import { Schedule } from "./schedule";
+import { ErrorCodes, Schedule } from "./schedule";
 import { Notify, NotifyEvent } from "../events/notify";
 import { VariableElement } from "../events/var-elem";
 
@@ -78,7 +78,7 @@ export class TimeBlock {
   coords: { row: number; col: number };
 
   tag: Tags;
-  hasConflict: boolean;
+  error: ErrorCodes;
   day: Days;
   start: number;
   end: number;
@@ -105,7 +105,7 @@ export class TimeBlock {
     this.scheduleByLSS = true;
     this.tutorSchedule = null;
     this.roomSchedule = null;
-    this.hasConflict = false;
+    this.error = ErrorCodes.success;
     this.tutorEmail = null;
     this.roomName = null;
     this.courseID = null;
@@ -123,7 +123,7 @@ export class TimeBlock {
   setTag(tag: Tags): TimeBlock {
     this.tag = tag;
     let colors: {backgroundColor: string, borderColor: string};
-    if (this.hasConflict) {
+    if (this.hasError()) {
       colors = tagColors.get(Tags.conflict)!;
     } else {
       colors = tagColors.get(this.tag)!;
@@ -139,9 +139,28 @@ export class TimeBlock {
     return this;
   }
 
-  setHasConflict(mode: boolean): TimeBlock {
-    this.hasConflict = mode;
+  setError(error: ErrorCodes): TimeBlock {
+    this.error = error;
+    let colors: {backgroundColor: string, borderColor: string};
+    if (this.hasError()) {
+      colors = tagColors.get(Tags.conflict)!;
+      this.setRoom(null);
+    } else {
+      colors = tagColors.get(this.tag)!;
+    }
+    if (this.tutorDiv) {
+      this.tutorDiv.style.backgroundColor = colors.backgroundColor;
+      this.tutorDiv.style.borderColor = colors.borderColor;
+    }
+    if (this.roomDiv) {
+      this.roomDiv.style.backgroundColor = colors.backgroundColor;
+      this.roomDiv.style.borderColor = colors.borderColor;
+    }
     return this;
+  }
+
+  hasError(): boolean {
+    return this.error !== ErrorCodes.success;
   }
 
   setDay(day: Days): TimeBlock {
@@ -272,7 +291,7 @@ export class TimeBlock {
     div.style.borderWidth = "1px";
     div.style.margin = "3px";
     div.style.borderRadius = "5px";
-    if (this.hasConflict) {
+    if (this.hasError()) {
       div.style.backgroundColor = tagColors.get(Tags.conflict)!.backgroundColor;
       div.style.borderColor = tagColors.get(Tags.conflict)!.borderColor;
     } else {
@@ -321,6 +340,10 @@ export class TimeBlock {
   private delete() {
     this.tutorSchedule?.removeTime(this);
     this.roomSchedule?.removeTime(this);
+    if (this.hasError()) {
+      this.getCourse()?.removeError(this);
+      this.tutorDiv?.remove();
+    }
     this.onDeletedDispatch();
   }
 
@@ -346,6 +369,9 @@ export class TimeBlock {
         text.innerHTML += ` / <b>${this.roomName}</b>`;
       }
       text.innerHTML += ` / ${this.getTimeStr()}`;
+      if (this.hasError()) {
+        text.innerHTML += ` / <b>Error: ${this.error}</b>`;
+      }
     });
 
     div.append(this.buildDeleteButton());

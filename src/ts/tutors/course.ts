@@ -16,8 +16,6 @@ export interface CourseConfig {
   readonly preference: string;
   readonly row: number;
   readonly timestamp: string;
-  readonly errors: TimeBlock[];
-  readonly times: TimeBlock[];
   readonly comments: string;
 }
 
@@ -40,6 +38,7 @@ export class Course {
 
   private onEdited: NotifyEvent = new NotifyEvent("onEdited");
   private onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
+  private onErrorsUpdated: NotifyEvent = new NotifyEvent("onErrorsUpdated");
 
   constructor(tutor: Tutor, id: string) {
     this.tutor = tutor;
@@ -113,6 +112,14 @@ export class Course {
 
   addError(time: TimeBlock) {
     this.times.get(Tags.conflict)!.push(time);
+    this.onErrorsDispatch();
+  }
+
+  removeError(time: TimeBlock) {
+    const ind = this.times.get(Tags.conflict)!.indexOf(time);
+    if (ind === -1) return;
+    this.times.get(Tags.conflict)!.splice(ind, 1);
+    this.onErrorsDispatch();
   }
 
   forEachError(action: (error: TimeBlock) => void) {
@@ -153,6 +160,7 @@ export class Course {
 
   removeTime(time: TimeBlock) {
     const ind = this.times.get(time.tag)!.indexOf(time);
+    if (ind === -1) return;
     this.times.get(time.tag)!.splice(ind, 1);
   }
 
@@ -217,7 +225,6 @@ export class Course {
   update(config: CourseConfig) {
     this.setPosition(config.position)
       .setTimestamp(config.timestamp)
-      .setPosition(config.position)
       .setPreference(config.preference)
       .setRow(config.row)
       .setStatus(config.status)
@@ -260,6 +267,18 @@ export class Course {
     this.onDeleted.dispatch(this);
   }
 
+  addErrorsListener(subscriber: object, action: Notify) {
+    this.onErrorsUpdated.addListener(subscriber, action);
+  }
+
+  removeErrorsListener(subscriber: object) {
+    this.onErrorsUpdated.removeListener(subscriber);
+  }
+
+  onErrorsDispatch() {
+    this.onErrorsUpdated.dispatch(this);
+  }
+
   // statics =================================
 
   static buildCourse(config: CourseConfig): Course {
@@ -271,9 +290,6 @@ export class Course {
       .setRow(config.row)
       .setStatus(config.status)
       .setComments(config.comments);
-    
-      config.errors.forEach(error => newCourse.addError(error));
-      config.times.forEach(time => newCourse.addTime(time));
 
       return newCourse;
   }

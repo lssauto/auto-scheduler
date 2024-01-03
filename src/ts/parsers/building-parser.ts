@@ -4,6 +4,7 @@ import * as timeConvert from "../utils/time-convert";
 import { Messages } from "../elements/messages/messages";
 
 export function parseBuildings(input: string) {
+  Messages.clear();
   Messages.output(Messages.info, "Parsing buildings table...");
   const matrix = splitString(input);
   buildBuildings(matrix);

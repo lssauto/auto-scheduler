@@ -5,6 +5,8 @@ import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock, TimeBlockMatcher } from "../schedule/time-block";
 import { CourseEditor } from "../elements/editors/course-editor";
 import { Days } from "../days";
+import { VariableElement } from "../events/var-elem";
+import { Notify, NotifyEvent } from "../events/notify";
 
 export class Tutor {
   readonly email: string;
@@ -17,6 +19,9 @@ export class Tutor {
 
   private _div: HTMLDivElement | null;
   private _courseDiv: HTMLDivElement | null;
+  private _errorDiv: HTMLDivElement | null;
+
+  private onErrorsUpdated: NotifyEvent = new NotifyEvent("onErrorsUpdated");
 
   constructor(email: string, name: string, returnee: boolean) {
     this.email = email;
@@ -29,6 +34,7 @@ export class Tutor {
 
     this._div = null;
     this._courseDiv = null;
+    this._errorDiv = null;
   }
 
   addCourse(course: Course) {
@@ -48,12 +54,11 @@ export class Tutor {
     this.courses.set(course.id, course);
     this._courseDiv?.append(course.getDiv());
 
-    course.forEveryTime((time) => {
-      const errorCode = schedule.addTime(time);
-      if (errorCode !== ErrorCodes.success) {
-        course.addError(time);
-        time.setHasConflict(true);
-      }
+    course.addErrorsListener(this, () => {
+      this.onErrorsDispatch();
+    });
+    course.addDeletedListener(this, () => {
+      course.removeErrorsListener(this);
     });
   }
 
@@ -79,6 +84,11 @@ export class Tutor {
       course.forEachError(error => errors.push(error));
     });
     return errors;
+  }
+
+  addError(time: TimeBlock) {
+    this.getCourse(time.courseID ?? Course.na)?.addError(time);
+    this._errorDiv?.append(time.getTutorDiv());
   }
 
   hasErrors(): boolean {
@@ -170,18 +180,35 @@ export class Tutor {
 
     div.append(this.schedule.getDiv());
 
-    const errors = document.createElement("div");
+    div.append(document.createElement("br"));
+
+    this._errorDiv = document.createElement("div");
+    this._errorDiv.style.marginTop = "5px";
+    this._errorDiv.style.marginBottom = "5px";
     const errorsTitle = document.createElement("b");
-    if (this.hasErrors()) {
-      errorsTitle.innerHTML = "Errors:";
-      errors.append(errorsTitle);
-      this.forEachError(error => errors.append(error.getTutorDiv()));
-    } else {
-      errorsTitle.innerHTML = `${this.name} Has No Errors`;
-      errors.append(errorsTitle);
-    }
-    div.append(errors);
+    new VariableElement(errorsTitle, this.onErrorsUpdated, () => {
+      if (this.hasErrors()) {
+        errorsTitle.innerHTML = "Errors:";
+      } else {
+        errorsTitle.innerHTML = `${this.name} Has No Errors`;
+      }
+    });
+    this._errorDiv.append(errorsTitle);
+    this.forEachError(error => this._errorDiv!.append(error.getTutorDiv()));
+    div.append(this._errorDiv);
 
     return div;
+  }
+
+  addErrorsListener(subscriber: object, action: Notify) {
+    this.onErrorsUpdated.addListener(subscriber, action);
+  }
+
+  removeErrorsListener(subscriber: object) {
+    this.onErrorsUpdated.removeListener(subscriber);
+  }
+
+  onErrorsDispatch() {
+    this.onErrorsUpdated.dispatch(this);
   }
 }

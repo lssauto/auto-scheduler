@@ -2,11 +2,11 @@ import { TimeBlock, TimeBlockMatcher } from "./time-block";
 import { Days } from "../days";
 
 export enum ErrorCodes {
-  conflict,
-  overBooked,
-  invalidSession,
-  outOfRange,
-  success,
+  conflict = "conflict",
+  overBooked = "over-booked",
+  invalidSession = "invalid session time",
+  outOfRange = "outside open hours",
+  success = "success",
 }
 
 export interface Day {
@@ -62,7 +62,21 @@ export abstract class Schedule {
   
   abstract removeTimeAt(day: Days, index: number): TimeBlock | null;
   
-  abstract updateTime(time: TimeBlock, prevDay?: Days): void;
+  updateTime(time: TimeBlock, prevDay: Days): void {
+    const times = this.getTimes(prevDay);
+    let index = -1;
+    for (let i = 0; i < times.length; i++) {
+      if (times[i] === time) {
+        index = i;
+      }
+    }
+
+    if (index !== -1) {
+      times.splice(index, 1);
+    }
+
+    this.insertTime(time);
+  }
 
   hasConflictWith(time: TimeBlock | {day: Days, start: number, end: number}, ignore?: TimeBlock): boolean {
     let hasConflict = false;

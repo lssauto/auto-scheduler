@@ -8,6 +8,7 @@ import { Tutors } from "../tutors/tutors";
 import * as timeConvert from "../utils/time-convert";
 
 export function parseRooms(input: string) {
+  Messages.clear();
   Messages.output(Messages.info, "parsing rooms table...");
   const matrix = splitString(input);
   buildRooms(matrix);

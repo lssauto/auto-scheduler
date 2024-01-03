@@ -216,8 +216,6 @@ export class CourseEditor extends Editor {
       preference: this.getValue(CourseEditor.preference),
       row: this.curCourse?.row ?? -1,
       timestamp: timeConvert.fromTimestamp(this.curCourse?.timestamp ?? (new Date()).getTime()),
-      errors: [],
-      times: [],
       comments: this.getValue(CourseEditor.comments)
     };
     if (this.curCourse) {

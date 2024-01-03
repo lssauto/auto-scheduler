@@ -7,6 +7,7 @@ import { Tutors } from "../tutors/tutors";
 import * as timeConvert from "../utils/time-convert";
 
 export function parseTutors(input: string) {
+  Messages.clear();
   Messages.output(Messages.info, "parsing tutor positions...");
 
   const matrix = splitString(input);
@@ -100,8 +101,6 @@ function buildTutors(matrix: string[][]) {
       preference: Course.noPref,
       row: -1,
       timestamp: timeConvert.fromTimestamp(1),
-      errors: [],
-      times: [],
       comments: ""
     }));
 

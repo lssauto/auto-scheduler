@@ -5,7 +5,7 @@ import {
   TimeBlockConfig,
 } from "../../schedule/time-block";
 import { Days } from "../../days.ts";
-import { Schedule } from "../../schedule/schedule";
+import { ErrorCodes, Schedule } from "../../schedule/schedule";
 import { Course } from "../../tutors/course";
 import { Tutors } from "../../tutors/tutors";
 import { Rooms } from "../../rooms/rooms";
@@ -354,19 +354,40 @@ export class TimeEditor extends Editor {
       end: (this.getField(TimeEditor.end)! as fields.MenuTimeField).getTime()
     };
     if (this.curTime) {
+      if (this.curTime.hasError()) {
+        this.curTime.setError(ErrorCodes.success);
+        this.curTime.getCourse()?.removeError(this.curTime);
+        this.curTime.getCourse()?.addTime(this.curTime);
+        if (changes.tutorEmail) {
+          Tutors.instance!.getTutor(changes.tutorEmail)?.addTime(this.curTime);
+        }
+      }
+      let sameTutor = false;
+      let sameRoom = false;
+      const prevDay = this.curTime.day;
       if (changes.tutorEmail !== this.curTime.tutorEmail) {
         this.curTime.tutorSchedule?.removeTime(this.curTime);
         if (changes.tutorEmail) {
-          Tutors.instance!.getTutor(changes.tutorEmail)?.schedule.addTime(this.curTime);
+          Tutors.instance!.getTutor(changes.tutorEmail)?.addTime(this.curTime);
         }
+      } else {
+        sameTutor = true;
       }
       if (changes.roomName !== this.curTime.roomName) {
         this.curTime.roomSchedule?.removeTime(this.curTime);
         if (changes.roomName) {
-          Rooms.instance!.getRoom(changes.roomName)?.schedule.addTime(this.curTime);
+          Rooms.instance!.getRoom(changes.roomName)?.addTime(this.curTime);
         }
+      } else {
+        sameRoom = true;
       }
       this.curTime.update(changes);
+      if (sameTutor) {
+        this.curTime.tutorSchedule?.updateTime(this.curTime, prevDay);
+      }
+      if (sameRoom) {
+        this.curTime.roomSchedule?.updateTime(this.curTime, prevDay);
+      }
     } else {
       const newTime = TimeBlock.buildTimeBlock(changes);
       if (changes.tutorEmail) {

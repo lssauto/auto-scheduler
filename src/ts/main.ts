@@ -14,6 +14,9 @@ import { Tutors } from "./tutors/tutors";
 import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
 import { ResponseTableMaker } from "./table-makers/response-maker";
+import { isValidSessionTime } from "./utils/session-times";
+import { Days } from "./days";
+import * as timeConvert from "./utils/time-convert";
 
 document.title = "LSS Auto Scheduler";
 
@@ -44,8 +47,6 @@ tutor1.addCourse(
     preference: Course.noPref,
     row: 1,
     timestamp: "28/2023 16:44:53",
-    errors: [],
-    times: [],
     comments: "",
   })
 );
@@ -61,8 +62,6 @@ tutor2.addCourse(
     preference: Course.noPref,
     row: 1,
     timestamp: "28/2023 16:44:53",
-    errors: [],
-    times: [],
     comments: "",
   })
 );
@@ -90,3 +89,10 @@ console.log(content);
 console.log(timeEditor);
 console.log(courseEditor);
 console.log(buildingEditor);
+
+
+console.log(isValidSessionTime({
+  day: Days.tue, 
+  start: timeConvert.strToInt("11:40 AM"), 
+  end: timeConvert.strToInt("12:40 PM")
+}));
