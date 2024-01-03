@@ -355,12 +355,12 @@ export class TimeEditor extends Editor {
     };
     if (this.curTime) {
       if (this.curTime.hasError()) {
-        this.curTime.setError(ErrorCodes.success);
         this.curTime.getCourse()?.removeError(this.curTime);
         this.curTime.getCourse()?.addTime(this.curTime);
         if (changes.tutorEmail) {
           Tutors.instance!.getTutor(changes.tutorEmail)?.addTime(this.curTime);
         }
+        this.curTime.setError(ErrorCodes.success);
       }
       let sameTutor = false;
       let sameRoom = false;
