@@ -125,10 +125,12 @@ export class Course {
 
   hasTime(time: TimeBlock): boolean {
     if (this.times.get(time.tag)!.indexOf(time) !== -1) {
+      console.log("found exact time");
       return true;
     }
     for (const t of this.times.get(time.tag)!) {
       if (t.isEqual(time)) {
+        console.log("comparison matched");
         return true;
       }
     }

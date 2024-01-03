@@ -22,13 +22,13 @@ export class TutorSchedule extends Schedule {
     }
     for (let i = 0; i < times.length; i++) {
       if (times[i].start > time.start) {
-        this.week.get(time.day)!.div!.insertBefore(times[i].getTutorDiv(), time.getTutorDiv());
+        this.week.get(time.day)!.div!.insertBefore(time.getTutorDiv(), times[i].getTutorDiv());
         times.splice(i, 0, time);
         return i;
       }
     }
     times.push(time);
-    this.week.get(time.day)!.div!.append(time.getRoomDiv());
+    this.week.get(time.day)!.div!.append(time.getTutorDiv());
     return times.length - 1;
   }
 

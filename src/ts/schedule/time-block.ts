@@ -165,10 +165,11 @@ export class TimeBlock {
   }
 
   setTutor(tutorEmail: string | null): TimeBlock {
-    if (tutorEmail) {
+    if (tutorEmail && tutorEmail !== this.tutorEmail) {
       const tutor = Tutors.instance!.getTutor(tutorEmail);
-      this.tutorSchedule = tutor ? tutor.schedule : null;
-    } else {
+      this.tutorSchedule = tutor?.schedule ?? null;
+      
+    } else if (tutorEmail === null) {
       this.tutorDivContent?.destroy();
       this.tutorDiv?.remove();
       this.tutorDiv = null;
@@ -192,7 +193,7 @@ export class TimeBlock {
   }
 
   setRoom(roomName: string | null): TimeBlock {
-    if (roomName) {
+    if (roomName && roomName !== this.roomName) {
       const room = Rooms.instance!.getRoom(roomName);
       if (room) {
         this.roomSchedule = room.schedule;
@@ -201,7 +202,7 @@ export class TimeBlock {
           this.onEditedDispatch();
         });
       }
-    } else {
+    } else if (roomName === null) {
       this.getRoom()?.removeDeletedListener(this);
       this.roomDivContent?.destroy();
       this.roomDiv?.remove();
@@ -227,7 +228,7 @@ export class TimeBlock {
   }
 
   setCourse(id: string | null): TimeBlock {
-    if (id === null) {
+    if (id === null || id !== this.courseID) {
       if (this.getCourse()) {
         this.getCourse()!.removeTime(this);
         this.getCourse()!.removeEditedListener(this);
@@ -263,11 +264,13 @@ export class TimeBlock {
 
   private buildTimeDiv(): HTMLDivElement {
     const div: HTMLDivElement = document.createElement("div");
-    div.style.display = "inline-block";
-    div.style.padding = "3px";
+    div.style.display = "block";
+    div.style.maxWidth = "600px";
+    div.style.padding = "4px";
+    div.style.paddingBottom = "6px";
     div.style.borderStyle = "solid";
     div.style.borderWidth = "1px";
-    div.style.margin = "2px";
+    div.style.margin = "3px";
     div.style.borderRadius = "5px";
     if (this.hasConflict) {
       div.style.backgroundColor = tagColors.get(Tags.conflict)!.backgroundColor;
@@ -281,7 +284,8 @@ export class TimeBlock {
 
   private buildTutorEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
-    edit.style.display = "inline-block";
+    edit.style.display = "block";
+    edit.style.float = "right";
     edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
     edit.addEventListener("click", () => {
@@ -292,7 +296,8 @@ export class TimeBlock {
 
   private buildRoomEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
-    edit.style.display = "inline-block";
+    edit.style.display = "block";
+    edit.style.float = "right";
     edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
     edit.addEventListener("click", () => {
@@ -303,7 +308,8 @@ export class TimeBlock {
 
   private buildDeleteButton(): HTMLButtonElement {
     const button: HTMLButtonElement = document.createElement("button");
-    button.style.display = "inline-block";
+    button.style.display = "block";
+    button.style.float = "right";
     button.style.marginLeft = "3px";
     button.innerHTML = "Delete";
     button.addEventListener("click", () => {
@@ -329,7 +335,9 @@ export class TimeBlock {
     const div: HTMLDivElement = this.buildTimeDiv();
 
     const text: HTMLElement = document.createElement("p");
-    text.style.display = "inline";
+    text.style.display = "inline-block";
+    text.style.margin = "0px";
+    text.style.width = "80%";
     div.append(text);
 
     this.tutorDivContent = new VariableElement(text, this.onEdited, () => {
@@ -337,11 +345,16 @@ export class TimeBlock {
       if (this.hasRoomAssigned()) {
         text.innerHTML += ` / <b>${this.roomName}</b>`;
       }
-      text.innerHTML += ` / ${this.getTimeStr()} | `;
+      text.innerHTML += ` / ${this.getTimeStr()}`;
     });
 
-    div.append(this.buildTutorEditButton());
     div.append(this.buildDeleteButton());
+    div.append(this.buildTutorEditButton());
+    const spacer = document.createElement("p");
+    spacer.style.float = "right";
+    spacer.style.margin = "0px";
+    spacer.innerHTML = " | ";
+    div.append(spacer);
 
     return div;
   }
@@ -357,7 +370,9 @@ export class TimeBlock {
     const div: HTMLDivElement = this.buildTimeDiv();
 
     const text: HTMLElement = document.createElement("p");
-    text.style.display = "inline";
+    text.style.display = "inline-block";
+    text.style.margin = "0px";
+    text.style.width = "80%";
     div.append(text);
 
     this.roomDivContent = new VariableElement(text, this.onEdited, () => {
@@ -369,11 +384,16 @@ export class TimeBlock {
       if (this.tutorEmail) {
         text.innerHTML += ` / ${this.tutorEmail} ${tutorName}`;
       } 
-      text.innerHTML += ` / ${this.getTimeStr()} | `;
+      text.innerHTML += ` / ${this.getTimeStr()}`;
     });
 
-    div.append(this.buildRoomEditButton());
     div.append(this.buildDeleteButton());
+    div.append(this.buildRoomEditButton());
+    const spacer = document.createElement("p");
+    spacer.style.float = "right";
+    spacer.style.margin = "0px";
+    spacer.innerHTML = " | ";
+    div.append(spacer);
 
     return div;
   }

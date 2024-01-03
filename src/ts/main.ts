@@ -13,6 +13,7 @@ import { Tutor } from "./tutors/tutor";
 import { Tutors } from "./tutors/tutors";
 import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
+import { ResponseTableMaker } from "./table-makers/response-maker";
 
 document.title = "LSS Auto Scheduler";
 
@@ -77,6 +78,8 @@ const courseEditor = new CourseEditor();
 const buildingEditor = new BuildingEditor();
 
 new ParserMenu();
+
+new ResponseTableMaker();
 
 console.log(Positions.match("ARC"));
 

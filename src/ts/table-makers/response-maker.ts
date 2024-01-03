@@ -89,6 +89,7 @@ export class ResponseTableMaker {
 
   setOriginalMatrix(matrix: string[][]) {
     this._responseMatrix = matrix;
+    console.log("response matrix:", matrix);
     this.buildResponses();
   }
 
@@ -115,6 +116,7 @@ export class ResponseTableMaker {
         status: StatusOptions.inProgress,
         scheduler: ""
       };
+      this._responses.push(response);
 
       for (let c = 0; c < this.columnTitles.length; c++) {
         const title = this.columnTitles[c].toLowerCase();
@@ -142,8 +144,8 @@ export class ResponseTableMaker {
           response.returnee = (matrix[r][c] === "Yes" || matrix[r][c] === "yes");
 
         } else if (title.includes(Titles.courseID)) {
-          const id = Course.formatID(matrix[c][r]);
-          if (!tutors.getTutor(response.email)?.hasCourse(id)) {
+          const id = Course.formatID(matrix[r][c]);
+          if (tutors.hasTutor(response.email) && !tutors.getTutor(response.email)?.hasCourse(id)) {
             const tutor = tutors.getTutor(response.email)!;
             Messages.output(Messages.warn, {
               message: `"${matrix[r][c]}" is not a recognized course for ${tutor.name} (${tutor.email}), or is incorrectly formatted. 
@@ -264,9 +266,12 @@ export class ResponseTableMaker {
             roomName: roomName,
             courseID: response.courseID
           }));
+          c++;
         }
       }
     }
+
+    console.log("response objs:", this._responses);
   }
 
   parseTimeSets(args: {

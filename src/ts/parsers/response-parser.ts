@@ -14,6 +14,7 @@ export function parseResponses(input: string) {
     return;
   }
   addResponseData();
+  Messages.output(Messages.success, "Responses successfully parsed!");
 }
 
 function parseColumnTitles(input: string): number {
@@ -121,9 +122,10 @@ function parseMatrix(input: string, i: number): boolean {
 
 function addResponseData() {
   const responses = ResponseTableMaker.instance!.responses;
+  const tutors = Tutors.instance!;
 
   for (const response of responses) {
-    const tutor = Tutors.instance!.getTutor(response.email);
+    const tutor = tutors.getTutor(response.email);
     if (tutor === undefined) continue;
     const course = tutor.getCourse(response.courseID);
     if (course === undefined) continue;
@@ -133,12 +135,58 @@ function addResponseData() {
     }
 
     for (const lecture of response.lectures) {
-      if (course.hasTime(lecture)) continue;
-      course.addTime(lecture);
+      if (tutor.schedule.hasTime(lecture)) {
+        course.removeTime(lecture);
+        continue;
+      }
+
       const errorCode = tutor.addTime(lecture);
       if (errorCode !== ErrorCodes.success) {
         course.addError(lecture);
       }
+      lecture.getRoom()?.addTime(lecture);
+    }
+
+    for (const officeHour of response.officeHours) {
+      if (tutor.schedule.hasTime(officeHour)) {
+        course.removeTime(officeHour);
+        continue;
+      }
+
+      const errorCode = tutor.addTime(officeHour);
+      if (errorCode !== ErrorCodes.success) {
+        course.addError(officeHour);
+      }
+      officeHour.getRoom()?.addTime(officeHour);
+    }
+
+    for (const discord of response.discord) {
+      if (tutor.schedule.hasTime(discord)) {
+        course.removeTime(discord);
+        continue;
+      }
+
+      const errorCode = tutor.addTime(discord);
+      if (errorCode !== ErrorCodes.success) {
+        course.addError(discord);
+      }
+      discord.getRoom()?.addTime(discord);
+    }
+
+    for (const time of response.times) {
+      if (tutor.schedule.hasTime(time)) {
+        course.removeTime(time);
+        continue;
+      }
+
+      const errorCode = tutor.addTime(time);
+      if (errorCode !== ErrorCodes.success) {
+        console.log(errorCode);
+        course.addError(time);
+      }
+      time.getRoom()?.addTime(time);
     }
   }
+
+  console.log(tutors);
 }

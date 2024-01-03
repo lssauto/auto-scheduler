@@ -62,7 +62,7 @@ export class RoomSchedule extends Schedule {
     }
     for (let i = 0; i < times.length; i++) {
       if (times[i].start > time.start) {
-        this.week.get(time.day)!.div!.insertBefore(times[i].getRoomDiv(), time.getRoomDiv());
+        this.week.get(time.day)!.div!.insertBefore(time.getRoomDiv(), times[i].getRoomDiv());
         times.splice(i, 0, time);
         return i;
       }
