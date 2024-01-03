@@ -1,3 +1,7 @@
+body {
+    font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
+
 .header {
     background-color: white;
     position: fixed;

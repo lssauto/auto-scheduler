@@ -328,7 +328,17 @@ function buildRooms(matrix) {
                 continue;
             }
             const course = formatCourseID(fields[0].trim()) ?? fields[0].trim();
-            const tutor = fields[1].split("(")[1].replace(")", "").trim(); // get just the email
+            const split = fields[1].split("(");
+            if (split.length !== 2) {
+                output({
+                    type: "warning",
+                    message: `the time in ${currentRoom.name}'s schedule: "${row[j]}" is missing parentheses "()". Skipping time.`,
+                    expects: "'COURSE ID , name[optional] (email) , ##:## [AM/PM] - ##:## [AM/PM]'.",
+                    cell: `(row: ${i + 1} , col: ${j + 1})`
+                });
+                continue;
+            }
+            const tutor = split[1].replace(")", "").trim(); // get just the email
             const timeStr = fields[2].trim();
 
             if (currentRoom.isRequestRoom) {
