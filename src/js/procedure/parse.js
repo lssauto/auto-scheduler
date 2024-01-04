@@ -236,7 +236,9 @@ function buildJSON(titles, data) {
                     let time = {time: data[i][j], schedule: schedule, room: null, row: i, col: j};
 
                     // only SGT can reserve their own rooms
-                    if (( field.includes(RoomResponse.ScheduleByTutor) || field.includes(RoomResponse.AssignedToTutor) ) && SelfSchedulable.includes(obj.position)) { 
+                    if (field === "") {
+                        schedule = true;
+                    } if (( field.includes(RoomResponse.ScheduleByTutor) || field.includes(RoomResponse.AssignedToTutor) ) && SelfSchedulable.includes(obj.position)) { 
                         schedule = false;
                         if (field.includes(RoomResponse.AssignedToTutor)) time.room = data[i][j + 1];
                         
