@@ -1,6 +1,8 @@
 import { Tutors } from "../../tutors/tutors";
 import { Rooms } from "../../rooms/rooms";
 import { Header } from "../header/header";
+import { Tutor } from "../../tutors/tutor";
+import { Room } from "../../rooms/room";
 
 const TUTOR_MODE = true;
 const ROOM_MODE = false;
@@ -66,6 +68,21 @@ export class Content {
       this.activeDiv = ROOM_MODE;
       Tutors.instance!.hideDiv();
       Rooms.instance!.showDiv();
+    }
+  }
+
+  scrollTo(target: Tutor | Room) {
+    if (target instanceof Tutor) {
+      if (this.activeDiv === ROOM_MODE) {
+        this.toggleDivs();
+      }
+      Tutors.instance!.filter(Tutors.instance!.findFilter("All Tutors")!);
+      target.getDiv().scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      if (this.activeDiv === TUTOR_MODE) {
+        this.toggleDivs();
+      }
+      target.getDiv().scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
 }

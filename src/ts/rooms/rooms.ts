@@ -12,6 +12,7 @@ export class Rooms {
   }
 
   static readonly unknown = "Unknown Building";
+  static readonly registrarRequest = "Request From Registrar";
 
   private static readonly _defaultRange: AvailableRange = {
     days: [Days.mon, Days.tue, Days.wed, Days.thu, Days.fri, Days.sun],
@@ -20,6 +21,14 @@ export class Rooms {
   };
   public static get defaultRange(): AvailableRange {
     return JSON.parse(JSON.stringify(Rooms._defaultRange)) as AvailableRange;
+  }
+  private static readonly _requestRange: AvailableRange = {
+    days: [Days.mon, Days.tue, Days.wed, Days.thu, Days.fri],
+    start: timeConvert.strToInt("8:00 AM"),
+    end: timeConvert.strToInt("5:00 PM")
+  };
+  public static get requestRange(): AvailableRange {
+    return JSON.parse(JSON.stringify(Rooms._requestRange)) as AvailableRange;
   }
 
   private rooms: Map<string, Room>;
@@ -45,6 +54,12 @@ export class Rooms {
     this.buildingDiv = null;
     this.roomDiv = null;
     this.requestDiv = null;
+
+    const request = new Building(Rooms.registrarRequest);
+    request.setRange(Rooms.requestRange);
+    this.addBuilding(request);
+
+    this.addRoom(new Room(Rooms.registrarRequest));
   }
 
   getRoom(name: string): Room | undefined {
@@ -122,7 +137,7 @@ export class Rooms {
       }
     });
 
-    if (!building.hasRooms()) {
+    if (!building.hasRooms() && building.name !== Rooms.registrarRequest) {
       building.addRequestRoom();
     }
 

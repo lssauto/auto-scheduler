@@ -200,6 +200,18 @@ export class Tutor {
     return div;
   }
 
+  hideDiv() {
+    if (this._div) {
+      this._div.style.display = "none";
+    }
+  }
+
+  showDiv() {
+    if (this._div) {
+      this._div.style.display = "block";
+    }
+  }
+
   addErrorsListener(subscriber: object, action: Notify) {
     this.onErrorsUpdated.addListener(subscriber, action);
   }

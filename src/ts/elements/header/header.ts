@@ -42,6 +42,7 @@ export class Header {
     this._headerElem.style.top = "0px";
     this._headerElem.style.left = "0px";
     this._headerElem.style.width = "100%";
+    this._headerElem.style.height = "53px";
     this._headerElem.style.borderBottom = "2px black solid";
 
     this._body.append(this._headerElem);
@@ -80,6 +81,15 @@ export class Header {
     });
     this._headerElem.append(this._parseButton);
 
+    // spacer
+    const spacer = document.createElement("p");
+    spacer.style.display = "inline-block";
+    spacer.style.margin = "0px";
+    spacer.style.marginLeft = "10px";
+    spacer.style.marginRight = "10px";
+    spacer.innerHTML = "<b> || </b>";
+    this._headerElem.append(spacer);
+
     // tutor options
     this._tutorToolsElem = document.createElement("div");
     this._tutorToolsElem.style.display = "none";
@@ -88,7 +98,7 @@ export class Header {
 
     // room options
     this._roomToolsElem = document.createElement("div");
-    this._roomToolsElem.style.display = "block";
+    this._roomToolsElem.style.display = "inline-block";
     this._headerElem.append(this._roomToolsElem);
     this._roomTools = new Map();
   }
@@ -98,13 +108,13 @@ export class Header {
       this._toggleButton.innerHTML = "Switch To Rooms";
       this._toggleMode = TUTORS_MODE;
       this._roomToolsElem.style.display = "none";
-      this._tutorToolsElem.style.display = "block";
+      this._tutorToolsElem.style.display = "inline-block";
       this._headerElem.dispatchEvent(this.onToggleTutors);
 
     } else if (this._toggleMode === TUTORS_MODE) {
       this._toggleButton.innerHTML = "Switch To Tutors";
       this._toggleMode = ROOMS_MODE;
-      this._roomToolsElem.style.display = "block";
+      this._roomToolsElem.style.display = "inline-block";
       this._tutorToolsElem.style.display = "none";
       this._headerElem.dispatchEvent(this.onToggleRooms);
     }
@@ -119,6 +129,9 @@ export class Header {
   }
 
   addTutorTool(name: string, tool: HTMLElement) {
+    tool.style.display = "inline-block";
+    tool.style.marginTop = "0px";
+    tool.style.marginRight = "15px";
     this._tutorToolsElem.append(tool);
     this._tutorTools.set(name, tool);
   }
@@ -128,6 +141,9 @@ export class Header {
   }
 
   addRoomTool(name: string, tool: HTMLElement) {
+    tool.style.display = "inline-block";
+    tool.style.marginTop = "0px";
+    tool.style.marginRight = "8px";
     this._roomToolsElem.append(tool);
     this._roomTools.set(name, tool);
   }
