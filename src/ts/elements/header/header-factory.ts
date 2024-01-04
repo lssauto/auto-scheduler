@@ -34,7 +34,22 @@ export class HeaderFactory {
       const result = Tutors.instance!.match(searchBar.value);
       if (result) {
         Content.instance!.scrollTo(result);
+        return;
       }
+
+      const target = searchBar.value.toLowerCase();
+      Tutors.instance!.filter({
+        title: "Search For Course",
+        include: (tutor) => {
+          let match = false;
+          tutor.forEachCourse((course) => {
+            if (course.id.toLowerCase().includes(target)) {
+              match = true;
+            }
+          });
+          return match;
+        }
+      });
     });
 
     container.append(searchBar);

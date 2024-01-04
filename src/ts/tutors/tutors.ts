@@ -1,6 +1,7 @@
 import { Tutor } from "./tutor";
 import { Position, Positions } from "../positions";
 import { Notify, NotifyEvent } from "../events/notify";
+import { Content } from "../elements/content/content";
 
 export interface FilterOption {
   readonly title: string;
@@ -213,6 +214,8 @@ export class Tutors {
         tutor.hideDiv();
       }
     });
+
+    Content.instance!.scrollToTop();
   }
 
   addTutorListener(subscriber: object, action: Notify) {

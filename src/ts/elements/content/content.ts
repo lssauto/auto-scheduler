@@ -85,4 +85,10 @@ export class Content {
       target.getDiv().scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
+
+  scrollToTop() {
+    if (this.div) {
+      this.div.scrollTop = 0;
+    }
+  }
 }
