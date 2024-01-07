@@ -1,9 +1,13 @@
+import { defaultScheduler } from "./scheduler/default-scheduler";
+import { SchedulerStrat } from "./scheduler/scheduler";
+
 export interface Position {
   readonly title: string;        // position title displayed
   readonly match: string;        // used to str match form responses
   readonly sessionLimit: number; // max number of sessions allowed
   readonly requestLimit: number; // when any remaining sessions will default to registrar requests
   readonly roomFilter: string[]; // what room types this position can be scheduled in
+  readonly scheduler: SchedulerStrat; // 
 }
 
 export class Positions {
@@ -12,7 +16,8 @@ export class Positions {
     match: "small",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["SGT", "EMB SGT", "N/A"]
+    roomFilter: ["SGT", "EMB SGT", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly esgt: Position = {
@@ -20,7 +25,8 @@ export class Positions {
     match: "embedded small",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["SGT", "EMB SGT", "N/A"]
+    roomFilter: ["SGT", "EMB SGT", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly lgt: Position = {
@@ -28,7 +34,8 @@ export class Positions {
     match: "large",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly elgt: Position = {
@@ -36,7 +43,8 @@ export class Positions {
     match: "embedded large",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly si: Position = {
@@ -44,7 +52,8 @@ export class Positions {
     match: "si leader",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"]
+    roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly wr: Position = {
@@ -52,7 +61,8 @@ export class Positions {
     match: "writing",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["WR", "N/A"]
+    roomFilter: ["WR", "N/A"],
+    scheduler: defaultScheduler
   };
 
   static readonly na: Position = {
@@ -60,7 +70,8 @@ export class Positions {
     match: "n/a",
     sessionLimit: 3,
     requestLimit: 3,
-    roomFilter: ["N/A", "SGT", "EMB SGT", "LGT", "EMB LGT", "SI", "WR"]
+    roomFilter: ["N/A", "SGT", "EMB SGT", "LGT", "EMB LGT", "SI", "WR"],
+    scheduler: defaultScheduler
   };
 
   static readonly positions: Position[] = [

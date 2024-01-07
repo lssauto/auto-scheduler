@@ -40,6 +40,10 @@ export class RoomSchedule extends Schedule {
   }
 
   isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
+    if (this.getBuilding()) {
+      return this.getBuilding()!.isInRange(time);
+    }
+    
     if (!this.range.days.includes(time.day)) {
       return false;
     }

@@ -7,6 +7,7 @@ import { CourseEditor } from "../elements/editors/course-editor";
 import { Days } from "../days";
 import { VariableElement } from "../events/var-elem";
 import { Notify, NotifyEvent } from "../events/notify";
+import { Position } from "../positions";
 
 export class Tutor {
   readonly email: string;
@@ -78,6 +79,15 @@ export class Tutor {
     return this.courses.has(courseId);
   }
 
+  hasPosition(position: Position): boolean {
+    for (const courseID in this.courses) {
+      if (this.courses.get(courseID)!.position === position) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   getErrors(): TimeBlock[] {
     const errors: TimeBlock[] = [];
     this.forEachCourse(course => {
@@ -123,6 +133,10 @@ export class Tutor {
 
   hasTime(time: TimeBlock | TimeBlockMatcher): boolean {
     return this.schedule.hasTime(time);
+  }
+
+  forEachTime(action: (time: TimeBlock) => void) {
+    this.schedule.forEachTime(action);
   }
 
   findTime(time: {

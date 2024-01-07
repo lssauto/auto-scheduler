@@ -1,4 +1,5 @@
 import { ParserMenu } from "../../parsers/parser-menu";
+import { Scheduler } from "../../scheduler/scheduler";
 
 const TUTORS_MODE = true;
 const ROOMS_MODE = false;
@@ -67,8 +68,7 @@ export class Header {
     this._scheduleButton.style.marginLeft = "10px";
     this._scheduleButton.innerHTML = "Create Schedules";
     this._scheduleButton.addEventListener("click", () => {
-      // TODO: call the scheduler
-      console.log("this will create all of the schedules");
+      Scheduler.scheduleAll();
     });
     this._headerElem.append(this._scheduleButton);
 

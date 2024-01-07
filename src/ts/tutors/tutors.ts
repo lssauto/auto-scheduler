@@ -2,6 +2,7 @@ import { Tutor } from "./tutor";
 import { Position, Positions } from "../positions";
 import { Notify, NotifyEvent } from "../events/notify";
 import { Content } from "../elements/content/content";
+import { Tags } from "../schedule/time-block";
 
 export interface FilterOption {
   readonly title: string;
@@ -25,8 +26,56 @@ export class Tutors {
     return this._curFilter;
   }
 
+  // # const filter options ===============
+
+  static readonly allFilter: FilterOption = {
+    title: "All Tutors",
+    include: () => {
+      return true;
+    }
+  };
+  static readonly errorsFilter: FilterOption = {
+    title: "Tutors With Errors",
+    include: (tutor) => {
+      return tutor.hasErrors();
+    }
+  };
+  static readonly commentsFilter: FilterOption = {
+    title: "Tutors With Comments",
+    include: (tutor) => {
+      let hasComments = false;
+      tutor.forEachCourse(course => {
+        if (course.comments !== "") {
+          hasComments = true;
+        }
+      });
+      return hasComments;
+    }
+  };
+
+  static readonly registrarFilter: FilterOption = {
+    title: "Registrar Requests",
+    include: (tutor) => {
+      let hasRequest = false;
+      tutor.forEachTime((time) => {
+        if (time.tag === Tags.session && 
+          time.hasRoomAssigned() &&
+          time.getRoom()?.isRequestRoom) {
+            hasRequest = true;
+          }
+      });
+      return hasRequest;
+    }
+  };
+
+  // # ====================================
+
+  // # Events =============================
+
   private onTutorUpdate: NotifyEvent = new NotifyEvent("onTutorUpdate");
   private onFilterUpdate: NotifyEvent = new NotifyEvent("onFilterUpdate");
+
+  // # ====================================
 
   constructor() {
     if (Tutors._instance !== null && Tutors._instance !== this) {
@@ -36,12 +85,10 @@ export class Tutors {
 
     this.tutors = new Map<string, Tutor>();
 
-    this.addFilter({
-      title: "All Tutors",
-      include: () => {
-        return true;
-      }
-    });
+    this.addFilter(Tutors.allFilter);
+    this.addFilter(Tutors.errorsFilter);
+    this.addFilter(Tutors.commentsFilter);
+    this.addFilter(Tutors.registrarFilter);
 
     this.positions = new Map<Position, Tutor[]>();
     Positions.forEach((pos) => {
@@ -60,7 +107,7 @@ export class Tutors {
       });
     });
 
-    this._curFilter = this.findFilter("All Tutors")!;
+    this._curFilter = Tutors.allFilter;
 
     this.addTutorListener(this, () => {
       this.filter(this._curFilter);
@@ -114,6 +161,10 @@ export class Tutors {
 
   forEachTutor(action: (tutor: Tutor) => void) {
     this.tutors.forEach(action);
+  }
+
+  getPositionList(position: Position): Tutor[] {
+    return this.positions.get(position)!;
   }
 
   forEachPositionList(position: Position, action: (tutor: Tutor) => void) {

@@ -5,7 +5,7 @@ import * as timeConvert from "../utils/time-convert";
 import { Building } from "./building";
 import { BuildingEditor } from "../elements/editors/building-editor";
 
-export class Rooms {
+export class Rooms implements Iterable<Room> {
   private static _instance: Rooms | null = null;
   public static get instance(): Rooms | null {
     return this._instance;
@@ -106,6 +106,19 @@ export class Rooms {
 
   forEachRoom(action: (room: Room) => void) {
     this.rooms.forEach(action);
+  }
+
+  [Symbol.iterator](): Iterator<Room> {
+    const rooms = this.rooms.values();
+    return {
+      next: () => {
+        const next = rooms.next();
+        return {
+          done: next.done ?? true,
+          value: next.value as Room
+        };
+      }
+    };
   }
 
   forEachRequestRoom(action: (room: Room) => void) {

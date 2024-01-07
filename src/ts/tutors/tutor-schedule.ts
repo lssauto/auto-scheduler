@@ -17,18 +17,18 @@ export class TutorSchedule extends Schedule {
     const times = this.week.get(time.day)!.times;
     if (times.length === 0) {
       times.push(time);
-      this.week.get(time.day)!.div!.append(time.getTutorDiv());
+      this.week.get(time.day)!.div?.append(time.getTutorDiv());
       return 0;
     }
     for (let i = 0; i < times.length; i++) {
       if (times[i].start > time.start) {
-        this.week.get(time.day)!.div!.insertBefore(time.getTutorDiv(), times[i].getTutorDiv());
+        this.week.get(time.day)!.div?.insertBefore(time.getTutorDiv(), times[i].getTutorDiv());
         times.splice(i, 0, time);
         return i;
       }
     }
     times.push(time);
-    this.week.get(time.day)!.div!.append(time.getTutorDiv());
+    this.week.get(time.day)!.div?.append(time.getTutorDiv());
     return times.length - 1;
   }
 

@@ -5,6 +5,8 @@ import { AvailableRange } from "./room-schedule";
 import { Rooms } from "./rooms";
 import * as timeConvert from "../utils/time-convert";
 import { BuildingEditor } from "../elements/editors/building-editor";
+import { Days } from "../days";
+import { TimeBlock } from "../schedule/time-block";
 
 export class Building {
   name: string;
@@ -31,6 +33,20 @@ export class Building {
   setRange(range: AvailableRange): Building {
     this.range = range;
     return this;
+  }
+
+  isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
+    if (!this.range.days.includes(time.day)) {
+      return false;
+    }
+    if (time.start === undefined || time.end === undefined) {
+      return true;
+    }
+
+    if (time.start < this.range.start || this.range.end < time.end) {
+      return false;
+    }
+    return true;
   }
 
   setName(name: string): Building {

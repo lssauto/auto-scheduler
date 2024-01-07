@@ -14,7 +14,7 @@ export interface Day {
   times: TimeBlock[];
 }
 
-export abstract class Schedule {
+export abstract class Schedule implements Iterable<TimeBlock> {
   protected week: Map<Days, Day>;
   div: HTMLDivElement | null;
 
@@ -34,6 +34,26 @@ export abstract class Schedule {
     this.week.forEach((day) => {
       day.times.forEach(action);
     });
+  }
+
+  [Symbol.iterator](): Iterator<TimeBlock> {
+    const days = [Days.mon, Days.tue, Days.wed, Days.thu, Days.sat, Days.sun];
+    let curDay = 0;
+    let ind = 0;
+    return {
+      next: () => {
+        while (ind >= (this.week.get(days[curDay])?.times.length ?? 0) && curDay < days.length) {
+          curDay++;
+          ind = 0;
+        }
+        const time = this.week.get(days[curDay])?.times[ind];
+        ind++;
+        return {
+          done: time === undefined,
+          value: time!
+        };
+      }
+    };
   }
 
   forEachTimeInOrder(order: Days[], action: (time: TimeBlock) => void): void {
