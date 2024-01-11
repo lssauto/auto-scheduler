@@ -135,6 +135,8 @@ function addResponseData() {
       continue;
     }
 
+    course.onDeletedDispatch(); // used to remove all previously loaded times
+
     course.update({
       tutor: tutor,
       id: course.id,
