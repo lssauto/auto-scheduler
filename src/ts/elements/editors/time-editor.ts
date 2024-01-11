@@ -115,8 +115,15 @@ export class TimeEditor extends Editor {
         if (result === undefined) {
           field.setNotice("");
           return;
+        } else if (result.hasCourse(field.getValue())) {
+          field.setNotice(result.getCourse(field.getValue())!.position.title);
+        } else {
+          let str = `${result.name} is not assigned to this course.</br>${result.name}'s courses:</br>`;
+          result.forEachCourse(course => {
+            str += `${course.id}: ${course.position.title}</br>`;
+          });
+          field.setNotice(str);
         }
-        field.setNotice(result.getCourse(field.getValue())!.position.title);
         return;
       },
       (field: fields.MenuInputField) => {

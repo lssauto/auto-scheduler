@@ -9,13 +9,14 @@ import { Tutors } from "./tutors/tutors";
 import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
 import { ResponseTableMaker } from "./table-makers/response-maker";
-// import { Tutor } from "./tutors/tutor";
+import { Tutor } from "./tutors/tutor";
 // import { Tags, TimeBlock } from "./schedule/time-block";
 // import { Days } from "./days";
-// import * as timeConvert from "./utils/time-convert";
-// import { Course } from "./tutors/course";
-// import { Positions } from "./positions";
-// import { StatusOptions } from "./status-options";
+import * as timeConvert from "./utils/time-convert";
+import { Course } from "./tutors/course";
+import { Positions } from "./positions";
+import { StatusOptions } from "./status-options";
+import { Room } from "./rooms/room";
 
 document.title = "LSS Auto Scheduler";
 
@@ -55,41 +56,18 @@ console.log(timeEditor);
 console.log(courseEditor);
 console.log(buildingEditor);
 
-// const tutor1 = new Tutor("billy@ucsc.edu", "Billy Bob", true);
-// tutor1.addCourse(Course.buildCourse({
-//     tutor: tutor1,
-//     id: "CSE 101-02",
-//     position: Positions.lgt,
-//     status: StatusOptions.inProgress,
-//     preference: Course.noPref,
-//     row: 0,
-//     timestamp: timeConvert.fromTimestamp(1),
-//     comments: ""
-// }));
-// tutor1.addTime(TimeBlock.buildTimeBlock({
-//     coords: {row: 0, col: 0},
-//     tag: Tags.reserve,
-//     day: Days.mon,
-//     start: timeConvert.strToInt("2:00 PM"),
-//     end: timeConvert.strToInt("3:00 PM"),
-//     scheduleByLSS: true,
-//     tutorEmail: tutor1.email,
-//     roomName: null,
-//     courseID: "CSE 101-02"
-// }));
+const tutor1 = new Tutor("billy@ucsc.edu", "Billy Bob", true);
+tutor1.addCourse(Course.buildCourse({
+    tutor: tutor1,
+    id: "CSE 101-02",
+    position: Positions.lgt,
+    status: StatusOptions.inProgress,
+    preference: Course.noPref,
+    row: 0,
+    timestamp: timeConvert.fromTimestamp(1),
+    comments: ""
+}));
+tutors.addTutor(tutor1);
 
-// tutor1.addTime(TimeBlock.buildTimeBlock({
-//     coords: {row: 0, col: 0},
-//     tag: Tags.reserve,
-//     day: Days.tue,
-//     start: timeConvert.strToInt("2:00 PM"),
-//     end: timeConvert.strToInt("3:00 PM"),
-//     scheduleByLSS: true,
-//     tutorEmail: tutor1.email,
-//     roomName: null,
-//     courseID: "CSE 101-02"
-// }));
-
-// for (const time of tutor1.schedule) {
-//     console.log(time);
-// }
+const room1 = new Room("ARC 116 - Small");
+rooms.addRoom(room1);

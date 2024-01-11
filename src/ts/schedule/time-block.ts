@@ -313,6 +313,18 @@ export class TimeBlock {
     return edit;
   }
 
+  private buildTutorDeleteButton(): HTMLButtonElement {
+    const button: HTMLButtonElement = document.createElement("button");
+    button.style.display = "block";
+    button.style.float = "right";
+    button.style.marginLeft = "3px";
+    button.innerHTML = "Delete";
+    button.addEventListener("click", () => {
+      this.delete();
+    });
+    return button;
+  }
+
   private buildRoomEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
     edit.style.display = "block";
@@ -325,14 +337,15 @@ export class TimeBlock {
     return edit;
   }
 
-  private buildDeleteButton(): HTMLButtonElement {
+  private buildRoomDeleteButton(): HTMLButtonElement {
     const button: HTMLButtonElement = document.createElement("button");
     button.style.display = "block";
     button.style.float = "right";
     button.style.marginLeft = "3px";
     button.innerHTML = "Delete";
     button.addEventListener("click", () => {
-      this.delete();
+      this.roomSchedule?.removeTime(this);
+      this.onEditedDispatch();
     });
     return button;
   }
@@ -374,7 +387,7 @@ export class TimeBlock {
       }
     });
 
-    div.append(this.buildDeleteButton());
+    div.append(this.buildTutorDeleteButton());
     div.append(this.buildTutorEditButton());
     const spacer = document.createElement("p");
     spacer.style.float = "right";
@@ -413,7 +426,7 @@ export class TimeBlock {
       text.innerHTML += ` / ${this.getTimeStr()}`;
     });
 
-    div.append(this.buildDeleteButton());
+    div.append(this.buildRoomDeleteButton());
     div.append(this.buildRoomEditButton());
     const spacer = document.createElement("p");
     spacer.style.float = "right";

@@ -56,6 +56,19 @@ export class Course {
     this.scheduler = "";
     this._div = null;
     this._divContent = null;
+
+    this.addErrorsListener(this, () => {
+      console.log(this.times.get(Tags.conflict)!.length);
+      if (this.times.get(Tags.conflict)!.length > 0) {
+        if (!StatusOptions.isErrorStatus(this.status)) {
+          this.setStatus(StatusOptions.invalidTimes);
+          this.onEditedDispatch();
+        }
+      } else if (StatusOptions.isErrorStatus(this.status)) {
+        this.setStatus(StatusOptions.errorsResolved);
+        this.onEditedDispatch();
+      }
+    });
   }
 
   setID(id: string) {

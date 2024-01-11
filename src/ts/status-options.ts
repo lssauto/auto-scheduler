@@ -23,8 +23,8 @@ export class StatusOptions {
     }
   };
 
-  static readonly hasConflict: Status = {
-    title: "Has Conflicts",
+  static readonly invalidTimes: Status = {
+    title: "Has Invalid Times",
     match: "conflicts",
     color: {
       backgroundColor: "#E6BBC1",
@@ -107,7 +107,7 @@ export class StatusOptions {
   static readonly statusList: Status[] = [
     StatusOptions.pastSubmission,
     StatusOptions.wrongCourse,
-    StatusOptions.hasConflict,
+    StatusOptions.invalidTimes,
     StatusOptions.missing,
     StatusOptions.errorsResolved,
     StatusOptions.inProgress,
@@ -158,7 +158,7 @@ export class StatusOptions {
 
   static readonly errorOptions: Status[] = [
     StatusOptions.wrongCourse,
-    StatusOptions.hasConflict,
+    StatusOptions.invalidTimes,
     StatusOptions.missing
   ];
 
