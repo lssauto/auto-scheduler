@@ -85,6 +85,14 @@ export class Course {
   }
 
   setStatus(status: Status): Course {
+
+    if (StatusOptions.isScheduledStatus(this.status) && !StatusOptions.isScheduledStatus(status)) {
+      for (const time of this.times.get(Tags.session)!) {
+        time.roomSchedule?.removeTime(time);
+        time.onEditedDispatch();
+      }
+    }
+
     this.status = status;
     if (this._div) {
       this._div.style.backgroundColor = this.status.color.backgroundColor;

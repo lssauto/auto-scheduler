@@ -5,16 +5,20 @@ import { Tutors } from "../../tutors/tutors.ts";
 import { Content } from "../content/content.ts";
 import { Header } from "./header.ts";
 
+/**
+ * Use to build all of the header tools with `const header = HeaderFactory.buildHeader()`.
+ */
 export class HeaderFactory {
 
+  /**
+   * Builds a new header, with all of the tutor and room specific tools.
+   */
   public static buildHeader(): Header {
     const header: Header = new Header();
     HeaderFactory.buildTutorTools(header);
     HeaderFactory.buildRoomTools(header);
     return header;
   }
-
-  // TODO: build tools
 
   // Tutor tools ===========================
 
@@ -25,6 +29,7 @@ export class HeaderFactory {
     header.addTutorTool("copySchedules", HeaderFactory.buildCopySchedules());
   }
 
+  // search for tutors
   private static buildSearchBar(): HTMLElement {
     const container = document.createElement("div");
 
@@ -34,12 +39,14 @@ export class HeaderFactory {
     const button = document.createElement("button");
     button.innerHTML = "Search";
     button.addEventListener("click", () => {
+      // searches for a specific tutor
       const result = Tutors.instance!.match(searchBar.value);
       if (result) {
         Content.instance!.scrollTo(result);
         return;
       }
 
+      // filters based on course ID if no tutor was found
       const target = searchBar.value.toLowerCase();
       Tutors.instance!.filter({
         title: "Search For Course",
@@ -61,10 +68,12 @@ export class HeaderFactory {
     return container;
   }
 
+  // filter tutors
   private static buildFilter(): HTMLElement {
     const filter = document.createElement("select");
     filter.style.display = "inline-block";
 
+    // re-build filter options any time the tutor filters are updated
     Tutors.instance!.addFilterListener(filter, () => {
       filter.innerHTML = "";
       Tutors.instance!.forEachFilter((option) => {
@@ -73,7 +82,10 @@ export class HeaderFactory {
         optionElem.innerHTML = option.title;
         filter.append(optionElem);
       });
+      filter.value = Tutors.instance!.curFilter.title;
     });
+
+    // fill options with initial filters
     Tutors.instance!.forEachFilter((option) => {
       const optionElem = document.createElement("option");
       optionElem.value = option.title;
@@ -82,6 +94,7 @@ export class HeaderFactory {
     });
     filter.value = Tutors.instance!.curFilter.title;
 
+    // filter tutors any time a new filter is selected
     filter.addEventListener("change", () => {
       Tutors.instance!.filter(Tutors.instance!.findFilter(filter.value)!);
     });
@@ -98,6 +111,7 @@ export class HeaderFactory {
     return container;
   }
 
+  // copy new response table with saved tutor states
   private static buildCopyTable(): HTMLElement {
     const button = document.createElement("button");
     button.innerHTML = "Copy Response Table";
@@ -108,6 +122,7 @@ export class HeaderFactory {
     return button;
   }
 
+  // copy tutor schedules in an easily readable format
   private static buildCopySchedules(): HTMLElement {
     const button = document.createElement("button");
     button.innerHTML = "Copy Schedules";
@@ -126,10 +141,12 @@ export class HeaderFactory {
     header.addRoomTool("copyRequests", HeaderFactory.buildCopyRequests());
   }
 
+  // filter rooms with dropdown menu
   private static buildRoomFilters(): HTMLElement {
     const filter = document.createElement("select");
     filter.style.display = "inline-block";
 
+    // re-build dropdown when filter options change
     Rooms.instance!.addFilterListener(filter, () => {
       filter.innerHTML = "";
       Rooms.instance!.forEachFilter((option) => {
@@ -140,6 +157,8 @@ export class HeaderFactory {
       });
       filter.value = Rooms.instance!.curFilter.title;
     });
+
+    // add initial filter options
     Rooms.instance!.forEachFilter((option) => {
       const optionElem = document.createElement("option");
       optionElem.value = option.title;
@@ -148,6 +167,7 @@ export class HeaderFactory {
     });
     filter.value = Rooms.instance!.curFilter.title;
 
+    // filter rooms when a new option is selected
     filter.addEventListener("change", () => {
       Rooms.instance!.filter(Rooms.instance!.findFilter(filter.value)!);
     });
@@ -164,6 +184,7 @@ export class HeaderFactory {
     return container;
   }
 
+  // copy all room schedules
   private static buildCopyRooms(): HTMLElement {
     const button = document.createElement("button");
     button.innerHTML = "Copy Schedules";
@@ -174,6 +195,7 @@ export class HeaderFactory {
     return button;
   }
 
+  // copy only registrar request room schedules
   private static buildCopyRequests(): HTMLElement {
     const button = document.createElement("button");
     button.innerHTML = "Copy Request Rooms";

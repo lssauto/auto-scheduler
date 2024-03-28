@@ -42,6 +42,7 @@ export class ScheduleTableMaker {
 
         for (const time of dayObj.times) {
           if (time.tag !== Tags.session && time.tag !== Tags.discord) continue;
+          if (!time.hasRoomAssigned()) continue;
           output += `${time.courseID} , ${time.hasRoomAssigned() ? (time.roomName + " , ") : ""} ${time.getStartToEndStr()}\t`;
         }
 

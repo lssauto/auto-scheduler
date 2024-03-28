@@ -27,6 +27,9 @@ export class Rooms implements Iterable<Room> {
     start: timeConvert.strToInt("8:00 AM"),
     end: timeConvert.strToInt("10:00 PM")
   };
+  /**
+   * The default times a building is normally open for. This returns a copy of that default range.
+   */
   public static get defaultRange(): AvailableRange {
     return JSON.parse(JSON.stringify(Rooms._defaultRange)) as AvailableRange;
   }
@@ -35,6 +38,9 @@ export class Rooms implements Iterable<Room> {
     start: timeConvert.strToInt("8:00 AM"),
     end: timeConvert.strToInt("5:00 PM")
   };
+  /**
+   * The range of times a registrar request can be made in. This returns a copy of that range.
+   */
   public static get requestRange(): AvailableRange {
     return JSON.parse(JSON.stringify(Rooms._requestRange)) as AvailableRange;
   }
@@ -147,6 +153,9 @@ export class Rooms implements Iterable<Room> {
     this.onFilterDispatch();
   }
 
+  /**
+   * Selectively hides and displays rooms using a given filter.
+   */
   filter(option: RoomFilterOption) {
     if (this.div === null) return;
 

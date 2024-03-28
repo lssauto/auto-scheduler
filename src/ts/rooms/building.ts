@@ -96,6 +96,7 @@ export class Building {
   removeRequestRoom() {
     if (this.requestRoom) {
       Rooms.instance!.removeRoom(this.requestRoom);
+      this.requestRoom = null;
     }
   }
 

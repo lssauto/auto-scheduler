@@ -158,21 +158,16 @@ export class CourseEditor extends Editor {
               found = true;
             }
           });
-          if (!found) {
-            return false;
-          }
-          return true;
+          return found;
         }
         let found = false;
-        Rooms.instance!.getBuilding(input)!.forEachRoom((room) => {
+        
+        Rooms.instance!.getBuilding(input)!.forEachRoom((room) => {          
           if (Positions.match(this.getValue(CourseEditor.position)).roomFilter.includes(room.type.title)) {
             found = true;
           }
         });
-        if (!found) {
-          return false;
-        }
-        return true;
+        return found;
       },
       (field: fields.MenuSelectField) => {
         field.setNotice("");
@@ -208,11 +203,17 @@ export class CourseEditor extends Editor {
   }
 
   override applyChanges() {
+    let newStatus = StatusOptions.match(this.getValue(CourseEditor.status));
+    if (this.getValue(CourseEditor.preference) !== this.curCourse!.preference
+      && StatusOptions.isScheduledStatus(this.curCourse!.status)) {
+        newStatus = StatusOptions.inProgress;
+    }
+
     const changes: CourseConfig = {
       tutor: this.client!,
       id: this.getValue(CourseEditor.id),
       position: Positions.match(this.getValue(CourseEditor.position)),
-      status: StatusOptions.match(this.getValue(CourseEditor.status)),
+      status: newStatus,
       preference: this.getValue(CourseEditor.preference),
       row: this.curCourse?.row ?? -1,
       timestamp: timeConvert.fromTimestamp(this.curCourse?.timestamp ?? (new Date()).getTime()),
@@ -245,11 +246,11 @@ export class CourseEditor extends Editor {
     this.getField(CourseEditor.position)!.setValue(course.position.title);
     this.getField(CourseEditor.status)!.setValue(course.status.title);
     this.setColor(course.status.color);
-    this.getField(CourseEditor.preference)!.setValue(course.preference);
     const options = Rooms.instance!.getBuildingNames();
     options.push(Course.noPref);
     (this.getField(CourseEditor.preference)! as fields.MenuSelectField)
-      .updateOptions(options);
+    .updateOptions(options);
+    this.getField(CourseEditor.preference)!.setValue(course.preference);
     this.getField(CourseEditor.comments)!.setValue(course.comments);
   }
 }
