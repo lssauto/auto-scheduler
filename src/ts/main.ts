@@ -10,8 +10,8 @@ import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
 import { ResponseTableMaker } from "./table-makers/response-maker";
 // import { Tutor } from "./tutors/tutor";
-// // import { Tags, TimeBlock } from "./schedule/time-block";
-// // import { Days } from "./days";
+// import { Tags, TimeBlock } from "./schedule/time-block";
+// import { Days } from "./days";
 // import * as timeConvert from "./utils/time-convert";
 // import { Course } from "./tutors/course";
 // import { Positions } from "./positions";
@@ -65,9 +65,28 @@ console.log(buildingEditor);
 //     preference: Course.noPref,
 //     row: 0,
 //     timestamp: timeConvert.fromTimestamp(1),
-//     comments: ""
+//     comments: "",
+//     scheduler: "tony"
 // }));
 // tutors.addTutor(tutor1);
 
+// tutor1.addTime(TimeBlock.buildTimeBlock({
+//     coords: {row: -1, col: -1},
+//     tag: Tags.session,
+//     day: Days.sun,
+//     start: timeConvert.strToInt("1:00PM"),
+//     end: timeConvert.strToInt("2:00PM"),
+//     scheduleByLSS: true,
+//     tutorEmail: tutor1.email,
+//     roomName: null,
+//     courseID: "CSE 101-02"
+// }));
+
 // const room1 = new Room("ARC 116 - Small");
 // rooms.addRoom(room1);
+
+// const encoding = ResponseTableMaker.encodeTutor(tutor1);
+// console.log(encoding);
+
+// console.log(ResponseTableMaker.decodeTutor(encoding));
+// console.log(tutor1);

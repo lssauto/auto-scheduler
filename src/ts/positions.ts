@@ -1,15 +1,23 @@
 import { defaultScheduler } from "./scheduler/default-scheduler";
 import { SchedulerStrat } from "./scheduler/scheduler";
 
+/**
+ * Defines the structure of position objects. Only one should exist for 
+ * each position. Tutors with the same position will reference the same object.
+ */
 export interface Position {
   readonly title: string;        // position title displayed
   readonly match: string;        // used to str match form responses
   readonly sessionLimit: number; // max number of sessions allowed
   readonly requestLimit: number; // when any remaining sessions will default to registrar requests
   readonly roomFilter: string[]; // what room types this position can be scheduled in
-  readonly scheduler: SchedulerStrat; // 
+  readonly scheduler: SchedulerStrat; // the scheduling strategy used to find rooms for sessions
 }
 
+/**
+ * Stores all of the position objects, and provides utility functions 
+ * for operating on them.
+ */
 export class Positions {
   static readonly sgt: Position = {
     title: "SGT",
@@ -96,6 +104,9 @@ export class Positions {
     Positions.positions.forEach(action);
   }
 
+  /**
+   * Searches for any position's matcher or title in the provided string.
+   */
   static match(str: string): Position {
     let pos = Positions.defaultPosition;
     const lower = str.toLowerCase();
@@ -111,6 +122,9 @@ export class Positions {
 
   static readonly defaultPosition: Position = Positions.na;
 
+  /**
+   * List of positions that don't need to be assigned to a course.
+   */
   static readonly courseless: Position[] = [
     Positions.wr,
     Positions.na
@@ -120,6 +134,9 @@ export class Positions {
     return Positions.courseless.includes(position);
   }
 
+  /**
+   * List of positions that allow students to schedule their own sessions.
+   */
   static readonly selfSchedulable: Position[] = [
     Positions.wr,
     Positions.esgt,

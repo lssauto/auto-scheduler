@@ -7,7 +7,6 @@ import * as timeConvert from "../utils/time-convert.ts";
 import { Notify, NotifyEvent } from "../events/notify.ts";
 import { VariableElement } from "../events/var-elem.ts";
 
-// TODO: add scheduler
 export interface CourseConfig {
   readonly tutor: Tutor;
   readonly id: string;
@@ -17,6 +16,7 @@ export interface CourseConfig {
   readonly row: number;
   readonly timestamp: string;
   readonly comments: string;
+  readonly scheduler: string;
 }
 
 export class Course {
@@ -67,6 +67,10 @@ export class Course {
         this.setStatus(StatusOptions.errorsResolved);
         this.onEditedDispatch();
       }
+    });
+
+    tutor.addDeletedListener(this, () => {
+      this.onDeletedDispatch();
     });
   }
 
@@ -240,7 +244,8 @@ export class Course {
       .setPreference(config.preference)
       .setRow(config.row)
       .setStatus(config.status)
-      .setComments(config.comments);
+      .setComments(config.comments)
+      .setScheduler(config.scheduler);
     
     if (this.id !== config.id) {
       this.setID(config.id);

@@ -7,37 +7,64 @@ import { Notify, NotifyEvent } from "../events/notify";
 import { ErrorCodes } from "../schedule/schedule";
 import { TimeBlock } from "../schedule/time-block";
 
+/**
+ * Class used represent rooms that can have sessions scheduled in.
+ */
 export class Room {
 
   // # Matchers ==========================
 
+  /**
+   * Use to with `name.includes(Room.request)` to check if a room is a 
+   * registrar request room.
+   */
   static readonly request = "request";
 
   // # const Room Names ==================
 
+  /**
+   * Front half of a room's name used to store any registrar requests for buildings 
+   * LSS needs to request space for.
+   */
   static readonly requestRoom = "Registrar Requests For "; // concat building name to end
+
+  // Assigned to time block roomName property to represent special cases
+
+  /**
+   * Assign to a time block's room name with `time.setRoom(Room.selfScheduled)` to 
+   * show that the session is being scheduled by the tutor.
+   */
   static readonly selfScheduled = "Scheduled By Tutor";
+  /**
+   * Assign to a time block's room name with `time.setRoom(Room.discord)` to 
+   * show that the discord tutoring time has been assigned. Since these are async, 
+   * they don't actually get a room assignment.
+   */
   static readonly discord = "Discord Time";
 
   // # ===================================
 
-  readonly name: string;
-  readonly type: Position;
-  readonly schedule: RoomSchedule;
-  readonly isRequestRoom: boolean;
+  readonly name: string;           // room title, used to uniquely identify it
+  readonly type: Position;         // the tutor position this room is meant for, usually either LGT or SGT
+  readonly schedule: RoomSchedule; // the room's schedule, stores its time blocks
+  readonly isRequestRoom: boolean; // used to determine if the room can have more times assigned to it than normal
 
-  building: string;
+  building: string; // uses string as a key to get the building from Rooms
 
+  // HTML elements
   div: HTMLDivElement | null;
   divContent: VariableElement | null;
 
+  // events
   onEdited: NotifyEvent = new NotifyEvent("onEdited");
   onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
   constructor(name: string) {
     this.name = name;
+    // start the building off as unknown, will be set when this is added to the Rooms list
     this.building = Rooms.unknown;
     this.isRequestRoom = name.toLowerCase().includes(Room.request);
+    // request rooms don't have a type
     this.type = this.isRequestRoom ? Positions.na : Positions.match(name);
     
     this.schedule = new RoomSchedule(this);
@@ -47,14 +74,17 @@ export class Room {
   }
 
   setBuilding(buildingName: string) {
+    // remove from previous building event listeners
     if (this.getBuilding()) {
       this.getBuilding()!.removeEditedListener(this);
       this.getBuilding()!.removeDeletedListener(this);
     }
 
     this.building = buildingName;
-
+    
+    // add to new building's event listeners
     if (this.getBuilding()) {
+      // if the building no longer matches the room's name, remove its assignment
       this.getBuilding()!.addEditedListener(this, (event) => {
         const building = event as Building;
         if (!this.name.includes(building.name)) {
@@ -67,6 +97,8 @@ export class Room {
     }
     this.onEditedDispatch();
   }
+
+  // wrappers around schedule methods
 
   addTime(time: TimeBlock): ErrorCodes {
     return this.schedule.addTime(time);
@@ -104,6 +136,20 @@ export class Room {
     div.append(this.schedule.getDiv());
     return div;
   }
+
+  hideDiv() {
+    if (this.div) {
+      this.div.style.display = "none";
+    }
+  }
+
+  showDiv() {
+    if (this.div) {
+      this.div.style.display = "block";
+    }
+  }
+
+  // events
 
   addEditedListener(subscriber: object, action: Notify) {
     this.onEdited.addListener(subscriber, action);

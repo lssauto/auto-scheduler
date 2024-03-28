@@ -8,7 +8,11 @@ import { Days } from "../days";
 import { VariableElement } from "../events/var-elem";
 import { Notify, NotifyEvent } from "../events/notify";
 import { Position } from "../positions";
+import { Tutors } from "./tutors";
 
+/**
+ * Contains info about a tutor. Mapped by email in the Tutors list.
+ */
 export class Tutor {
   readonly email: string;
   readonly name: string;
@@ -18,11 +22,14 @@ export class Tutor {
 
   readonly courses: Map<string, Course>;
 
+  // HTML elements
   private _div: HTMLDivElement | null;
   private _courseDiv: HTMLDivElement | null;
   private _errorDiv: HTMLDivElement | null;
 
+  // events
   private onErrorsUpdated: NotifyEvent = new NotifyEvent("onErrorsUpdated");
+  private onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
   constructor(email: string, name: string, returnee: boolean) {
     this.email = email;
@@ -41,6 +48,7 @@ export class Tutor {
   addCourse(course: Course) {
     const schedule = this.schedule;
 
+    // replace a course if it's an older submission
     if (this.courses.has(course.id)) {
       if (this.courses.get(course.id)!.isOlderThan(course.timestamp)) {
         this.courses.get(course.id)!.forEveryTime(time => {
@@ -63,6 +71,10 @@ export class Tutor {
     });
   }
 
+  /**
+   * Sets a course in the tutor's courses map. Used to avoid the other 
+   * state updates in `addCourse()`.
+   */
   setCourse(course: Course) {
     this.courses.set(course.id, course);
   }
@@ -79,6 +91,9 @@ export class Tutor {
     return this.courses.has(courseId);
   }
 
+  /**
+   * Searches for given position in all of this tutor's courses.
+   */
   hasPosition(position: Position): boolean {
     for (const courseID in this.courses) {
       if (this.courses.get(courseID)!.position === position) {
@@ -88,6 +103,9 @@ export class Tutor {
     return false;
   }
 
+  /**
+   * Collects all errors from this tutor.
+   */
   getErrors(): TimeBlock[] {
     const errors: TimeBlock[] = [];
     this.forEachCourse(course => {
@@ -115,6 +133,8 @@ export class Tutor {
     this.forEachCourse(course => course.forEachError(action));
   }
 
+  // course wrappers
+
   setPreference(courseID: string, buildingName: string) {
     this.courses.get(courseID)?.setPreference(buildingName);
   }
@@ -126,6 +146,8 @@ export class Tutor {
   forEachCourse(action: (course: Course) => void) {
     this.courses.forEach(action);
   }
+
+  // schedule wrappers
 
   addTime(time: TimeBlock): ErrorCodes {
     return this.schedule.addTime(time);
@@ -164,7 +186,8 @@ export class Tutor {
     div.style.borderBottom = "1px solid black";
     div.style.paddingTop = "5px";
     div.style.paddingBottom = "5px";
-
+    
+    // name and email
     const title = document.createElement("div");
     title.style.marginTop = "5px";
     title.style.fontSize = "1.2em";
@@ -172,6 +195,7 @@ export class Tutor {
     div.append(title);
     div.append(document.createElement("br"));
 
+    // add course button
     const addCourse = document.createElement("button");
     addCourse.style.backgroundColor = "#f8f8f8";
     addCourse.style.border = "1px solid #565656";
@@ -188,14 +212,17 @@ export class Tutor {
     });
     div.append(addCourse);
 
+    // courses cards
     this._courseDiv = document.createElement("div");
     this.forEachCourse(course => this._courseDiv!.append(course.getDiv()));
     div.append(this._courseDiv);
 
+    // schedule div
     div.append(this.schedule.getDiv());
 
     div.append(document.createElement("br"));
 
+    // errors list
     this._errorDiv = document.createElement("div");
     this._errorDiv.style.marginTop = "5px";
     this._errorDiv.style.marginBottom = "5px";
@@ -226,6 +253,8 @@ export class Tutor {
     }
   }
 
+  // events
+
   addErrorsListener(subscriber: object, action: Notify) {
     this.onErrorsUpdated.addListener(subscriber, action);
   }
@@ -236,5 +265,23 @@ export class Tutor {
 
   onErrorsDispatch() {
     this.onErrorsUpdated.dispatch(this);
+  }
+
+  addDeletedListener(subscriber: object, action: Notify) {
+    this.onDeleted.addListener(subscriber, action);
+  }
+
+  removeDeletedListener(subscriber: object) {
+    this.onDeleted.removeListener(subscriber);
+  }
+
+  onDeletedDispatch() {
+    this.onDeleted.dispatch(this);
+  }
+
+  delete() {
+    this._div?.remove();
+    Tutors.instance?.removeTutor(this);
+    this.onDeletedDispatch();
   }
 }

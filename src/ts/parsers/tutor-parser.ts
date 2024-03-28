@@ -101,7 +101,8 @@ function buildTutors(matrix: string[][]) {
       preference: Course.noPref,
       row: -1,
       timestamp: timeConvert.fromTimestamp(1),
-      comments: ""
+      comments: "",
+      scheduler: "scheduler" // TODO: replace with scheduler
     }));
 
     if (!tutors.hasTutor(tutor.email)) {

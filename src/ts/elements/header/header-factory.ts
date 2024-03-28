@@ -1,3 +1,6 @@
+import { Rooms } from "../../rooms/rooms.ts";
+import { ResponseTableMaker } from "../../table-makers/response-maker.ts";
+import { ScheduleTableMaker } from "../../table-makers/schedule-maker.ts";
 import { Tutors } from "../../tutors/tutors.ts";
 import { Content } from "../content/content.ts";
 import { Header } from "./header.ts";
@@ -18,8 +21,8 @@ export class HeaderFactory {
   private static buildTutorTools(header: Header) {
     header.addTutorTool("search", HeaderFactory.buildSearchBar());
     header.addTutorTool("filter", HeaderFactory.buildFilter());
-    //header.addTutorTool("copyTable", HeaderFactory.buildCopyTable());
-    //header.addTutorTool("copySchedules", HeaderFactory.buildCopySchedules());
+    header.addTutorTool("copyTable", HeaderFactory.buildCopyTable());
+    header.addTutorTool("copySchedules", HeaderFactory.buildCopySchedules());
   }
 
   private static buildSearchBar(): HTMLElement {
@@ -95,26 +98,89 @@ export class HeaderFactory {
     return container;
   }
 
-  // private static buildCopyTable(): HTMLElement {
-  //   return document.createElement("p");
-  // }
+  private static buildCopyTable(): HTMLElement {
+    const button = document.createElement("button");
+    button.innerHTML = "Copy Response Table";
+    button.addEventListener("click", () => {
+      ResponseTableMaker.instance!.copyResponseTable();
+    });
 
-  // private static buildCopySchedules(): HTMLElement {
-  //   return document.createElement("p");
-  // }
+    return button;
+  }
+
+  private static buildCopySchedules(): HTMLElement {
+    const button = document.createElement("button");
+    button.innerHTML = "Copy Schedules";
+    button.addEventListener("click", () => {
+      ScheduleTableMaker.copyTutorSchedules();
+    });
+
+    return button;
+  }
 
   // Room tools ============================
 
   private static buildRoomTools(header: Header) {
+    header.addRoomTool("filterRooms", HeaderFactory.buildRoomFilters());
     header.addRoomTool("copyRooms", HeaderFactory.buildCopyRooms());
     header.addRoomTool("copyRequests", HeaderFactory.buildCopyRequests());
   }
 
+  private static buildRoomFilters(): HTMLElement {
+    const filter = document.createElement("select");
+    filter.style.display = "inline-block";
+
+    Rooms.instance!.addFilterListener(filter, () => {
+      filter.innerHTML = "";
+      Rooms.instance!.forEachFilter((option) => {
+        const optionElem = document.createElement("option");
+        optionElem.value = option.title;
+        optionElem.innerHTML = option.title;
+        filter.append(optionElem);
+      });
+      filter.value = Rooms.instance!.curFilter.title;
+    });
+    Rooms.instance!.forEachFilter((option) => {
+      const optionElem = document.createElement("option");
+      optionElem.value = option.title;
+      optionElem.innerHTML = option.title;
+      filter.append(optionElem);
+    });
+    filter.value = Rooms.instance!.curFilter.title;
+
+    filter.addEventListener("change", () => {
+      Rooms.instance!.filter(Rooms.instance!.findFilter(filter.value)!);
+    });
+
+    const title = document.createElement("b");
+    title.style.display = "inline-block";
+    title.style.marginRight = "2px";
+    title.innerHTML = "Filter:";
+
+    const container = document.createElement("div");
+    container.append(title);
+    container.append(filter);
+
+    return container;
+  }
+
   private static buildCopyRooms(): HTMLElement {
-    return document.createElement("p");
+    const button = document.createElement("button");
+    button.innerHTML = "Copy Schedules";
+    button.addEventListener("click", () => {
+      ScheduleTableMaker.copyRoomSchedules();
+    });
+
+    return button;
   }
 
   private static buildCopyRequests(): HTMLElement {
-    return document.createElement("p");
+    const button = document.createElement("button");
+    button.innerHTML = "Copy Request Rooms";
+    button.addEventListener("click", () => {
+      ScheduleTableMaker.copyRequestRoomSchedules();
+    });
+
+    return button;
   }
 }

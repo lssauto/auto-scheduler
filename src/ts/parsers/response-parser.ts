@@ -126,10 +126,17 @@ function addResponseData() {
   const tutors = Tutors.instance!;
 
   for (const response of responses) {
+    
+    if (response.encoding.includes(ResponseTableMaker.encodingHeader)) {
+      ResponseTableMaker.decodeTutor(response.encoding)!;
+      continue;
+    }
+
     const tutor = tutors.getTutor(response.email);
     if (tutor === undefined) continue;
     const course = tutor.getCourse(response.courseID);
     if (course === undefined) continue;
+
 
     if (!course.isOlderThan(response.timestamp)) {
       continue;
@@ -146,6 +153,7 @@ function addResponseData() {
       row: response.row,
       status: response.status,
       comments: response.comments,
+      scheduler: response.scheduler
     });
 
     for (const lecture of response.lectures) {

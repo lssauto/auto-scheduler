@@ -108,4 +108,8 @@ function buildRooms(matrix: string[][]) {
       }
     }
   }
+
+  if (curRoom !== null) {
+    Rooms.instance!.addRoom(curRoom);
+  }
 }

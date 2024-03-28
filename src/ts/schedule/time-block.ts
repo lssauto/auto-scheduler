@@ -12,6 +12,9 @@ import { ErrorCodes, Schedule } from "./schedule";
 import { Notify, NotifyEvent } from "../events/notify";
 import { VariableElement } from "../events/var-elem";
 
+/**
+ * Identifier for a time block's type.
+ */
 export enum Tags {
   session = "session",
   lecture = "lecture",
@@ -21,6 +24,9 @@ export enum Tags {
   reserve = "reservation",
 }
 
+/**
+ * Styling for different time block tags.
+ */
 export const tagColors = new Map<
   Tags,
   { backgroundColor: string; borderColor: string }
@@ -50,6 +56,10 @@ tagColors.set(Tags.reserve, {
   borderColor: "#569c96",
 });
 
+/**
+ * Config object for time blocks. Construct new time blocks with 
+ * `TimeBlock.buildTimeBlock(config)`.
+ */
 export interface TimeBlockConfig {
   readonly coords: { row: number; col: number };
   readonly tag: Tags;
@@ -62,6 +72,10 @@ export interface TimeBlockConfig {
   readonly courseID: string | null;
 }
 
+/**
+ * Used to match a time block to an object that might not be another 
+ * TimeBlock instance. Given to `timeBlock.isEqual(matcher)`.
+ */
 export interface TimeBlockMatcher {
   readonly tag: Tags;
   readonly day: Days;
@@ -72,30 +86,46 @@ export interface TimeBlockMatcher {
   readonly roomName: string | null;
 }
 
+/**
+ * Class used to represent a block of time in either a tutor's or room's schedule.
+ * A tutor and room can reference the same time block instance.
+ */
 export class TimeBlock {
+  // The schedules the time block is in
   tutorSchedule: TutorSchedule | null;
   roomSchedule: RoomSchedule | null;
+
+  // Coordinates of this time in the response table. Might not be useful now.
   coords: { row: number; col: number };
 
-  tag: Tags;
-  error: ErrorCodes;
+  tag: Tags; // The type of time block
+  error: ErrorCodes; // Assigned if the tutor's schedule marked it as erroneous
+  
+  // The actual time of the time block
   day: Days;
   start: number;
   end: number;
+
+  // If this is a session, then who is responsible for scheduling it
   scheduleByLSS: boolean;
 
+  // These are strings because their actual instances might not exist
+  // Use as keys to get the actual instances from Tutors and Rooms singletons
   tutorEmail: string | null;
   roomName: string | null;
   courseID: string | null;
 
+  // HTML elements
   tutorDiv: HTMLDivElement | null;
   tutorDivContent: VariableElement | null;
   roomDiv: HTMLDivElement | null;
   roomDivContent: VariableElement | null;
 
+  // Events
   onEdited: NotifyEvent = new NotifyEvent("onEdited");
   onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
+  // just sets default values. Use TimeBlock.buildTimeBlock(config) instead.
   constructor() {
     this.coords = {row: -1, col: -1};
     this.tag = Tags.reserve;
@@ -115,23 +145,31 @@ export class TimeBlock {
     this.roomDivContent = null;
   }
 
+  // * Setters & Getters ============================
+
   setCoords(row: number, col: number): TimeBlock {
     this.coords = { row: row, col: col };
     return this;
   }
 
+  /**
+   * Sets the time block's tag, and updates its styling.
+   */
   setTag(tag: Tags): TimeBlock {
     this.tag = tag;
     let colors: {backgroundColor: string, borderColor: string};
+    // Use error colors if this time is an error
     if (this.hasError()) {
       colors = tagColors.get(Tags.conflict)!;
     } else {
       colors = tagColors.get(this.tag)!;
     }
+    // style tutor div
     if (this.tutorDiv) {
       this.tutorDiv.style.backgroundColor = colors.backgroundColor;
       this.tutorDiv.style.borderColor = colors.borderColor;
     }
+    // style room div
     if (this.roomDiv) {
       this.roomDiv.style.backgroundColor = colors.backgroundColor;
       this.roomDiv.style.borderColor = colors.borderColor;
@@ -139,12 +177,15 @@ export class TimeBlock {
     return this;
   }
 
+  /**
+   * Should only be used by tutors. Mark the time block as being erroneous.
+   */
   setError(error: ErrorCodes): TimeBlock {
     this.error = error;
     let colors: {backgroundColor: string, borderColor: string};
     if (this.hasError()) {
       colors = tagColors.get(Tags.conflict)!;
-      this.setRoom(null);
+      this.setRoom(null); // remove room assignments from erroneous times
     } else {
       colors = tagColors.get(this.tag)!;
     }
@@ -183,16 +224,26 @@ export class TimeBlock {
     return this;
   }
 
+  /**
+   * Assign this time block to a tutor, or remove its assignment by providing null.
+   * If the time block is no longer assigned to any room or tutor, it will delete its 
+   * HTML elements.
+   */
   setTutor(tutorEmail: string | null): TimeBlock {
+    // If this is a new tutor assignment
     if (tutorEmail && tutorEmail !== this.tutorEmail) {
+      // Try to cache the tutor's schedule
       const tutor = Tutors.instance!.getTutor(tutorEmail);
       this.tutorSchedule = tutor?.schedule ?? null;
-      
+    
+    // If the assignment is being removed
     } else if (tutorEmail === null) {
+      // delete HTML elements
       this.tutorDivContent?.destroy();
       this.tutorDiv?.remove();
       this.tutorDiv = null;
       this.tutorSchedule = null;
+      // dispatch deleted event if the block is no longer attached to anything
       if (this.roomName === null) {
         this.onDeletedDispatch();
       }
@@ -202,6 +253,7 @@ export class TimeBlock {
   }
 
   getTutor(): Tutor | null {
+    // use tutorEmail as a key to retrieve the tutor from the Tutors list
     if (
       this.tutorEmail !== null &&
       Tutors.instance!.hasTutor(this.tutorEmail)
@@ -211,8 +263,16 @@ export class TimeBlock {
     return null;
   }
 
+  /**
+   * Assign this time block to a room, or remove its assignment by providing null.
+   * If the time block is no longer assigned to any room or tutor, it will delete its 
+   * HTML elements.
+   */
   setRoom(roomName: string | null): TimeBlock {
+    // If this is a new assignment
     if (roomName && roomName !== this.roomName) {
+      // Try to cache room schedule, 
+      // and start listening to its deleted event
       const room = Rooms.instance!.getRoom(roomName);
       if (room) {
         this.roomSchedule = room.schedule;
@@ -221,12 +281,17 @@ export class TimeBlock {
           this.onEditedDispatch();
         });
       }
+    
+    // If removing the assignment
     } else if (roomName === null) {
+      // remove self from the room's deleted listeners
       this.getRoom()?.removeDeletedListener(this);
+      // delete HTML elements
       this.roomDivContent?.destroy();
       this.roomDiv?.remove();
       this.roomDiv = null;
       this.roomSchedule = null;
+      // dispatch deleted event if this time is no longer attached to anything
       if (this.tutorEmail === null) {
         this.onDeletedDispatch();
       }
@@ -236,6 +301,7 @@ export class TimeBlock {
   }
 
   getRoom(): Room | null {
+    // Try to access room using roomName as a key to the Rooms list
     if (this.roomName !== null && Rooms.instance!.hasRoom(this.roomName)) {
       return Rooms.instance!.getRoom(this.roomName)!;
     }
@@ -246,7 +312,13 @@ export class TimeBlock {
     return this.roomName != null;
   }
 
+  /**
+   * Assigns this time block to a course. The course ID can be any generic string, 
+   * although it will usually be used to access the specific course instance attached to 
+   * the assigned tutor.
+   */
   setCourse(id: string | null): TimeBlock {
+    // Remove time from previously assigned course
     if (id === null || id !== this.courseID) {
       if (this.getCourse()) {
         this.getCourse()!.removeTime(this);
@@ -255,7 +327,9 @@ export class TimeBlock {
       }
     }
     this.courseID = id;
+    // If this course ID connects to an actual course instance
     if (this.getCourse()) {
+      // Add this time to the course
       this.getCourse()!.addTime(this);
       this.getCourse()!.addEditedListener(this, (event) => {
         const course = event as Course;
@@ -281,6 +355,11 @@ export class TimeBlock {
     return null;
   }
 
+  // * ====================================================
+
+  // * HTML Building ======================================
+
+  // general styling for a time block's HTML div
   private buildTimeDiv(): HTMLDivElement {
     const div: HTMLDivElement = document.createElement("div");
     div.style.display = "block";
@@ -350,6 +429,7 @@ export class TimeBlock {
     return button;
   }
 
+  // removes the time from any assignments
   private delete() {
     this.tutorSchedule?.removeTime(this);
     this.roomSchedule?.removeTime(this);
@@ -437,9 +517,15 @@ export class TimeBlock {
     return div;
   }
 
+  // * ===================================================
+
+  // called by edit buttons, passes the schedule that the button pressed was from.
+  // if the tutor's edit button was pressed, then the passed schedule will be the tutor's schedule.
   editTime(schedule: Schedule) {
     TimeEditor.instance!.editTime(schedule, this);
   }
+
+  // * String Builders ===================================
 
   getStartStr(): string {
     return timeConvert.intToStr(this.start);
@@ -461,19 +547,31 @@ export class TimeBlock {
     return `${this.day} ${this.getStartToEndStr()}`;
   }
 
+  // * ===================================================
+
+  // * Comparisons =======================================
+
+  /**
+   * Returns true if the given time block or time object overlaps 
+   * with this time block.
+   */
   conflictsWith(other: TimeBlock | {day: Days, start: number, end: number}): boolean {
     if (this.day !== other.day) {
       return false;
     }
-    if (this.start < other.start && other.start < this.end) {
+    if (this.start <= other.start && other.start < this.end) {
       return true;
     }
-    if (this.start < other.end && other.end < this.end) {
+    if (this.start < other.end && other.end <= this.end) {
       return true;
     }
     return false;
   }
 
+  /**
+   * Returns true if the given time block or matcher object represents 
+   * the same time. Used by time editor, and can be used to check for duplicate times.
+   */
   isEqual(other: TimeBlock | TimeBlockMatcher): boolean {
     if (this.courseID !== other.courseID) return false;
     if (this.tag !== other.tag) return false;
@@ -484,6 +582,8 @@ export class TimeBlock {
     if (this.roomName !== other.roomName) return false;
     return true;
   }
+
+  // * ====================================================
 
   update(config: TimeBlockConfig) {
     this.setCoords(config.coords.row, config.coords.col);
@@ -514,6 +614,8 @@ export class TimeBlock {
     this.onEditedDispatch();
   }
 
+  // * Events =============================================
+
   addEditedListener(subscriber: object, action: Notify) {
     this.onEdited.addListener(subscriber, action);
   }
@@ -538,8 +640,13 @@ export class TimeBlock {
     this.onDeleted.dispatch(this);
   }
 
-  // statics =================================================
+  // * ====================================================
 
+  // * Statics ============================================
+
+  /**
+   * Use to build a new time block with provided values.
+   */
   static buildTimeBlock(config: TimeBlockConfig): TimeBlock {
     const newTime = new TimeBlock();
     newTime

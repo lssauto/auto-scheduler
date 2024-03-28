@@ -4,7 +4,7 @@ import { Notify, NotifyEvent } from "../events/notify";
 import { Content } from "../elements/content/content";
 import { Tags } from "../schedule/time-block";
 
-export interface FilterOption {
+export interface TutorFilterOption {
   readonly title: string;
   readonly include: (tutor: Tutor) => boolean;
 }
@@ -20,27 +20,27 @@ export class Tutors {
 
   div: HTMLDivElement | null;
 
-  private _filterOptions: FilterOption[] = [];
-  private _curFilter: FilterOption;
-  public get curFilter(): FilterOption {
+  private _filterOptions: TutorFilterOption[] = [];
+  private _curFilter: TutorFilterOption;
+  public get curFilter(): TutorFilterOption {
     return this._curFilter;
   }
 
   // # const filter options ===============
 
-  static readonly allFilter: FilterOption = {
+  static readonly allFilter: TutorFilterOption = {
     title: "All Tutors",
     include: () => {
       return true;
     }
   };
-  static readonly errorsFilter: FilterOption = {
+  static readonly errorsFilter: TutorFilterOption = {
     title: "Tutors With Errors",
     include: (tutor) => {
       return tutor.hasErrors();
     }
   };
-  static readonly commentsFilter: FilterOption = {
+  static readonly commentsFilter: TutorFilterOption = {
     title: "Tutors With Comments",
     include: (tutor) => {
       let hasComments = false;
@@ -53,7 +53,7 @@ export class Tutors {
     }
   };
 
-  static readonly registrarFilter: FilterOption = {
+  static readonly registrarFilter: TutorFilterOption = {
     title: "Registrar Requests",
     include: (tutor) => {
       let hasRequest = false;
@@ -221,11 +221,11 @@ export class Tutors {
     return result;
   }
 
-  forEachFilter(action: (option: FilterOption) => void) {
+  forEachFilter(action: (option: TutorFilterOption) => void) {
     this._filterOptions.forEach(action);
   }
 
-  findFilter(title: string): FilterOption | null {
+  findFilter(title: string): TutorFilterOption | null {
     for (const option of this._filterOptions) {
       if (option.title === title) {
         return option;
@@ -234,12 +234,12 @@ export class Tutors {
     return null;
   }
 
-  addFilter(option: FilterOption) {
+  addFilter(option: TutorFilterOption) {
     this._filterOptions.push(option);
     this.onFilterDispatch();
   }
 
-  removeFilter(option: FilterOption | string) {
+  removeFilter(option: TutorFilterOption | string) {
     if (typeof option === "string") {
       for (let i = 0; i < this._filterOptions.length; i++) {
         if (this._filterOptions[i].title === option) {
@@ -255,8 +255,10 @@ export class Tutors {
     this.onFilterDispatch();
   }
 
-  filter(option: FilterOption) {
+  filter(option: TutorFilterOption) {
     if (this.div === null) return;
+
+    this._curFilter = option;
 
     this.forEachTutor((tutor) => {
       if (option.include(tutor)) {

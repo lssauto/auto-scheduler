@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Days } from "../days";
 import { Messages } from "../elements/messages/messages";
 import { Position, Positions } from "../positions";
+import { Rooms } from "../rooms/rooms";
 import { Tags, TimeBlock } from "../schedule/time-block";
 import { Status, StatusOptions } from "../status-options";
 import { Course } from "../tutors/course";
+import { Tutor } from "../tutors/tutor";
 import { Tutors } from "../tutors/tutors";
 import * as timeConvert from "../utils/time-convert";
 
@@ -23,6 +30,28 @@ export enum Titles {
   status = "status",
 }
 
+enum EncodingTitles {
+  name = "name",
+  email = "email",
+  returnee = "returnee",
+  courses = "courses",
+  times = "times",
+  errors = "errors",
+  position = "pos",
+  status = "status",
+  preference = "pref",
+  timestamp = "timestamp",
+  comments = "comments",
+  scheduler = "scheduler",
+  tag = "tag",
+  day = "d",
+  start = "s",
+  end = "e",
+  scheduleByLSS = "byLSS",
+  room = "room",
+  courseID = "id"
+}
+
 export enum RoomResponses {
   scheduleByLSS = "lss will book me space",
   scheduleByTutor = "i'll book my own space",
@@ -31,6 +60,7 @@ export enum RoomResponses {
 
 export interface Response {
   row: number;
+  encoding: string;
   timestamp: string;
   email: string;
   name: string;
@@ -48,6 +78,8 @@ export interface Response {
 }
 
 export class ResponseTableMaker {
+
+  public static readonly encodingHeader = "TE:";
 
   private static _instance: ResponseTableMaker | null = null;
   public static get instance(): ResponseTableMaker | null {
@@ -101,6 +133,7 @@ export class ResponseTableMaker {
     for (let r = 0; r < matrix.length; r++) {
       const response: Response = {
         row: r + 2,
+        encoding: "",
         timestamp: timeConvert.fromTimestamp(1),
         email: "",
         name: "",
@@ -119,10 +152,15 @@ export class ResponseTableMaker {
       this._responses.push(response);
 
       for (let c = 0; c < this.columnTitles.length; c++) {
-        const title = this.columnTitles[c].toLowerCase();
+        const title = this.columnTitles[c].trim().toLowerCase();
 
         if (title.includes(Titles.timestamp)) {
-          response.timestamp = matrix[r][c];
+          if (matrix[r][c].includes(ResponseTableMaker.encodingHeader)) {
+            response.encoding = matrix[r][c];
+            continue;
+          } else {
+            response.timestamp = matrix[r][c];
+          }
 
         } else if (title.includes(Titles.email)) {
           if (!tutors.hasTutor(matrix[r][c])) {
@@ -313,5 +351,174 @@ export class ResponseTableMaker {
       }
     }
     return times;
+  }
+
+  copyResponseTable() {
+    const tutors = Tutors.instance!;
+
+    let output = "";
+    output += this.columnTitles.join("\t") + "\n";
+
+    for (let r = 0; r < this.responseMatrix.length; r++) {
+      const rowObj = this.responses[r];
+
+      // If tutor was deleted
+      if (!tutors.hasTutor(rowObj.email) || !(tutors.getTutor(rowObj.email)?.hasCourse(rowObj.courseID) ?? true)) {
+        for (let c = 0; c < this.columnTitles.length; c++) {
+          const title = this.columnTitles[c].trim().toLowerCase();
+
+          if (title.includes(Titles.timestamp)) {
+            this.responseMatrix[r][c] = rowObj.timestamp;
+
+          } else if (title.includes(Titles.status)) {
+            this.responseMatrix[r][c] = StatusOptions.pastSubmission.title;
+
+          } else if (title.includes(Titles.scheduler)) {
+            this.responseMatrix[r][c] = rowObj.scheduler == "" ? "scheduler" : rowObj.scheduler; // TODO: replace with scheduler name
+          }
+        }
+
+      } else {
+        const tutor = tutors.getTutor(rowObj.email)!;
+
+        // replace timestamp with encoding
+        this.responseMatrix[r][0] = ResponseTableMaker.encodeTutor(tutor);
+
+        // set status and scheduler
+        for (let c = 0; c < this.columnTitles.length; c++) {
+          const title = this.columnTitles[c].trim().toLowerCase();
+
+          if (title.includes(Titles.status)) {
+            this.responseMatrix[r][c] = tutor.getCourse(rowObj.courseID)!.status.title;
+
+          } else if (title.includes(Titles.scheduler)) {
+            this.responseMatrix[r][c] = rowObj.scheduler == "" ? "scheduler" : rowObj.scheduler; // TODO: replace with scheduler name
+          }
+        }
+
+        output += this.responseMatrix[r].join("\t") + "\n";
+      }
+    }
+    // add to clipboard
+    void navigator.clipboard.writeText(output);
+  
+    Messages.output(Messages.success, "New response table copied to clipboard.");
+  }
+
+  static encodeTutor(tutor: Tutor): string {
+    const tutorObj: any = {};
+    tutorObj[EncodingTitles.name] = tutor.name;
+    tutorObj[EncodingTitles.email] = tutor.email;
+    tutorObj[EncodingTitles.returnee] = tutor.returnee;
+
+    tutorObj[EncodingTitles.courses] = {};
+    tutor.forEachCourse((course) => {
+      tutorObj[EncodingTitles.courses][course.id] = {};
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.position] = course.position.title;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.status] = course.status.title;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.preference] = course.preference;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.timestamp] = timeConvert.fromTimestamp(course.timestamp);
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.comments] = course.comments;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.scheduler] = course.scheduler;
+    });
+
+    tutorObj[EncodingTitles.times] = [];
+
+    tutor.forEachTime((time) => {
+      const timeObj: any = {};
+      timeObj[EncodingTitles.tag] = time.tag;
+      timeObj[EncodingTitles.day] = time.day;
+      timeObj[EncodingTitles.start] = time.start;
+      timeObj[EncodingTitles.end] = time.end;
+      timeObj[EncodingTitles.scheduleByLSS] = time.scheduleByLSS;
+      timeObj[EncodingTitles.room] = time.roomName ?? "null";
+      timeObj[EncodingTitles.courseID] = time.courseID ?? "null";
+      tutorObj[EncodingTitles.times].push(timeObj);
+    });
+
+    tutorObj[EncodingTitles.errors] = [];
+    tutor.forEachError((error) => {
+      const timeObj: any = {};
+      timeObj[EncodingTitles.tag] = error.tag;
+      timeObj[EncodingTitles.day] = error.day;
+      timeObj[EncodingTitles.start] = error.start;
+      timeObj[EncodingTitles.end] = error.end;
+      timeObj[EncodingTitles.scheduleByLSS] = error.scheduleByLSS;
+      timeObj[EncodingTitles.room] = error.roomName ?? "null";
+      timeObj[EncodingTitles.courseID] = error.courseID ?? "null";
+      tutorObj[EncodingTitles.errors].push(timeObj);
+    });
+
+    return ResponseTableMaker.encodingHeader + JSON.stringify(tutorObj);
+  }
+
+  static decodeTutor(encoding: string): Tutor | null {
+    if (!encoding.includes(ResponseTableMaker.encodingHeader)) {
+      return null;
+    }
+    const jsonStr = encoding.slice(ResponseTableMaker.encodingHeader.length);
+    const tutorObj = JSON.parse(jsonStr);
+
+    Tutors.instance!.getTutor(tutorObj[EncodingTitles.email] as string)?.delete();
+
+    const tutor = new Tutor(
+      tutorObj[EncodingTitles.email] as string, 
+      tutorObj[EncodingTitles.name] as string,
+      tutorObj[EncodingTitles.returnee] as boolean
+    );
+
+    Tutors.instance!.addTutor(tutor);
+
+    const courses = tutorObj[EncodingTitles.courses];
+    for (const courseID in courses) {
+      tutor.addCourse(Course.buildCourse({
+        tutor: tutor,
+        id: courseID,
+        position: Positions.match(courses[courseID][EncodingTitles.position] as string),
+        status: StatusOptions.match(courses[courseID][EncodingTitles.status] as string),
+        preference: courses[courseID][EncodingTitles.preference] as string,
+        row: 0,
+        timestamp: courses[courseID][EncodingTitles.timestamp] as string,
+        comments: courses[courseID][EncodingTitles.comments] as string,
+        scheduler: courses[courseID][EncodingTitles.scheduler] as string
+      }));
+    }
+
+    const times = tutorObj[EncodingTitles.times];
+    for (const time of times) {
+      const newTime = TimeBlock.buildTimeBlock({
+        coords: { row: -1, col: -1 },
+        tag: time[EncodingTitles.tag] as Tags,
+        day: time[EncodingTitles.day] as Days,
+        start: time[EncodingTitles.start] as number,
+        end: time[EncodingTitles.end] as number,
+        scheduleByLSS: time[EncodingTitles.scheduleByLSS] as boolean,
+        tutorEmail: tutor.email,
+        roomName: time[EncodingTitles.room] === "null" ? null : time[EncodingTitles.room] as string,
+        courseID: time[EncodingTitles.courseID] === "null" ? null : time[EncodingTitles.courseID] as string
+      });
+
+      tutor.addTime(newTime);
+      if (time[EncodingTitles.room] !== "null") {
+        Rooms.instance!.getRoom(time[EncodingTitles.room] as string)?.addTime(newTime);
+      }
+    }
+
+    const errors = tutorObj[EncodingTitles.errors];
+    for (const time of errors) {
+      tutor.addError(TimeBlock.buildTimeBlock({
+        coords: { row: -1, col: -1 },
+        tag: time[EncodingTitles.tag] as Tags,
+        day: time[EncodingTitles.day] as Days,
+        start: time[EncodingTitles.start] as number,
+        end: time[EncodingTitles.end] as number,
+        scheduleByLSS: time[EncodingTitles.scheduleByLSS] as boolean,
+        tutorEmail: tutor.email,
+        roomName: time[EncodingTitles.room] == "null" ? null : time[EncodingTitles.room] as string,
+        courseID: time[EncodingTitles.courseID] == "null" ? null : time[EncodingTitles.courseID] as string
+      }));
+    }
+
+    return tutor;
   }
 }

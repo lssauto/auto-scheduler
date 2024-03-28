@@ -4,6 +4,14 @@ import { Days } from "../days";
 import * as timeConvert from "../utils/time-convert";
 import { Building } from "./building";
 import { BuildingEditor } from "../elements/editors/building-editor";
+import { Notify, NotifyEvent } from "../events/notify";
+import { Content } from "../elements/content/content";
+import { Positions } from "../positions";
+
+export interface RoomFilterOption {
+  readonly title: string;
+  readonly include: (tutor: Room) => boolean;
+}
 
 export class Rooms implements Iterable<Room> {
   private static _instance: Rooms | null = null;
@@ -40,6 +48,32 @@ export class Rooms implements Iterable<Room> {
   roomDiv: HTMLDivElement | null;
   requestDiv: HTMLDivElement | null;
 
+  private _filterOptions: RoomFilterOption[] = [];
+  private _curFilter: RoomFilterOption;
+  public get curFilter(): RoomFilterOption {
+    return this._curFilter;
+  }
+
+  // # const filter options =====================
+
+  static readonly allFilter: RoomFilterOption = {
+    title: "All Rooms",
+    include: () => {
+      return true;
+    }
+  };
+
+  static readonly registrarFilter: RoomFilterOption = {
+    title: "All Registrar Requests",
+    include: (room) => {
+      return room.isRequestRoom;
+    }
+  };
+
+  // # ==========================================
+
+  private onFilterUpdate: NotifyEvent = new NotifyEvent("onFilterUpdate");
+
   constructor() {
     if (Rooms._instance !== null && Rooms._instance !== this) {
       console.error("Singleton Rooms class instantiated twice");
@@ -55,12 +89,93 @@ export class Rooms implements Iterable<Room> {
     this.roomDiv = null;
     this.requestDiv = null;
 
+    this.addFilter(Rooms.allFilter);
+    this.addFilter(Rooms.registrarFilter);
+
+    Positions.forEach((pos) => {
+      this.addFilter({
+        title: pos.title,
+        include: (room) => {
+          return room.type === pos;
+        }
+      });
+    });
+
+    this._curFilter = Rooms.allFilter;
+
     const request = new Building(Rooms.registrarRequest);
     request.setRange(Rooms.requestRange);
     this.addBuilding(request);
 
     this.addRoom(new Room(Rooms.registrarRequest));
+
   }
+
+  // filters
+
+  forEachFilter(action: (option: RoomFilterOption) => void) {
+    this._filterOptions.forEach(action);
+  }
+
+  findFilter(title: string): RoomFilterOption | null {
+    for (const option of this._filterOptions) {
+      if (option.title === title) {
+        return option;
+      }
+    }
+    return null;
+  }
+
+  addFilter(option: RoomFilterOption) {
+    this._filterOptions.push(option);
+    this.onFilterDispatch();
+  }
+
+  removeFilter(option: RoomFilterOption | string) {
+    if (typeof option === "string") {
+      for (let i = 0; i < this._filterOptions.length; i++) {
+        if (this._filterOptions[i].title === option) {
+          this._filterOptions.splice(i, 1);
+          return;
+        }
+      }
+    } else {
+      const ind = this._filterOptions.indexOf(option);
+      if (ind === -1) return;
+      this._filterOptions.splice(ind, 1);
+    }
+    this.onFilterDispatch();
+  }
+
+  filter(option: RoomFilterOption) {
+    if (this.div === null) return;
+
+    this._curFilter = option;
+
+    this.forAllRooms((room) => {
+      if (option.include(room)) {
+        room.showDiv();
+      } else {
+        room.hideDiv();
+      }
+    });
+
+    Content.instance!.scrollToTop();
+  }
+
+  addFilterListener(subscriber: object, action: Notify) {
+    this.onFilterUpdate.addListener(subscriber, action);
+  }
+
+  removeFilterListener(subscriber: object) {
+    this.onFilterUpdate.removeListener(subscriber);
+  }
+
+  onFilterDispatch() {
+    this.onFilterUpdate.dispatch(this);
+  }
+
+  // rooms
 
   getRoom(name: string): Room | undefined {
     if (this.rooms.has(name)) {
@@ -130,6 +245,8 @@ export class Rooms implements Iterable<Room> {
     this.forEachRequestRoom(action);
   }
 
+  // buildings
+
   getBuildingName(room: Room | string): string {
     let buildingName = Rooms.unknown;
     const name = room instanceof Room ? room.name : room;
@@ -160,6 +277,13 @@ export class Rooms implements Iterable<Room> {
       building.addDeletedListener(br, () => br.remove());
       this.buildingDiv.append(br);
     }
+
+    this.addFilter({
+      title: building.name,
+      include: (room) => {
+        return room.building === building.name;
+      }
+    });
   }
 
   setBuilding(building: Building) {
@@ -167,6 +291,7 @@ export class Rooms implements Iterable<Room> {
   }
 
   removeBuilding(building: Building) {
+    this.removeFilter(building.name);
     this.buildings.delete(building.name);
   }
 
