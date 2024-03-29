@@ -38,10 +38,12 @@ export class TutorSchedule extends Schedule {
       return ErrorCodes.invalidSession;
     }
 
-    for(const t of this.week.get(time.day)!.times) {
-      if (t.tag === Tags.session && t.conflictsWith(time)) {
-        time.setError(ErrorCodes.conflict);
-        return ErrorCodes.conflict;
+    if (time.tag === Tags.session) {
+      for(const t of this.week.get(time.day)!.times) {
+        if (t.tag === Tags.session && t.conflictsWith(time)) {
+          time.setError(ErrorCodes.conflict);
+          return ErrorCodes.conflict;
+        }
       }
     }
 

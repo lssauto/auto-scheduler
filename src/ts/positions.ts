@@ -23,7 +23,7 @@ export class Positions {
     title: "SGT",
     match: "small",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["SGT", "EMB SGT", "N/A"],
     scheduler: defaultScheduler
   };
@@ -32,7 +32,7 @@ export class Positions {
     title: "EMB SGT",
     match: "embedded small",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["SGT", "EMB SGT", "N/A"],
     scheduler: defaultScheduler
   };
@@ -41,7 +41,7 @@ export class Positions {
     title: "LGT",
     match: "large",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
     scheduler: defaultScheduler
   };
@@ -50,7 +50,7 @@ export class Positions {
     title: "EMB LGT",
     match: "embedded large",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
     scheduler: defaultScheduler
   };
@@ -59,7 +59,7 @@ export class Positions {
     title: "SI",
     match: "si leader",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["LGT", "EMB LGT", "SI", "N/A"],
     scheduler: defaultScheduler
   };
@@ -68,7 +68,7 @@ export class Positions {
     title: "WR",
     match: "writing",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["WR", "N/A"],
     scheduler: defaultScheduler
   };
@@ -77,7 +77,7 @@ export class Positions {
     title: "N/A",
     match: "n/a",
     sessionLimit: 3,
-    requestLimit: 3,
+    requestLimit: 2,
     roomFilter: ["N/A", "SGT", "EMB SGT", "LGT", "EMB LGT", "SI", "WR"],
     scheduler: defaultScheduler
   };

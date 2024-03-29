@@ -5,6 +5,16 @@ export interface MessageType {
 
 export class Messages {
 
+  public static getColumnName(col: number): string {
+    let columnName = "";
+    while (col >= 0) {
+        const remainder = col % 26;
+        columnName = String.fromCharCode(65 + remainder) + columnName;
+        col = Math.floor(col / 26) - 1;
+    }
+    return columnName;
+  }
+
   // # Message Types ==============================
 
   public static error: MessageType = {

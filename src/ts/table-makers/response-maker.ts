@@ -6,6 +6,7 @@ import { Days } from "../days";
 import { Messages } from "../elements/messages/messages";
 import { Position, Positions } from "../positions";
 import { Rooms } from "../rooms/rooms";
+import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock } from "../schedule/time-block";
 import { Status, StatusOptions } from "../status-options";
 import { Course } from "../tutors/course";
@@ -275,7 +276,7 @@ export class ResponseTableMaker {
               message: `The time "${timeStr}" could not be parsed properly.`,
               expected: "[M/Tu/W/Th/F/Sat/Sun] ##:## [AM/PM] - ##:## [AM/PM]",
               solution: "This time can be manually added to the tutor's schedule using the 'Add Time' button.",
-              cell: `(row: ${r + 2}, col: ${c + 1})` 
+              cell: `(row: ${r + 2}, col: ${Messages.getColumnName(c + 1)})` 
             });
             c++;
             continue;
@@ -332,7 +333,7 @@ export class ResponseTableMaker {
           message: `failed to parse time: "${set}".`,
           expected: "[M/Tu/W/Th/F/Sat/Sun] ##:## [AM/PM] - ##:## [AM/PM]",
           solution: "This time can be manually added to the tutor's schedule using the 'Add Time' button.",
-          cell: `(row: ${args.row + 2}, col: ${args.col + 1})`
+          cell: `(row: ${args.row + 2}, col: ${Messages.getColumnName(args.col + 1)})`
         });
         continue;
       }
@@ -486,7 +487,19 @@ export class ResponseTableMaker {
 
     const times = tutorObj[EncodingTitles.times];
     for (const time of times) {
-      const newTime = TimeBlock.buildTimeBlock({
+
+      const room = Rooms.instance!.getRoom(time[EncodingTitles.room] as string);
+      const find = room?.schedule.findTime({
+        tag: time[EncodingTitles.tag] as Tags,
+        day: time[EncodingTitles.day] as Days,
+        start: time[EncodingTitles.start] as number,
+        end: time[EncodingTitles.end] as number,
+        courseID: time[EncodingTitles.courseID] === "null" ? null : time[EncodingTitles.courseID] as string,
+        roomName: time[EncodingTitles.room] === "null" ? null : time[EncodingTitles.room] as string,
+        tutorEmail: tutor.email
+      });
+
+      const newTime = find ?? TimeBlock.buildTimeBlock({
         coords: { row: -1, col: -1 },
         tag: time[EncodingTitles.tag] as Tags,
         day: time[EncodingTitles.day] as Days,
@@ -499,8 +512,21 @@ export class ResponseTableMaker {
       });
 
       tutor.addTime(newTime);
-      if (time[EncodingTitles.room] !== "null") {
-        Rooms.instance!.getRoom(time[EncodingTitles.room] as string)?.addTime(newTime);
+      if (room && !room.schedule.hasTime(newTime)) {
+        const errorCode = room.addTime(newTime);
+
+        if (errorCode !== ErrorCodes.success) {
+          newTime.setRoom(null);
+          newTime.onEditedDispatch();
+          Messages.output(Messages.error, {
+            message: `${tutor.name}'s ${newTime.tag} at ${
+              newTime.getDayAndStartStr()
+            } cannot be assigned to ${
+              room.name
+            } because the room returned this error: "${errorCode}". This assignment is being removed.`,
+            solution: "This time can be rescheduled in a new room, or manually assigned a room by clicking on its 'Edit' button."
+          });
+        }
       }
     }
 
