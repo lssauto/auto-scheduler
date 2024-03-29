@@ -1,9 +1,18 @@
+
+/**
+ * Defines the structure of a status option. These are not copied. Courses with the
+ * same status reference the same object on the StatusOptions class.
+ */
 export interface Status {
-  readonly title: string;
-  readonly match: string;
-  readonly color: { backgroundColor: string, borderColor: string }
+  readonly title: string; // The title of the status option used for display
+  readonly match: string; // A key used to match strings to this status
+  readonly color: { backgroundColor: string, borderColor: string } // styling for course divs
 }
 
+/**
+ * Interface for getting status options. Status options are used to signal the different 
+ * stages courses are at in the scheduling process.
+ */
 export class StatusOptions {
   static readonly pastSubmission: Status = {
     title: "Past Submission",
@@ -130,6 +139,10 @@ export class StatusOptions {
     StatusOptions.statusList.forEach(action);
   }
 
+  /**
+   * Finds a matching status option given a string. 
+   * If no matching status is found, returns the `inProgress` status.
+   */
   static match(str: string): Status {
     let status = StatusOptions.inProgress;
     const lower = str.toLowerCase();
@@ -146,6 +159,10 @@ export class StatusOptions {
     StatusOptions.inProgress
   ];
 
+  /**
+   * Returns true if the given status is considered in progress. 
+   * As in it doesn't have any errors, but hasn't been given room assignments yet.
+   */
   static isProgressStatus(status: Status): boolean {
     let isProgressOption = false;
     StatusOptions.progressOptions.forEach(option => {
@@ -162,6 +179,9 @@ export class StatusOptions {
     StatusOptions.missing
   ];
 
+  /**
+   * Returns true if the given status is considered an error status.
+   */
   static isErrorStatus(status: Status): boolean {
     let isErrorOption = false;
     StatusOptions.errorOptions.forEach(option => {
@@ -180,6 +200,10 @@ export class StatusOptions {
     StatusOptions.confirmed
   ];
 
+  /**
+   * Returns true if the given status is one assigned after the course has had rooms 
+   * assigned to sessions.
+   */
   static isScheduledStatus(status: Status): boolean {
     let isScheduledOption = false;
     StatusOptions.scheduledOptions.forEach(option => {

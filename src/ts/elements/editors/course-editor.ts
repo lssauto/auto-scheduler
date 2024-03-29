@@ -216,7 +216,7 @@ export class CourseEditor extends Editor {
       status: newStatus,
       preference: this.getValue(CourseEditor.preference),
       row: this.curCourse?.row ?? -1,
-      timestamp: timeConvert.fromTimestamp(this.curCourse?.timestamp ?? (new Date()).getTime()),
+      timestamp: timeConvert.stampToStr(this.curCourse?.timestamp ?? (new Date()).getTime()),
       comments: this.getValue(CourseEditor.comments),
       scheduler: this.curCourse?.scheduler ?? "scheduler" // TODO: add scheduler
     };

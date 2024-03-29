@@ -100,7 +100,7 @@ function buildTutors(matrix: string[][]) {
       status: StatusOptions.inProgress,
       preference: Course.noPref,
       row: -1,
-      timestamp: timeConvert.fromTimestamp(1),
+      timestamp: timeConvert.stampToStr(1),
       comments: "",
       scheduler: "scheduler" // TODO: replace with scheduler
     }));

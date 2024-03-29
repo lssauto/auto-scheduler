@@ -135,7 +135,7 @@ export class ResponseTableMaker {
       const response: Response = {
         row: r + 2,
         encoding: "",
-        timestamp: timeConvert.fromTimestamp(1),
+        timestamp: timeConvert.stampToStr(1),
         email: "",
         name: "",
         resubmission: false,
@@ -418,7 +418,7 @@ export class ResponseTableMaker {
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.position] = course.position.title;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.status] = course.status.title;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.preference] = course.preference;
-      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.timestamp] = timeConvert.fromTimestamp(course.timestamp);
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.timestamp] = timeConvert.stampToStr(course.timestamp);
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.comments] = course.comments;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.scheduler] = course.scheduler;
     });

@@ -112,13 +112,13 @@ export class Course {
   }
 
   setTimestamp(timestamp: string): Course {
-    this.timestamp = timeConvert.toTimestamp(timestamp);
+    this.timestamp = timeConvert.stampToInt(timestamp);
     return this;
   }
 
   isOlderThan(timestamp: number | string): boolean {
     if (typeof timestamp === "string") {
-      return this.timestamp < timeConvert.toTimestamp(timestamp);
+      return this.timestamp < timeConvert.stampToInt(timestamp);
     } else {
       return this.timestamp < timestamp;
     }

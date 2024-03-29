@@ -1,10 +1,21 @@
+
+/**
+ * Defines the styling for different message types.
+ */
 export interface MessageType {
   title: string;
   color: {backgroundColor: string, borderColor: string};
 }
 
+/**
+ * Interface for displaying messages on the in-app console.
+ */
 export class Messages {
 
+  /**
+   * Converts a column number to a string matching the letter titles in 
+   * google sheets' columns.
+   */
   public static getColumnName(col: number): string {
     let columnName = "";
     while (col >= 0) {
@@ -96,6 +107,7 @@ export class Messages {
     title.innerHTML = "Console:";
     div.append(title);
 
+    // clear button to remove all messages
     const clear = document.createElement("button");
     clear.innerHTML = "Clear Messages";
     clear.style.margin = "3px";
@@ -107,6 +119,7 @@ export class Messages {
     return div;
   }
 
+  // the scrollable section that contains the messages
   private buildMessageBoard(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.height = "85%";
@@ -118,17 +131,20 @@ export class Messages {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static output(type: MessageType, msg: any) {
+    // message div styling
     const message = document.createElement("p");
     message.style.padding = "5px";
     message.style.backgroundColor = type.color.backgroundColor;
     message.style.border = "1px solid " + type.color.borderColor;
     message.style.borderRadius = "3px";
 
+    // content
     message.innerHTML = "<b>" + type.title + ":</b></br>";
-
+  
     if (typeof msg === "string") {
       message.innerHTML += msg;
     } else {
+      // display any fields given in the message object
       for (const key in msg) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         message.innerHTML += `${key}: ${msg[key]}</br>`;
@@ -138,6 +154,9 @@ export class Messages {
     this.instance!._messageBoard.append(message);
   }
 
+  /**
+   * Deletes all messages.
+   */
   static clear() {
     this.instance!._messageBoard.innerHTML = "";
   }

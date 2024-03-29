@@ -6,6 +6,10 @@ import { Days } from "../days";
 // * from midnight. This means all times will be between 0 (12:00 AM) and 1439 (11:59 PM).
 
 // ! does not work for times from 12:00 AM to 12:59 AM, this is left unfixed since it's not a valid time
+/**
+ * Converts a string in the format "HH:MM [AM/PM]" to an integer 
+ * for easy comparison.
+ */
 export function strToInt(time: string): number {
   if (time === "") return 0;
   time = time.toUpperCase();
@@ -19,7 +23,9 @@ export function strToInt(time: string): number {
   return totalMinutes;
 }
 
-// convert an integer representation of a time to a string "HH:MM [AM/PM]"
+/**
+ * Convert an integer representation of a time to a string "HH:MM [AM/PM]"
+ */
 export function intToStr(time: number): string {
   const hours = Math.floor(time / 60);
   const mins = time % 60;
@@ -37,6 +43,9 @@ export function intToStr(time: number): string {
   return formattedTime;
 }
 
+/**
+ * Converts an integer time to a string given in 24hr time format (e.g. "14:00").
+ */
 export function intTo24hr(time: number): string {
   const hours = Math.floor(time / 60);
   const mins = time % 60;
@@ -45,7 +54,11 @@ export function intTo24hr(time: number): string {
     .padStart(2, "0")}`;
 }
 
-export function fromTimestamp(time: number): string {
+/**
+ * Convert a timestamp string (a.k.a. the timestamp column in the response form) to
+ * an integer.
+ */
+export function stampToStr(time: number): string {
   const u = new Date(time);
 
   return (
@@ -63,11 +76,18 @@ export function fromTimestamp(time: number): string {
   );
 }
 
-export function toTimestamp(time: string): number {
+/**
+ * Convert an integer timestamp to a string format that matches that used in the response form.
+ */
+export function stampToInt(time: string): number {
   const dateObject = new Date(time);
   return dateObject.getTime(); // convert to milliseconds for comparison
 }
 
+/**
+ * Convert a string that represents a time range on multiple days (e.g. "MWF 2:00 PM - 3:00 PM"),
+ * to an object. If the given string cannot be parsed, then null is returned.
+ */
 export function parseTimeStr(
   timeStr: string,
   dayDefault = [Days.sun]
