@@ -14,12 +14,17 @@ export class TutorSchedule extends Schedule {
   }
 
   protected insertTime(time: TimeBlock): number {
+    // the list of times this time should be inserted into
     const times = this.week.get(time.day)!.times;
+
+    // if list is empty
     if (times.length === 0) {
       times.push(time);
       this.week.get(time.day)!.div?.append(time.getTutorDiv());
       return 0;
     }
+
+    // find sorted position to insert the time
     for (let i = 0; i < times.length; i++) {
       if (times[i].start > time.start) {
         this.week.get(time.day)!.div?.insertBefore(time.getTutorDiv(), times[i].getTutorDiv());
@@ -27,17 +32,21 @@ export class TutorSchedule extends Schedule {
         return i;
       }
     }
+
+    // otherwise append to the end of the list
     times.push(time);
     this.week.get(time.day)!.div?.append(time.getTutorDiv());
     return times.length - 1;
   }
 
   override addTime(time: TimeBlock): ErrorCodes {
+    // check if session matches a valid session time
     if (time.tag === Tags.session && !isValidSessionTime(time)) {
       time.setError(ErrorCodes.invalidSession);
       return ErrorCodes.invalidSession;
     }
 
+    // check if a session conflicts with any other sessions
     if (time.tag === Tags.session) {
       for(const t of this.week.get(time.day)!.times) {
         if (t.tag === Tags.session && t.conflictsWith(time)) {
@@ -82,6 +91,7 @@ export class TutorSchedule extends Schedule {
     title.innerHTML = "<b>Schedule:</b>";
     div.append(title);
 
+    // add time button styling
     const addTime = document.createElement("button");
     addTime.style.backgroundColor = "#f8f8f8";
     addTime.style.border = "1px solid #565656";
@@ -93,11 +103,14 @@ export class TutorSchedule extends Schedule {
       addTime.style.backgroundColor = "#f8f8f8";
     });
     addTime.innerHTML = "Add Time";
+
+    // add time buttons calls time editor
     addTime.addEventListener("click", () => {
       TimeEditor.instance!.createNewTime(this);
     });
     div.append(addTime);
 
+    // build each time block's div
     this.forEachDay((day, dayObj) => {
       dayObj.div = document.createElement("div");
       const title = document.createElement("p");

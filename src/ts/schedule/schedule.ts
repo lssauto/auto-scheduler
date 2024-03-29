@@ -1,6 +1,10 @@
 import { TimeBlock, TimeBlockMatcher } from "./time-block";
 import { Days } from "../days";
 
+/**
+ * Returned by `schedule.addTime(timeBlock)`, says if the time was added to the schedule,
+ * and why if it failed to. 
+ */
 export enum ErrorCodes {
   conflict = "conflict",
   overBooked = "over-booked",
@@ -9,11 +13,20 @@ export enum ErrorCodes {
   success = "success",
 }
 
+/**
+ * `div` - the HTML container for each day's times.
+ * 
+ * `times` - the array of TimeBlocks that are on this day.
+ */
 export interface Day {
   div: HTMLDivElement | null;
   times: TimeBlock[];
 }
 
+/**
+ * basic functionality for schedules, inherited by room and tutor schedule classes.
+ * Maps lists of times to days.
+ */
 export abstract class Schedule implements Iterable<TimeBlock> {
   protected week: Map<Days, Day>;
   div: HTMLDivElement | null;
@@ -74,15 +87,30 @@ export abstract class Schedule implements Iterable<TimeBlock> {
 
   protected abstract insertTime(time: TimeBlock): number;
 
+  /**
+   * Try to add a time to this schedule. Will perform a series of checks to see 
+   * if the insertion is valid. If it is not, then the time will not be inserted, 
+   * and an error code other than `ErrorCodes.success` will be returned.
+   */
   abstract addTime(time: TimeBlock): ErrorCodes;
 
+  /**
+   * Insert a time into this schedule. Does not perform any of the checks done by 
+   * addTime().
+   */
   abstract pushTime(time: TimeBlock): void;
 
   abstract removeTime(time: TimeBlock): TimeBlock | null;
   
   abstract removeTimeAt(day: Days, index: number): TimeBlock | null;
   
+  /**
+   * Use to move a time from one day's list to another.
+   * Assumes the new day has been set in the time block. 
+   * prevDay argument used to find the old position of the time.
+   */
   updateTime(time: TimeBlock, prevDay: Days): void {
+    // find old position of the time
     const times = this.getTimes(prevDay);
     let index = -1;
     for (let i = 0; i < times.length; i++) {
@@ -91,13 +119,19 @@ export abstract class Schedule implements Iterable<TimeBlock> {
       }
     }
 
+    // remove it
     if (index !== -1) {
       times.splice(index, 1);
     }
 
+    // add it to the correct list
     this.insertTime(time);
   }
 
+  /**
+   * Returns true if the given time conflicts with any times in this schedule.
+   * Use the `ignore` argument to avoid comparing against a specific time.
+   */
   hasConflictWith(time: TimeBlock | {day: Days, start: number, end: number}, ignore?: TimeBlock): boolean {
     let hasConflict = false;
     this.forEachTimeInDay(time.day, (t) => {
@@ -111,6 +145,10 @@ export abstract class Schedule implements Iterable<TimeBlock> {
     return hasConflict;
   }
 
+  /**
+   * Finds the index of a time block in this schedule.
+   * Returns -1 if the time block can't be found.
+   */
   findTimeIndex(time: TimeBlock | TimeBlockMatcher): number {
     const times = this.getTimes(time.day);
     for (let i = 0; i < times.length; i++) {
@@ -145,6 +183,7 @@ export abstract class Schedule implements Iterable<TimeBlock> {
     return this.week.get(day)!.div;
   }
 
+  // not really useful
   findTimeByCoords(row: number, col: number): TimeBlock | null {
     let result = null;
     this.forEachTime((time) => {

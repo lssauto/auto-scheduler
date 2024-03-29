@@ -147,6 +147,10 @@ export class TimeBlock {
 
   // * Setters & Getters ============================
 
+  // ! Do not trigger onEdited event in setters,
+  // ! the update method triggers this event, and is used by the TimeEditor
+  // ! adding onEdited triggers to the setters would cause the event to be dispatched twice
+
   setCoords(row: number, col: number): TimeBlock {
     this.coords = { row: row, col: col };
     return this;
@@ -362,6 +366,8 @@ export class TimeBlock {
   // general styling for a time block's HTML div
   private buildTimeDiv(): HTMLDivElement {
     const div: HTMLDivElement = document.createElement("div");
+
+    // styling
     div.style.display = "block";
     div.style.maxWidth = "600px";
     div.style.padding = "4px";
@@ -370,6 +376,8 @@ export class TimeBlock {
     div.style.borderWidth = "1px";
     div.style.margin = "3px";
     div.style.borderRadius = "5px";
+
+    // use red if the time has an error
     if (this.hasError()) {
       div.style.backgroundColor = tagColors.get(Tags.conflict)!.backgroundColor;
       div.style.borderColor = tagColors.get(Tags.conflict)!.borderColor;
@@ -382,22 +390,31 @@ export class TimeBlock {
 
   private buildTutorEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
+
+    //styling
     edit.style.display = "block";
     edit.style.float = "right";
     edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
+
+    // open time in editor on click
     edit.addEventListener("click", () => {
       this.editTime(this.getTutor()!.schedule);
     });
+
     return edit;
   }
 
   private buildTutorDeleteButton(): HTMLButtonElement {
     const button: HTMLButtonElement = document.createElement("button");
+
+    // styling
     button.style.display = "block";
     button.style.float = "right";
     button.style.marginLeft = "3px";
     button.innerHTML = "Delete";
+
+    // delete the time completely
     button.addEventListener("click", () => {
       this.delete();
     });
@@ -406,10 +423,14 @@ export class TimeBlock {
 
   private buildRoomEditButton(): HTMLButtonElement {
     const edit: HTMLButtonElement = document.createElement("button");
+
+    // styling
     edit.style.display = "block";
     edit.style.float = "right";
     edit.style.marginLeft = "3px";
     edit.innerHTML = "Edit";
+
+    // open the time in the editor
     edit.addEventListener("click", () => {
       this.editTime(this.getRoom()!.schedule);
     });
@@ -418,10 +439,14 @@ export class TimeBlock {
 
   private buildRoomDeleteButton(): HTMLButtonElement {
     const button: HTMLButtonElement = document.createElement("button");
+
+    // styling
     button.style.display = "block";
     button.style.float = "right";
     button.style.marginLeft = "3px";
-    button.innerHTML = "Delete";
+    button.innerHTML = "Remove";
+
+    // remove the time from the room, not completely delete
     button.addEventListener("click", () => {
       this.roomSchedule?.removeTime(this);
       this.onEditedDispatch();
@@ -450,12 +475,14 @@ export class TimeBlock {
   private buildTutorDiv(): HTMLDivElement {
     const div: HTMLDivElement = this.buildTimeDiv();
 
+    // styling
     const text: HTMLElement = document.createElement("p");
     text.style.display = "inline-block";
     text.style.margin = "0px";
     text.style.width = "80%";
     div.append(text);
 
+    // update text when the time is edited
     this.tutorDivContent = new VariableElement(text, this.onEdited, () => {
       text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
       if (this.hasRoomAssigned()) {
@@ -467,8 +494,11 @@ export class TimeBlock {
       }
     });
 
+    // add buttons
     div.append(this.buildTutorDeleteButton());
     div.append(this.buildTutorEditButton());
+
+    // adds bar between text and buttons
     const spacer = document.createElement("p");
     spacer.style.float = "right";
     spacer.style.margin = "0px";
@@ -488,12 +518,14 @@ export class TimeBlock {
   private buildRoomDiv(): HTMLDivElement {
     const div: HTMLDivElement = this.buildTimeDiv();
 
+    // styling
     const text: HTMLElement = document.createElement("p");
     text.style.display = "inline-block";
     text.style.margin = "0px";
     text.style.width = "80%";
     div.append(text);
 
+    // update text when the time is edited
     this.roomDivContent = new VariableElement(text, this.onEdited, () => {
       text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
       let tutorName = "";
@@ -506,8 +538,11 @@ export class TimeBlock {
       text.innerHTML += ` / ${this.getTimeStr()}`;
     });
 
+    // add buttons
     div.append(this.buildRoomDeleteButton());
     div.append(this.buildRoomEditButton());
+
+    // add bar between text and buttons
     const spacer = document.createElement("p");
     spacer.style.float = "right";
     spacer.style.margin = "0px";
@@ -527,22 +562,37 @@ export class TimeBlock {
 
   // * String Builders ===================================
 
+  /**
+   * Returns start as "##:## [AM/PM]"
+   */
   getStartStr(): string {
     return timeConvert.intToStr(this.start);
   }
 
+  /**
+   * Returns end as "##:## [AM/PM]"
+   */
   getEndStr(): string {
     return timeConvert.intToStr(this.end);
   }
 
+  /**
+   * Returns "[start] - [end]"
+   */
   getStartToEndStr(): string {
     return `${this.getStartStr()} - ${this.getEndStr()}`;
   }
 
+  /**
+   * Returns "[day] [start]"
+   */
   getDayAndStartStr(): string {
     return `${this.day} ${this.getStartStr()}`;
   }
 
+  /**
+   * Returns "[day] [start] - [end]"
+   */
   getTimeStr(): string {
     return `${this.day} ${this.getStartToEndStr()}`;
   }
@@ -585,6 +635,10 @@ export class TimeBlock {
 
   // * ====================================================
 
+  /**
+   * Replaces state of this time. Used by time editor to update a time after editing.
+   * Triggers the onEdited event.
+   */
   update(config: TimeBlockConfig) {
     this.setCoords(config.coords.row, config.coords.col);
     if (config.day !== this.day) {

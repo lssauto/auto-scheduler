@@ -91,6 +91,8 @@ export class Positions {
     Positions.wr,
     Positions.na
   ];
+  
+  static readonly defaultPosition: Position = Positions.na;
 
   static getTitles(): string[] {
     const titles: string[] = [];
@@ -120,7 +122,6 @@ export class Positions {
     return pos;
   }
 
-  static readonly defaultPosition: Position = Positions.na;
 
   /**
    * List of positions that don't need to be assigned to a course.

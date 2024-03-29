@@ -6,16 +6,25 @@ import { Building } from "./building";
 import { Days } from "../days";
 import { TimeEditor } from "../elements/editors/time-editor";
 
+/**
+ * The time range a building is open for. Used by room schedules to 
+ * determine if a time can be scheduled in it.
+ */
 export interface AvailableRange {
   days: Days[];
   start: number;
   end: number;
 }
 
+/**
+ * The max number of sessions a room can have assigned per day.
+ */
 export const MAX_SESSIONS_PER_DAY = 4;
 
 export class RoomSchedule extends Schedule {
   room: Room;
+
+  // tracks the number of sessions a room has to compare against MAX_SESSIONS_PER_DAY
   sessionCounts: Map<Days, number>;
 
   constructor(room: Room) {
@@ -39,6 +48,9 @@ export class RoomSchedule extends Schedule {
     return this.getBuilding()?.range ?? Rooms.defaultRange;
   }
 
+  /**
+   * Returns true if the given time is within this room's open time range.
+   */
   isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
     if (this.getBuilding()) {
       return this.getBuilding()!.isInRange(time);
@@ -58,12 +70,17 @@ export class RoomSchedule extends Schedule {
   }
 
   protected insertTime(time: TimeBlock): number {
+    // the time block list this time should be inserted into
     const times = this.week.get(time.day)!.times;
+
+    // add the first time if the list is empty
     if (times.length === 0) {
       times.push(time);
       this.week.get(time.day)!.div?.append(time.getRoomDiv());
       return 0;
     }
+
+    // find the sorted position where the time should be inserted at
     for (let i = 0; i < times.length; i++) {
       if (times[i].start > time.start) {
         this.week.get(time.day)!.div?.insertBefore(time.getRoomDiv(), times[i].getRoomDiv());
@@ -71,6 +88,8 @@ export class RoomSchedule extends Schedule {
         return i;
       }
     }
+
+    // if sorted position isn't inside the list, then append to the back
     times.push(time);
     this.week.get(time.day)!.div?.append(time.getRoomDiv());
     return times.length - 1;
@@ -131,6 +150,7 @@ export class RoomSchedule extends Schedule {
     title.innerHTML = "<b>Schedule:</b>";
     div.append(title);
 
+    // add time button styling
     const addTime = document.createElement("button");
     addTime.style.backgroundColor = "#f8f8f8";
     addTime.style.border = "1px solid #565656";
@@ -142,11 +162,14 @@ export class RoomSchedule extends Schedule {
       addTime.style.backgroundColor = "#f8f8f8";
     });
     addTime.innerHTML = "Add Time";
+
+    // add time button calls time editor
     addTime.addEventListener("click", () => {
       TimeEditor.instance!.createNewTime(this);
     });
     div.append(addTime);
 
+    // build each time block's div
     this.forEachDay((day, dayObj) => {
       dayObj.div = document.createElement("div");
       const title = document.createElement("p");
