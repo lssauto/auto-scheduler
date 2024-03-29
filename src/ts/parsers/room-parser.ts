@@ -69,7 +69,11 @@ function buildRooms(matrix: string[][]) {
         continue;
       }
 
-      const course = Course.formatID(fields[0].trim());
+      const courseField = fields[0].trim();
+      let course = Course.formatID(courseField);
+      if (course === Course.na && (courseField !== Course.na && courseField !== "")) {
+        course = courseField;
+      }
       const parsedEmail = fields[1].split("(")[1].replace(")", "").trim(); // just get the email
       const tutorEmail = parsedEmail === "" ? null : parsedEmail;
       const timeStr =fields[2].trim();
@@ -85,6 +89,7 @@ function buildRooms(matrix: string[][]) {
           roomName: curRoom!.name,
           tutorEmail: tutorEmail
         }) : null;
+
         if (find) {
           curRoom!.pushTime(find);
         } else {
