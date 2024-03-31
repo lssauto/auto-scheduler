@@ -12,6 +12,7 @@ export class BuildingEditor extends Editor {
     return BuildingEditor._instance;
   }
 
+  // the building currently being edited
   curBuilding: Building | null = null;
 
   // * Rows ======================
@@ -41,9 +42,11 @@ export class BuildingEditor extends Editor {
   private buildNameRow() {
     this.addRow();
 
+    // building name
     this.addInputField(BuildingEditor.nameRow,
       BuildingEditor.name,
       (input: string) => {
+        // check if the name isn't already taken
         let found = false;
         Rooms.instance!.forEachBuilding((building) => {
           if (building === this.curBuilding) return;
@@ -51,10 +54,7 @@ export class BuildingEditor extends Editor {
             found = true;
           }
         });
-        if (found) {
-          return false;
-        }
-        return true;
+        return !found;
       },
       (field: fields.MenuInputField) => {
         field.setNotice("");
@@ -68,6 +68,7 @@ export class BuildingEditor extends Editor {
   private buildDaysRow() {
     this.addRow();
 
+    // add a check box for each day, these can have any value
     for (const day of Object.values(Days)) {
       this.addCheckboxField(
         BuildingEditor.daysRow,
@@ -88,6 +89,9 @@ export class BuildingEditor extends Editor {
   private buildTimeRow() {
     this.addRow();
 
+    // ? time validation is done with validateTime() method
+
+    // start time
     this.addTimeField(
       BuildingEditor.timeRow,
       BuildingEditor.start,
@@ -108,6 +112,7 @@ export class BuildingEditor extends Editor {
       }
     );
 
+    // end time
     this.addTimeField(
       BuildingEditor.timeRow,
       BuildingEditor.end,
@@ -130,16 +135,19 @@ export class BuildingEditor extends Editor {
   }
 
   validateTime(): boolean {
+    // convert field values into easier to operate on object
     const time = {
       start: (this.getField(BuildingEditor.start)! as fields.MenuTimeField).getTime(),
       end: (this.getField(BuildingEditor.end)! as fields.MenuTimeField).getTime()
     };
 
+    // time range must be set
     if (time.start === 0 || time.end === 0) {
       this.setRowNotice(BuildingEditor.timeRow, "a time range must be selected");
       return false;
     }
 
+    // time must start before it ends
     if (time.end < time.start) {
       this.setRowNotice(BuildingEditor.timeRow, "start must be before end");
       return false;
@@ -149,22 +157,28 @@ export class BuildingEditor extends Editor {
   }
 
   override applyChanges() {
+    // convert field values in available range object
     const range: AvailableRange = {
       days: [],
       start: (this.getField(BuildingEditor.start)! as fields.MenuTimeField).getTime(),
       end: (this.getField(BuildingEditor.end)! as fields.MenuTimeField).getTime(),
     };
+    // fill range's days list
     for (const day of Object.values(Days)) {
       if ((this.getField(day)! as fields.MenuCheckboxField).getChecked()) {
         range.days.push(day as Days);
       }
     }
 
+    // if this is a building being edited
     if (this.curBuilding) {
+      // update method will reassign rooms based on their names
       this.curBuilding.update(
         this.getField(BuildingEditor.name)!.getValue(),
         range
       );
+
+    // or is a new building
     } else {
       const newBuilding = new Building(this.getField(BuildingEditor.name)!.getValue());
       newBuilding.setRange(range);
@@ -173,11 +187,17 @@ export class BuildingEditor extends Editor {
     return;
   }
 
+  /**
+   * Creates a new building.
+   */
   createNewBuilding() {
     this.openMenu();
     this.curBuilding = null;
   }
 
+  /**
+   * Opens the given building in the editor.
+   */
   editBuilding(building: Building) {
     this.createNewBuilding();
     this.curBuilding = building;

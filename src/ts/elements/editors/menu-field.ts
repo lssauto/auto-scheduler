@@ -1,3 +1,7 @@
+
+/**
+ * Super class for editor menu fields.
+ */
 export abstract class MenuField {
   readonly title: string;
   readonly field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -15,6 +19,7 @@ export abstract class MenuField {
     titleElement.innerHTML = `<b>${title}: </b>`;
     this.div.append(titleElement);
 
+    // container has the actual input field, and the field's notice
     const container = document.createElement("div");
     container.style.display = "inline-block";
     this.div.append(container);
@@ -32,8 +37,14 @@ export abstract class MenuField {
     container.append(this.notice);
   }
 
+  /**
+   * Constructs the actual input element.
+   */
   abstract buildField(): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
+  /**
+   * Resets the input element, and notice back to default values.
+   */
   abstract reset(): void;
 
   getValue(): string {
@@ -44,13 +55,22 @@ export abstract class MenuField {
     this.field.value = value;
   }
 
+  /**
+   * Display a message below the input element.
+   */
   setNotice(notice: string) {
     this.notice.innerHTML = notice;
   }
 
+  /**
+   * Validates the value of the field, and runs the valid or invalid functions accordingly.
+   */
   abstract validate(): boolean;
 }
 
+/**
+ * A short answer input field.
+ */
 export class MenuInputField extends MenuField {
   private _validate: (input: string) => boolean;
   private _valid: (field: MenuInputField) => void;
@@ -85,6 +105,9 @@ export class MenuInputField extends MenuField {
   }
 }
 
+/**
+ * A dropdown menu field.
+ */
 export class MenuSelectField extends MenuField {
   static readonly emptyOption = "---";
 
@@ -127,6 +150,9 @@ export class MenuSelectField extends MenuField {
     this._options.push(option);
   }
 
+  /**
+   * Remove all options from this dropdown menu.
+   */
   clearOptions() {
     this.field.innerHTML = "";
     const emptyOption = document.createElement("option");
@@ -135,11 +161,17 @@ export class MenuSelectField extends MenuField {
     this.field.append(emptyOption);
   }
 
+  /**
+   * Replace current options with the given list of new options.
+   */
   updateOptions(options: string[]) {
     this.clearOptions();
     options.forEach(option => this.addOption(option));
   }
 
+  /**
+   * Adds an event listener to the elements' onChange event.
+   */
   onChange(action: (value: string) => void) {
     this.field.addEventListener("change", () => { 
       action(this.getValue());
@@ -159,6 +191,10 @@ export class MenuSelectField extends MenuField {
 
 import * as timeConvert from "../../utils/time-convert";
 
+/**
+ * A time selection input field. Use `value = field.getTime()` to get the field's 
+ * value as number converted with `timeConvert.strToInt()`.
+ */
 export class MenuTimeField extends MenuField {
   private _validate: (input: number) => boolean;
   private _valid: (field: MenuTimeField) => void;
@@ -178,6 +214,9 @@ export class MenuTimeField extends MenuField {
     return field;
   }
 
+  /**
+   * Get the fields value as an integer, converted with timeConvert.strToInt().
+   */
   getTime(): number {
     return timeConvert.strToInt(this.getValue());
   }
@@ -198,6 +237,9 @@ export class MenuTimeField extends MenuField {
   }
 }
 
+/**
+ * Long response input field.
+ */
 export class MenuTextField extends MenuField {
   private _validate: (input: string) => boolean;
   private _valid: (field: MenuTextField) => void;
@@ -236,6 +278,10 @@ export class MenuTextField extends MenuField {
   }
 }
 
+/**
+ * Checkbox field. Use `field.setChecked(bool)` and `value = field.getChecked()` to 
+ * get its value as a boolean.
+ */
 export class MenuCheckboxField extends MenuField {
   private _validate: (input: boolean) => boolean;
   private _valid: (field: MenuCheckboxField) => void;
@@ -257,6 +303,9 @@ export class MenuCheckboxField extends MenuField {
     return field;
   }
 
+  /**
+   * Set the checkbox and checked or not.
+   */
   setChecked(checked: boolean) {
     (this.field as HTMLInputElement).checked = checked;
   }
