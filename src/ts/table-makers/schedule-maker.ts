@@ -3,6 +3,9 @@ import { Rooms } from "../rooms/rooms";
 import { Tags } from "../schedule/time-block";
 import { Tutors } from "../tutors/tutors";
 
+/**
+ * Builds the tutor and room schedule table copy outs.
+ */
 export class ScheduleTableMaker {
   private static _instance: ScheduleTableMaker | null = null;
   public static get instance(): ScheduleTableMaker | null {
@@ -19,6 +22,10 @@ export class ScheduleTableMaker {
     ScheduleTableMaker._instance = this;
   }
 
+  /**
+   * Builds human readable tutor schedules, and copies it to the user's clipboard.
+   * !Only useful as output, do not use as serialization!
+   */
   static copyTutorSchedules() {
     const tutors = Tutors.instance!;
 
@@ -28,18 +35,23 @@ export class ScheduleTableMaker {
       // skip tutors with errors
       if (tutor.hasErrors()) return;
 
+      // name row
       output += "Tutor\t";
       output += tutor.name + " (" + tutor.email + ")\n";
 
+      // courses row
       output += "Courses\t";
       tutor.forEachCourse((course) => {
         output += `${course.id} (${course.position.title}): ${course.status.title}\t`;
       });
       output += "\n";
 
+      // schedule rows
       tutor.schedule.forEachDay((dayName, dayObj) => {
+        // each row is a day
         output += dayName + "\t";
 
+        // followed by the times in the day
         for (const time of dayObj.times) {
           if (time.tag !== Tags.session && time.tag !== Tags.discord) continue;
           if (!time.hasRoomAssigned()) continue;
@@ -58,18 +70,26 @@ export class ScheduleTableMaker {
     });
   }
 
+  /**
+   * Builds room schedules table, and copies it to the user's clipboard.
+   * This is used for serialization.
+   */
   static copyRoomSchedules() {
     const rooms = Rooms.instance!;
 
     let output = "";
 
     rooms.forAllRooms((room) => {
+      // room name row
       output += "Room\t";
       output += room.name + "\n";
 
+      // schedule rows
       room.schedule.forEachDay((dayName, dayObj) => {
+        // each day is a row
         output += dayName + "\t";
 
+        // followed by the times in that day
         for (const time of dayObj.times) {
           output += `${time.courseID} , ${
             time.getTutor() !== null ? 
@@ -87,18 +107,27 @@ export class ScheduleTableMaker {
     Messages.output(Messages.success, "Successfully copied room schedules to clipboard.");
   }
 
+  /**
+   * Builds only request room schedules table, and copies it to the user's clipboard.
+   * This can be used for serialization, but is redundant since copyRoomSchedules() 
+   * includes request rooms.
+   */
   static copyRequestRoomSchedules() {
     const rooms = Rooms.instance!;
 
     let output = "";
 
     rooms.forEachRequestRoom((room) => {
+      // name row
       output += "Room\t";
       output += room.name + "\n";
 
+      // schedule rows
       room.schedule.forEachDay((dayName, dayObj) => {
+        // each day is a row
         output += dayName + "\t";
 
+        // followed by the times in that day
         for (const time of dayObj.times) {
           output += `${time.courseID} , ${
             time.getTutor() !== null ? 
