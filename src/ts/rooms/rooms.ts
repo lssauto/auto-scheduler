@@ -19,7 +19,14 @@ export class Rooms implements Iterable<Room> {
     return this._instance;
   }
 
+  /**
+   * Default value used for room that can't be associated with a room.
+   */
   static readonly unknown = "Unknown Building";
+
+  /**
+   * Name used for the general registrar request room.
+   */
   static readonly registrarRequest = "Request From Registrar";
 
   private static readonly _defaultRange: AvailableRange = {
@@ -45,15 +52,18 @@ export class Rooms implements Iterable<Room> {
     return JSON.parse(JSON.stringify(Rooms._requestRange)) as AvailableRange;
   }
 
+  // containers
   private rooms: Map<string, Room>;
   private requestRooms: Map<string, Room>;
   private buildings: Map<string, Building>;
 
+  // HTML Elements
   div: HTMLDivElement | null;
   buildingDiv: HTMLDivElement | null;
   roomDiv: HTMLDivElement | null;
   requestDiv: HTMLDivElement | null;
 
+  // filters
   private _filterOptions: RoomFilterOption[] = [];
   private _curFilter: RoomFilterOption;
   public get curFilter(): RoomFilterOption {
@@ -78,6 +88,7 @@ export class Rooms implements Iterable<Room> {
 
   // # ==========================================
 
+  // events
   private onFilterUpdate: NotifyEvent = new NotifyEvent("onFilterUpdate");
 
   constructor() {
@@ -95,9 +106,10 @@ export class Rooms implements Iterable<Room> {
     this.roomDiv = null;
     this.requestDiv = null;
 
+    // init filter options
     this.addFilter(Rooms.allFilter);
     this.addFilter(Rooms.registrarFilter);
-
+    // add a filter for each position
     Positions.forEach((pos) => {
       this.addFilter({
         title: pos.title,
@@ -109,6 +121,7 @@ export class Rooms implements Iterable<Room> {
 
     this._curFilter = Rooms.allFilter;
 
+    // create the default registrar request room
     const request = new Building(Rooms.registrarRequest);
     request.setRange(Rooms.requestRange);
     this.addBuilding(request);
@@ -123,6 +136,9 @@ export class Rooms implements Iterable<Room> {
     this._filterOptions.forEach(action);
   }
 
+  /**
+   * Finds a filter option based on its title.
+   */
   findFilter(title: string): RoomFilterOption | null {
     for (const option of this._filterOptions) {
       if (option.title === title) {
@@ -145,6 +161,7 @@ export class Rooms implements Iterable<Room> {
           return;
         }
       }
+
     } else {
       const ind = this._filterOptions.indexOf(option);
       if (ind === -1) return;
@@ -172,6 +189,8 @@ export class Rooms implements Iterable<Room> {
     Content.instance!.scrollToTop();
   }
 
+  // filter event dispatched any time the filter list changes
+
   addFilterListener(subscriber: object, action: Notify) {
     this.onFilterUpdate.addListener(subscriber, action);
   }
@@ -197,16 +216,21 @@ export class Rooms implements Iterable<Room> {
   }
 
   addRoom(room: Room) {
+    // sort room by request room or normal room
     if (room.isRequestRoom) {
       this.requestRooms.set(room.name, room);
     } else {
       this.rooms.set(room.name, room);
     }
+
+    // set the room's building
     const building = this.getBuildingName(room);
     room.setBuilding(building);
     if (building !== Rooms.unknown) {
       this.buildings.get(building)!.addRoom(room);
     }
+
+    // add room's div to content based on if it's  a request room or not
     if (room.isRequestRoom) {
       this.requestDiv?.append(room.getDiv());
     } else {
@@ -215,6 +239,9 @@ export class Rooms implements Iterable<Room> {
     }
   }
 
+  /**
+   * Returns true if the room name exists in either the rooms or request rooms lists.
+   */
   hasRoom(name: string): boolean {
     return this.rooms.has(name) || this.requestRooms.has(name);
   }
@@ -228,6 +255,11 @@ export class Rooms implements Iterable<Room> {
     }
   }
 
+  // iterators
+
+  /**
+   * excludes request rooms.
+   */
   forEachRoom(action: (room: Room) => void) {
     this.rooms.forEach(action);
   }
@@ -245,10 +277,17 @@ export class Rooms implements Iterable<Room> {
     };
   }
 
+  /**
+   * excludes normal rooms.
+   */
   forEachRequestRoom(action: (room: Room) => void) {
     this.requestRooms.forEach(action);
   }
 
+  /**
+   * iterates for all normal rooms.
+   * then all request rooms.
+   */
   forAllRooms(action: (room: Room) => void) {
     this.forEachRoom(action);
     this.forEachRequestRoom(action);
@@ -256,6 +295,9 @@ export class Rooms implements Iterable<Room> {
 
   // buildings
 
+  /**
+   * searches for a building whose name is included in the room's name.
+   */
   getBuildingName(room: Room | string): string {
     let buildingName = Rooms.unknown;
     const name = room instanceof Room ? room.name : room;
@@ -269,6 +311,8 @@ export class Rooms implements Iterable<Room> {
 
   addBuilding(building: Building) {
     this.buildings.set(building.name, building);
+
+    // find all rooms that match the building
     this.forAllRooms(room => {
       if (room.name.includes(building.name) && !building.hasRoom(room)) {
         building.addRoom(room);
@@ -276,10 +320,12 @@ export class Rooms implements Iterable<Room> {
       }
     });
 
+    // if no rooms were found, give the building a request room
     if (!building.hasRooms() && building.name !== Rooms.registrarRequest) {
       building.addRequestRoom();
     }
 
+    // add in building's content div
     if (this.buildingDiv !== null) {
       this.buildingDiv.append(building.getDiv());
       const br = document.createElement("br");
@@ -287,6 +333,7 @@ export class Rooms implements Iterable<Room> {
       this.buildingDiv.append(br);
     }
 
+    // add filter for the building
     this.addFilter({
       title: building.name,
       include: (room) => {
@@ -295,6 +342,10 @@ export class Rooms implements Iterable<Room> {
     });
   }
 
+  /**
+   * Adds a building to the buildings list without doing any of the extra 
+   * state management in addBuilding().
+   */
   setBuilding(building: Building) {
     this.buildings.set(building.name, building);
   }
@@ -312,6 +363,9 @@ export class Rooms implements Iterable<Room> {
     return this.buildings.has(name);
   }
 
+  /**
+   * Returns a list of all the building names from the buildings list.
+   */
   getBuildingNames(): string[] {
     const names: string[] = [];
     this.forEachBuilding(building => {
@@ -334,6 +388,7 @@ export class Rooms implements Iterable<Room> {
   private buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
 
+    // * buildings section
     const buildingTitle = document.createElement("h3");
     buildingTitle.innerHTML = "Buildings:";
     div.append(buildingTitle);
@@ -342,6 +397,7 @@ export class Rooms implements Iterable<Room> {
     this.buildingDiv.style.paddingBottom = "5px";
     this.buildingDiv.style.borderBottom = "1px solid black";
 
+    // add building button styling
     const addButton = document.createElement("button");
     addButton.style.backgroundColor = "#f8f8f8";
     addButton.style.border = "1px solid #565656";
@@ -353,6 +409,8 @@ export class Rooms implements Iterable<Room> {
       addButton.style.backgroundColor = "#f8f8f8";
     });
     addButton.innerHTML = "Add Building";
+
+    // add building button calls the building editor
     addButton.addEventListener("click", () => {
       BuildingEditor.instance!.createNewBuilding();
     });
@@ -360,18 +418,24 @@ export class Rooms implements Iterable<Room> {
 
     this.buildingDiv.append(document.createElement("br"));
 
+    // add each building's div
     this.forEachBuilding((building) => {
       this.buildingDiv!.append(building.getDiv());
+
+      // remove the line break below a building div, if the building is deleted
       const br = document.createElement("br");
       building.addDeletedListener(br, () => br.remove());
       this.buildingDiv!.append(br);
     });
     div.append(this.buildingDiv);
 
+    // * rooms section
+
     const roomsTitle = document.createElement("h2");
     roomsTitle.innerHTML = "Room Schedules:";
     div.append(roomsTitle);
 
+    // add each normal room's div
     this.roomDiv = document.createElement("div");
     this.forEachRoom(room => {
       this.roomDiv!.append(room.getDiv());
@@ -382,6 +446,7 @@ export class Rooms implements Iterable<Room> {
     requestTitle.innerHTML = "Request Room Schedules:";
     div.append(requestTitle);
 
+    // add each request room's div
     this.requestDiv = document.createElement("div");
     this.forEachRequestRoom(room => {
       this.requestDiv!.append(room.getDiv());
@@ -391,14 +456,23 @@ export class Rooms implements Iterable<Room> {
     return div;
   }
 
+  /**
+   * Hides room and building content.
+   */
   hideDiv() {
     this.div!.style.display = "none";
   }
 
+  /**
+   * Displays room and building content.
+   */
   showDiv() {
     this.div!.style.display = "block";
   }
 
+  /**
+   * Tries to find a room that includes the given string in its name.
+   */
   match(roomName: string): Room | null {
     if (this.getRoom(roomName) !== undefined) {
       return this.getRoom(roomName)!;

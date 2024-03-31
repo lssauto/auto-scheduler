@@ -8,15 +8,20 @@ import { BuildingEditor } from "../elements/editors/building-editor";
 import { Days } from "../days";
 import { TimeBlock } from "../schedule/time-block";
 
+/**
+ * Organizes rooms by building to assign when those rooms are open.
+ */
 export class Building {
   name: string;
-  range: AvailableRange;
+  range: AvailableRange; // the days and times rooms in the this building are open
   rooms: Room[];
-  requestRoom: Room | null;
+  requestRoom: Room | null; // if the building requires registrar requests to be scheduled in
 
+  // HTML elements
   div: HTMLDivElement | null;
   divContent: VariableElement | null;
 
+  // events
   onEdited: NotifyEvent = new NotifyEvent("onEdited");
   onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
 
@@ -35,6 +40,9 @@ export class Building {
     return this;
   }
 
+  /**
+   * Returns true if the given time is within this building's open range.
+   */
   isInRange(time: TimeBlock | {day: Days, start?: number, end?: number}): boolean {
     if (!this.range.days.includes(time.day)) {
       return false;
@@ -49,12 +57,19 @@ export class Building {
     return true;
   }
 
+  /**
+   * Updates this buildings name. This will reassign rooms.
+   */
   setName(name: string): Building {
     const prevName = this.name;
+    // remove old room name mapping
     Rooms.instance!.removeBuilding(this);
+    // update name
     this.name = name;
+    // assign new room name mapping
     Rooms.instance!.setBuilding(this);
 
+    // replace rooms list if name was changed
     if (prevName !== name) {
       this.rooms = [];
       Rooms.instance!.forEachRoom((room) => {
@@ -71,6 +86,7 @@ export class Building {
   addRoom(room: Room) {
     this.rooms.push(room);
 
+    // if the room previously had a registrar request room, remove it
     if (this.requestRoom) {
       this.removeRequestRoom();
     }
@@ -84,6 +100,10 @@ export class Building {
     return this.rooms.includes(room);
   }
 
+  /**
+   * Returns true if this building has rooms associated with it, 
+   * excluding a registrar request room.
+   */
   hasRooms(): boolean {
     return this.rooms.length > 0;
   }
@@ -119,6 +139,7 @@ export class Building {
   }
 
   buildDiv(): HTMLDivElement {
+    // styling
     const div = document.createElement("div");
     div.style.display = "inline-block";
     div.style.backgroundColor = "#f8f8f8";
@@ -131,6 +152,8 @@ export class Building {
     const p = document.createElement("p");
     p.style.margin = "3px";
     p.style.display = "inline-block";
+
+    // content displays name, and available range
     this.divContent = new VariableElement(p, this.onEdited, () => {
       let str = "";
       this.range.days.forEach(day => {
@@ -141,6 +164,7 @@ export class Building {
     });
     div.append(p);
 
+    // edit button
     const editButton = document.createElement("button");
     editButton.style.display = "inline-block";
     editButton.style.marginLeft = "3px";
@@ -150,6 +174,7 @@ export class Building {
     });
     div.append(editButton);
 
+    // delete button
     const removeButton = document.createElement("button");
     removeButton.style.display = "inline-block";
     removeButton.style.marginLeft = "3px";
@@ -169,6 +194,8 @@ export class Building {
       .setRange(range);
     this.onEditedDispatch();
   }
+
+  // events
 
   addEditedListener(subscriber: object, action: Notify) {
     this.onEdited.addListener(subscriber, action);

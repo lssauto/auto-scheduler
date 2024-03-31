@@ -8,4 +8,4 @@ Create Session Schedules by providing the time slots tutors gave in response to 
 
 ## Contributors:
 
-Anthony Umemoto 2023
+Anthony Umemoto 2023-2024
