@@ -16,7 +16,7 @@
     "test-schedule": "jest --testNamePattern='schedule'",
     "test-rooms": "jest --testNamePattern='rooms'",
     "test-parsers": "jest --testNamePattern='parsers'",
-    "events": "jest --testNamePattern='events'",
+    "test-events": "jest --testNamePattern='events'",
     "test-all": "jest"
   },
   "devDependencies": {
