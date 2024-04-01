@@ -7,6 +7,9 @@ import * as timeConvert from "../utils/time-convert.ts";
 import { Notify, NotifyEvent } from "../events/notify.ts";
 import { VariableElement } from "../events/var-elem.ts";
 
+/**
+ * Config object used for building and updating courses.
+ */
 export interface CourseConfig {
   readonly tutor: Tutor;
   readonly id: string;
@@ -19,7 +22,14 @@ export interface CourseConfig {
   readonly scheduler: string;
 }
 
+/**
+ * Owned by tutors, represents each position a tutor holds.
+ */
 export class Course {
+  /**
+   * Set to a course's building preference to signify the tutor has no preference
+   * where the session is scheduled.
+   */
   static readonly noPref = "Any Building";
 
   readonly tutor: Tutor;
@@ -27,15 +37,17 @@ export class Course {
   position: Position;
   status: Status;
   preference: string;
-  row: number;
+  row: number; // might not be needed anymore
   timestamp: number;
-  readonly times: Map<Tags, TimeBlock[]>;
+  readonly times: Map<Tags, TimeBlock[]>; // maps times by tags instead of days, idk why I did that
   comments: string;
   scheduler: string;
 
+  // HTML elements
   private _div: HTMLDivElement | null;
   private _divContent: VariableElement | null;
 
+  // events
   private onEdited: NotifyEvent = new NotifyEvent("onEdited");
   private onDeleted: NotifyEvent = new NotifyEvent("onDeleted");
   private onErrorsUpdated: NotifyEvent = new NotifyEvent("onErrorsUpdated");
@@ -48,27 +60,34 @@ export class Course {
     this.preference = Course.noPref;
     this.row = 0;
     this.timestamp = 0;
+
+    // init times with all of the tags
     this.times = new Map<Tags, TimeBlock[]>();
     for (const tag of Object.values(Tags)) {
       this.times.set(tag, []);
     }
+
     this.comments = "";
     this.scheduler = "";
     this._div = null;
     this._divContent = null;
 
     this.addErrorsListener(this, () => {
+      // if there are errors, change the status
       if (this.times.get(Tags.conflict)!.length > 0) {
         if (!StatusOptions.isErrorStatus(this.status)) {
           this.setStatus(StatusOptions.invalidTimes);
           this.onEditedDispatch();
         }
+
+      // if there are no errors, change the status
       } else if (StatusOptions.isErrorStatus(this.status)) {
         this.setStatus(StatusOptions.errorsResolved);
         this.onEditedDispatch();
       }
     });
 
+    // delete this course if its tutor is deleted
     tutor.addDeletedListener(this, () => {
       this.onDeletedDispatch();
     });
@@ -85,7 +104,8 @@ export class Course {
   }
 
   setStatus(status: Status): Course {
-
+    // if the course is scheduled, but is set back to in-progress,
+    // remove all room assignments from its sessions
     if (StatusOptions.isScheduledStatus(this.status) && !StatusOptions.isScheduledStatus(status)) {
       for (const time of this.times.get(Tags.session)!) {
         time.roomSchedule?.removeTime(time);
@@ -94,6 +114,8 @@ export class Course {
     }
 
     this.status = status;
+
+    // update the course's styling to match the status
     if (this._div) {
       this._div.style.backgroundColor = this.status.color.backgroundColor;
       this._div.style.borderColor = this.status.color.borderColor;
@@ -111,11 +133,18 @@ export class Course {
     return this;
   }
 
+  /**
+   * Expects a timestamp string in the same format used by the google form response table.
+   * Convert a timestamp int to this format using `timeConvert.stampToStr(stampInt)`.
+   */
   setTimestamp(timestamp: string): Course {
     this.timestamp = timeConvert.stampToInt(timestamp);
     return this;
   }
 
+  /**
+   * Returns true if the given timestamp is older than this course's timestamp.
+   */
   isOlderThan(timestamp: number | string): boolean {
     if (typeof timestamp === "string") {
       return this.timestamp < timeConvert.stampToInt(timestamp);
@@ -141,6 +170,7 @@ export class Course {
 
   removeError(time: TimeBlock) {
     const ind = this.times.get(Tags.conflict)!.indexOf(time);
+    // do not remove anything if the time doesn't exist in the errors list
     if (ind === -1) return;
     this.times.get(Tags.conflict)!.splice(ind, 1);
     this.onErrorsDispatch();
@@ -154,6 +184,10 @@ export class Course {
     return this.times.get(Tags.conflict)!;
   }
 
+  /**
+   * Returns true if the course has a given time. This is done by both 
+   * reference comparison, and field matching with `timeBlock.isEqual(other)`.
+   */
   hasTime(time: TimeBlock): boolean {
     if (this.times.get(time.tag)!.indexOf(time) !== -1) {
       console.log("found exact time");
@@ -172,10 +206,16 @@ export class Course {
     this.times.get(time.tag)!.push(time);
   }
 
+  /**
+   * For each time of a specific tag.
+   */
   forEachTime(tag: Tags, action: (time: TimeBlock) => void) {
     this.times.get(tag)!.forEach(action);
   }
 
+  /**
+   * For all the times associated with this course.
+   */
   forEveryTime(action: (time: TimeBlock) => void) {
     this.times.forEach((times) => {
       times.forEach(action);
@@ -201,6 +241,7 @@ export class Course {
   }
 
   private buildDiv(): HTMLDivElement {
+    // styling
     const div = document.createElement("div");
     div.style.display = "inline-block";
     div.style.padding = "7px";
@@ -212,6 +253,7 @@ export class Course {
     div.style.backgroundColor = this.status.color.backgroundColor;
     div.style.borderColor = this.status.color.borderColor;
 
+    // content
     const p = document.createElement("p");
     p.style.margin = "4px";
     p.style.display = "inline-block";
@@ -221,6 +263,7 @@ export class Course {
     });
     div.append(p);
 
+    // edit button
     const edit = document.createElement("button");
     edit.style.display = "inline-block";
     edit.style.verticalAlign = "top";
@@ -232,6 +275,7 @@ export class Course {
     });
     div.append(edit);
 
+    // delete button
     const deleteButton = document.createElement("button");
     deleteButton.style.display = "inline-block";
     deleteButton.style.verticalAlign = "top";
@@ -246,6 +290,9 @@ export class Course {
     return div;
   }
 
+  /**
+   * Updates a course's properties. Triggers an onEdited event.
+   */
   update(config: CourseConfig) {
     this.setPosition(config.position)
       .setTimestamp(config.timestamp)
@@ -267,6 +314,8 @@ export class Course {
     this.tutor.removeCourse(this.id);
     this.onDeletedDispatch();
   }
+
+  // events
 
   addEditedListener(subscriber: object, action: Notify) {
     this.onEdited.addListener(subscriber, action);
@@ -319,9 +368,17 @@ export class Course {
       return newCourse;
   }
 
+  /**
+   * "N/A" course id used to signal the course doesn't exist, or couldn't be 
+   * formatted properly.
+   */
   static readonly na = "N/A";
 
-  // ensures that course IDs follow specific formatting so that they can be matched against each other
+  /**
+   * Ensures that course IDs follow specific formatting 
+   * so that they can be matched against each other.
+   * Returns `Course.na` if the ID given couldn't be formatted properly.
+   */
   static formatID(courseStr: string): string {
     let courseId: string = courseStr.trim();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
