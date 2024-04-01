@@ -12,4 +12,24 @@ describe("utils - Test Session Time Validation", () => {
       })
     ).toBe(false);
   });
+
+  test("Tu 11:40 - 12:40 PM returns true", () => {
+    expect(
+      isValidSessionTime({
+        day: Days.tue,
+        start: timeConvert.strToInt("11:40 AM"),
+        end: timeConvert.strToInt("12:40 PM"),
+      })
+    ).toBe(true);
+  });
+
+  test("Sun 3:00 - 4:00 PM returns true", () => {
+    expect(
+      isValidSessionTime({
+        day: Days.sun,
+        start: timeConvert.strToInt("3:00 PM"),
+        end: timeConvert.strToInt("4:00 PM"),
+      })
+    ).toBe(true);
+  });
 });
