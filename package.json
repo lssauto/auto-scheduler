@@ -8,7 +8,16 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "tsc && vite build && eslint .",
-    "test-utils": "jest --testNamePattern='utils'"
+    "test-utils": "jest --testNamePattern='utils'",
+    "test-enums": "jest --testNamePattern='enums'",
+    "test-tutors": "jest --testNamePattern='tutors'",
+    "test-tables": "jest --testNamePattern='tables'",
+    "test-schedulers": "jest --testNamePattern='schedulers'",
+    "test-schedule": "jest --testNamePattern='schedule'",
+    "test-rooms": "jest --testNamePattern='rooms'",
+    "test-parsers": "jest --testNamePattern='parsers'",
+    "events": "jest --testNamePattern='events'",
+    "test-all": "jest"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
