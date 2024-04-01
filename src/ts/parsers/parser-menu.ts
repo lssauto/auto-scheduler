@@ -4,6 +4,9 @@ import { parseResponses } from "./response-parser";
 import { parseRooms } from "./room-parser";
 import { parseTutors } from "./tutor-parser";
 
+/**
+ * Menu used for parsing table data. Very similar to editors.
+ */
 export class ParserMenu {
   private static _instance: ParserMenu | null = null;
   public static get instance(): ParserMenu | null {
@@ -22,6 +25,8 @@ export class ParserMenu {
     ParserMenu._instance = this;
 
     this._div = this.buildDiv();
+
+    // long response field to paste table data into
     this._input = new fields.MenuTextField(
       "Input Table Data", 70, 13,
       () => {
@@ -34,7 +39,9 @@ export class ParserMenu {
         return;
       }
     );
+    // ands response field to a flex box
     this._fields = this.buildFields();
+
     this._menu = this.buildMenu();
     this._div.append(this._menu);
 
@@ -44,6 +51,7 @@ export class ParserMenu {
     this.closeMenu();
   }
 
+  // the gray, transparent background used as the root element for the menu
   private buildDiv(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "flex";
@@ -58,6 +66,7 @@ export class ParserMenu {
     return div;
   }
 
+  // the actual gray box that contains the menu fields
   private buildMenu(): HTMLDivElement {
     const menu = document.createElement("div");
     menu.style.width = "80%";
@@ -80,6 +89,7 @@ export class ParserMenu {
     return menu;
   }
 
+  // add the response field to a flex box
   private buildFields(): HTMLDivElement {
     const fields = document.createElement("div");
     fields.style.display = "flex";
@@ -94,11 +104,13 @@ export class ParserMenu {
     return fields;
   }
 
+  // builds all the submission buttons
   private buildButtonRow(): HTMLDivElement {
     const row = document.createElement("div");
     row.style.display = "flex";
     row.style.justifyContent = "space-evenly";
     
+    // parse buildings
     const buildings = document.createElement("button");
     buildings.style.display = "inline-block";
     buildings.innerHTML = "Parse Buildings";
@@ -108,6 +120,7 @@ export class ParserMenu {
     });
     row.append(buildings);
 
+    // rooms
     const rooms = document.createElement("button");
     rooms.style.display = "inline-block";
     rooms.innerHTML = "Parse Rooms";
@@ -117,6 +130,7 @@ export class ParserMenu {
     });
     row.append(rooms);
 
+    // tutor positions
     const tutors = document.createElement("button");
     tutors.style.display = "inline-block";
     tutors.innerHTML = "Parse Tutors";
@@ -126,6 +140,7 @@ export class ParserMenu {
     });
     row.append(tutors);
 
+    // response table
     const responses = document.createElement("button");
     responses.style.display = "inline-block";
     responses.innerHTML = "Parse Responses";
@@ -135,12 +150,14 @@ export class ParserMenu {
     });
     row.append(responses);
 
+    // spacer between parsing buttons and close menu button
     const spacer = document.createElement("p");
     spacer.style.display = "inline-block";
     spacer.style.margin = "10px";
     spacer.innerHTML = "||";
     row.append(spacer);
 
+    // clos menu button
     const close = document.createElement("button");
     close.style.display = "inline-block";
     close.innerHTML = "Close Menu";
@@ -152,11 +169,17 @@ export class ParserMenu {
     return row;
   }
 
+  /**
+   * Displays the table parsing menu.
+   */
   openMenu() {
     this._div.style.display = "flex";
     this._input.reset();
   }
 
+  /**
+   * Hides the table parsing menu.
+   */
   closeMenu() {
     this._div.style.display = "none";
   }
