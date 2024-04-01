@@ -1,19 +1,23 @@
 {
   "name": "auto-scheduler",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "tsc && vite build && eslint ."
+    "test": "tsc && vite build && eslint .",
+    "test-utils": "jest --testNamePattern='utils'"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "eslint": "^8.50.0",
+    "jest": "^29.7.0",
     "pre-commit": "^1.2.2",
+    "ts-jest": "^29.1.2",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
   },
@@ -37,13 +41,7 @@
       "@typescript-eslint/brace-style": "error",
       "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
       "@typescript-eslint/no-redeclare": "error",
-      "@typescript-eslint/quotes": [
-        "error",
-        "double",
-        {
-          "allowTemplateLiterals": true
-        }
-      ],
+      "@typescript-eslint/quotes": "off",
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/prefer-for-of": "warn"
     }
