@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "tsc && vite build && eslint .",
+    "test": "jest && tsc && vite build && eslint .",
     "test-utils": "jest --testNamePattern='utils'",
     "test-enums": "jest --testNamePattern='enums'",
     "test-tutors": "jest --testNamePattern='tutors'",
