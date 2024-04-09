@@ -1,3 +1,4 @@
+import { SchedulerName } from "../elements/header/scheduler-name";
 import { Messages } from "../elements/messages/messages";
 import { Positions } from "../positions";
 import { StatusOptions } from "../status-options";
@@ -124,7 +125,7 @@ function buildTutors(matrix: string[][]) {
       row: -1,
       timestamp: timeConvert.stampToStr(1),
       comments: "",
-      scheduler: "scheduler" // TODO: replace with scheduler
+      scheduler: SchedulerName.name
     }));
 
     // add new tutors to the tutors list

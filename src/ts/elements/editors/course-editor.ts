@@ -6,6 +6,7 @@ import { Tutor } from "../../tutors/tutor.ts";
 import { Editor } from "./editor";
 import * as fields from "./menu-field.ts";
 import * as timeConvert from "../../utils/time-convert.ts";
+import { SchedulerName } from "../header/scheduler-name.ts";
 
 export class CourseEditor extends Editor {
   private static _instance: CourseEditor | null = null;
@@ -252,7 +253,7 @@ export class CourseEditor extends Editor {
       row: this.curCourse?.row ?? -1,
       timestamp: timeConvert.stampToStr(this.curCourse?.timestamp ?? (new Date()).getTime()), // either use response form timestamp, or current timestamp for new courses
       comments: this.getValue(CourseEditor.comments),
-      scheduler: this.curCourse?.scheduler ?? "scheduler" // TODO: replace with scheduler
+      scheduler: this.curCourse?.scheduler ?? SchedulerName.name
     };
 
     // if this is course being edited

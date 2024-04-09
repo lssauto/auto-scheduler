@@ -1,7 +1,9 @@
 import { StatusOptions } from "../status-options";
 
 describe("enums - Positions Static Class", () => {
-    test("Match 'calendar' returns added to calendar status", () => {
-        expect(StatusOptions.match("calendar")).toBe(StatusOptions.calendarPosted);
+  StatusOptions.forEach((status) => {
+    test(`Match '${status.match}' returns '${status.title}' status`, () => {
+      expect(StatusOptions.match(status.match)).toBe(status);
     });
+  });
 });

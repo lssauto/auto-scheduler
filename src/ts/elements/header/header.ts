@@ -1,5 +1,6 @@
 import { ParserMenu } from "../../parsers/parser-menu";
 import { Scheduler } from "../../scheduler/scheduler";
+import { SchedulerName } from "./scheduler-name";
 
 const TUTORS_MODE = true;
 const ROOMS_MODE = false;
@@ -101,6 +102,16 @@ export class Header {
     this._roomToolsElem.style.display = "inline-block";
     this._headerElem.append(this._roomToolsElem);
     this._roomTools = new Map();
+
+    // staff member name
+    const schedulerName = document.createElement("b");
+    schedulerName.style.display = "inline-block";
+    schedulerName.style.margin = "0px";
+    schedulerName.style.marginLeft = "10px";
+    schedulerName.style.marginRight = "10px";
+    schedulerName.style.float = "right";
+    schedulerName.innerHTML = "Scheduler: " + SchedulerName.name;
+    this._headerElem.append(schedulerName);
   }
 
   toggleModes() {

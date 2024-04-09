@@ -9,6 +9,7 @@ import { Tutors } from "./tutors/tutors";
 import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
 import { ResponseTableMaker } from "./table-makers/response-maker";
+import { SchedulerName } from "./elements/header/scheduler-name";
 // import { Tutor } from "./tutors/tutor";
 // import { Tags, TimeBlock } from "./schedule/time-block";
 // import { Days } from "./days";
@@ -29,6 +30,8 @@ body.style.height = "100%";
 body.style.position = "fixed";
 body.style.left = "0px";
 body.style.top = "0px";
+
+SchedulerName.getName();
 
 const tutors = new Tutors();
 const rooms = new Rooms();

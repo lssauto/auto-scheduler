@@ -7,6 +7,7 @@
 // ! been made type-safe
 
 import { Days } from "../days";
+import { SchedulerName } from "../elements/header/scheduler-name";
 import { Messages } from "../elements/messages/messages";
 import { Position, Positions } from "../positions";
 import { Rooms } from "../rooms/rooms";
@@ -453,7 +454,7 @@ export class ResponseTableMaker {
             this.responseMatrix[r][c] = StatusOptions.pastSubmission.title;
 
           } else if (title.includes(Titles.scheduler)) {
-            this.responseMatrix[r][c] = rowObj.scheduler == "" ? "scheduler" : rowObj.scheduler; // TODO: replace with scheduler name
+            this.responseMatrix[r][c] = rowObj.scheduler == "" ? SchedulerName.name : rowObj.scheduler;
           }
         }
 
@@ -471,7 +472,7 @@ export class ResponseTableMaker {
             this.responseMatrix[r][c] = tutor.getCourse(rowObj.courseID)!.status.title;
 
           } else if (title.includes(Titles.scheduler)) {
-            this.responseMatrix[r][c] = rowObj.scheduler == "" ? "scheduler" : rowObj.scheduler; // TODO: replace with scheduler name
+            this.responseMatrix[r][c] = rowObj.scheduler == "" ? SchedulerName.name : rowObj.scheduler;
           }
         }
 
