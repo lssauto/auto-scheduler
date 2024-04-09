@@ -15,8 +15,6 @@ export class Header {
   private _body: HTMLElement;
   private _headerElem: HTMLDivElement;
 
-  private _schedulerElem: HTMLElement;
-
   private _toggleMode: boolean;
   private _toggleButton: HTMLButtonElement;
   private _scheduleButton: HTMLButtonElement;
@@ -44,14 +42,11 @@ export class Header {
     this._headerElem.style.top = "0px";
     this._headerElem.style.left = "0px";
     this._headerElem.style.width = "100%";
-    this._headerElem.style.height = "53px";
+    this._headerElem.style.height = "33px";
+    this._headerElem.style.paddingTop = "20px";
     this._headerElem.style.borderBottom = "2px black solid";
 
     this._body.append(this._headerElem);
-
-    // scheduler name
-    this._schedulerElem = document.createElement("p");
-    this._headerElem.append(this._schedulerElem);
 
     // toggle button
     this._toggleButton = document.createElement("button");
@@ -129,10 +124,6 @@ export class Header {
       this._tutorToolsElem.style.display = "none";
       this._headerElem.dispatchEvent(this.onToggleRooms);
     }
-  }
-
-  setSchedulerName(name: string) {
-    this._schedulerElem.innerHTML = name;
   }
 
   addEventListener(name: string, listener: () => undefined) {
