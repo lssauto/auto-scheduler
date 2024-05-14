@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// ! A bunch of linting is disabled because serialized tutor objects haven't
+// ! A bunch of linting is disabled because serialized tutor JSON haven't
 // ! been made type-safe
 
 import { Days } from "../days";
@@ -643,7 +643,7 @@ export class ResponseTableMaker {
         tutorEmail: tutor.email,
         roomName: time[EncodingTitles.room] == "null" ? null : time[EncodingTitles.room] as string,
         courseID: time[EncodingTitles.courseID] == "null" ? null : time[EncodingTitles.courseID] as string
-      }));
+      }).setError(ErrorCodes.conflict));
     }
 
     return tutor;

@@ -365,7 +365,8 @@ export class TimeEditor extends Editor {
 
     // check if the tutor's schedule conflicts with the new time
     // use this.curTime to prevent checking for conflicts with the time being edited
-    if (Tutors.instance!.hasTutor(this.getValue(TimeEditor.email))) {
+    if (this.getField(TimeEditor.tag)!.getValue() as Tags === Tags.session && 
+      Tutors.instance!.hasTutor(this.getValue(TimeEditor.email))) {
       const tutor = Tutors.instance!.getTutor(this.getValue(TimeEditor.email))!;
       if (tutor.schedule.hasConflictWith(time, this.curTime!)) {
         this.setRowNotice(TimeEditor.timeRow, "time conflicts with tutor's current schedule");
