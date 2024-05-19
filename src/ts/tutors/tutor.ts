@@ -173,6 +173,10 @@ export class Tutor {
     return this.schedule.findTime(time);
   }
 
+  get scheduleIsEmpty(): boolean {
+    return this.schedule.isEmpty;
+  }
+
   getDiv(): HTMLDivElement {
     if (this._div === null) {
       this._div = this.buildDiv();

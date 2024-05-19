@@ -85,6 +85,24 @@ export abstract class Schedule implements Iterable<TimeBlock> {
     }
   }
 
+  /**
+   * Returns the number of time blocks in this schedule.
+   */
+  get count(): number {
+    let sum = 0;
+    for (const day of this.week) {
+      sum += day[1].times.length;
+    }
+    return sum;
+  }
+
+  /**
+   * Returns true if there are no time blocks in this schedule.
+   */
+  get isEmpty(): boolean {
+    return this.count === 0;
+  }
+
   protected abstract insertTime(time: TimeBlock): number;
 
   /**

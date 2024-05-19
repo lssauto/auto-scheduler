@@ -68,6 +68,16 @@ export class Tutors {
     }
   };
 
+  static readonly notSubmittedFilter: TutorFilterOption = {
+    title: "No Submitted Times",
+    include: (tutor) => {
+      if (tutor.scheduleIsEmpty) {
+        return true;
+      }
+      return false;
+    }
+  };
+
   // # ====================================
 
   // # Events =============================
@@ -89,6 +99,7 @@ export class Tutors {
     this.addFilter(Tutors.errorsFilter);
     this.addFilter(Tutors.commentsFilter);
     this.addFilter(Tutors.registrarFilter);
+    this.addFilter(Tutors.notSubmittedFilter);
 
     this.positions = new Map<Position, Tutor[]>();
     Positions.forEach((pos) => {
