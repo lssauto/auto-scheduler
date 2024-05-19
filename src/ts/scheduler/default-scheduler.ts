@@ -1,5 +1,6 @@
 import { Days } from "../days";
 import { Messages } from "../elements/messages/messages";
+import { Positions } from "../positions";
 import { Rooms } from "../rooms/rooms";
 import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock } from "../schedule/time-block";
@@ -74,12 +75,38 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
           return ScheduledState.request;
         }
       }
+      
+      // if the tutor is an SI leader, first look through SI rooms
+      // TODO: move this into its own strategy if SI gets more specific stuff
+      if (course.position === Positions.si) {
+        // search through building's rooms
+        for (const room of building.rooms) {
+          // no more sessions to assign, will default to registrar request
+          if (counts.count - counts.requests >= course.position.requestLimit &&
+            session.day !== Days.sun && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
+            break;
+          }
+
+          // check for only si rooms first
+          if (room.type !== Positions.si) {
+            continue;
+          }
+
+          // try to add time
+          const result = room.addTime(session);
+
+          if (result === ErrorCodes.success) {
+            Messages.output(Messages.info, `session assigned to room: ${room.name}`);
+            return ScheduledState.scheduled;
+          }
+        }
+      }
 
       // search through building's rooms
       for (const room of building.rooms) {
         // no more sessions to assign, will default to registrar request
         if (counts.count - counts.requests >= course.position.requestLimit &&
-          session.day !== Days.sun) {
+          session.day !== Days.sun && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
           break;
         }
 
@@ -101,11 +128,35 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
     }
   }
 
+  if (course.position === Positions.si) {
+    // search through building's rooms
+    for (const room of rooms) {
+      // no more sessions to assign, will default to registrar request
+      if (counts.count - counts.requests >= course.position.requestLimit &&
+        session.day !== Days.sun && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
+        break;
+      }
+
+      // check for only si rooms first
+      if (room.type !== Positions.si) {
+        continue;
+      }
+
+      // try to add time
+      const result = room.addTime(session);
+
+      if (result === ErrorCodes.success) {
+        Messages.output(Messages.info, `session assigned to room: ${room.name}`);
+        return ScheduledState.scheduled;
+      }
+    }
+  }
+
   // for each room without preference
   for (const room of rooms) {
     // no more sessions to assign, will default to registrar request
     if (counts.count - counts.requests >= course.position.requestLimit &&
-      session.day !== Days.sun) {
+      session.day !== Days.sun && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
       break;
     }
 
