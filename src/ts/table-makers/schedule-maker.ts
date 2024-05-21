@@ -60,6 +60,7 @@ export class ScheduleTableMaker {
 
         output += "\n";
       });
+      output += "\n";
     });
 
     void navigator.clipboard.writeText(output);

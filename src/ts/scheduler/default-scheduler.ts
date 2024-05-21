@@ -14,17 +14,32 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
   const tutors = Tutors.instance!;
   const rooms = Rooms.instance!;
 
-  // check for overlapping times in different days
+  // check for conflicts with already scheduled sessions
   if (session.day !== Days.sat && session.day !== Days.sun) {
     for (const time of tutor.schedule) {
       console.log(time);
-      if (time.tag !== Tags.session) continue;
-      if (time.start === session.start && time.hasRoomAssigned()) {
-        Messages.output(
-          Messages.info,
-          "time taken on a different day " + time.getDayAndStartStr()
-        );
-        return ScheduledState.noSession;
+      if (time.tag !== Tags.session || !time.hasRoomAssigned()) continue;
+
+      // if the session is for the same course
+      // check if that session has the same start time, can be on different days
+      if (time.courseID === session.courseID) {
+        if (time.start === session.start) {
+          Messages.output(
+            Messages.info,
+            "time taken on a different day " + time.getDayAndStartStr()
+          );
+          return ScheduledState.noSession;
+        }
+
+      // if this is a session for a different course, check for conflict
+      } else {
+        if (time.conflictsWith(session)) {
+          Messages.output(
+            Messages.info,
+            "conflicts with a session for another course " + time.getDayAndStartStr()
+          );
+          return ScheduledState.noSession;
+        }
       }
     }
   }

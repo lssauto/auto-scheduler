@@ -51,8 +51,7 @@ export class TutorSchedule extends Schedule {
       for(const t of this.week.get(time.day)!.times) {
         // check for conflicts if the other time isn't a session, or if it's a session for the same class
         // allows for the same time to be submitted for different classes supported
-        if ((t.tag !== Tags.session || (t.tag === Tags.session && t.courseID === time.courseID)) && 
-          t.conflictsWith(time)) {
+        if (t.courseID === time.courseID && t.conflictsWith(time)) {
           time.setError(ErrorCodes.conflict);
           return ErrorCodes.conflict;
         }
@@ -64,7 +63,7 @@ export class TutorSchedule extends Schedule {
       for (const t of this.week.get(time.day)!.times) {
         // if a session is found, remove it from the schedule, mark it as an error, 
         // and tell the tutor instance that the time is now an error
-        if (t.tag === Tags.session && t.conflictsWith(time)) {
+        if (t.tag === Tags.session && t.courseID === time.courseID && t.conflictsWith(time)) {
           this.removeTime(t);
           t.setError(ErrorCodes.conflict);
           this.tutor.addError(t);
