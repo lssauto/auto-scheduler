@@ -15,6 +15,7 @@ describe("schedule - TimeBlocks", () => {
     start: timeConvert.strToInt("3:00 PM"),
     end: timeConvert.strToInt("4:00 PM"),
     scheduleByLSS: true,
+    isVirtual: false,
     tutorEmail: "test@gmail.com",
     roomName: null,
     courseID: null,

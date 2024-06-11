@@ -10,14 +10,6 @@ import { Messages } from "./elements/messages/messages";
 import { ParserMenu } from "./parsers/parser-menu";
 import { ResponseTableMaker } from "./table-makers/response-maker";
 import { SchedulerName } from "./elements/header/scheduler-name";
-// import { Tutor } from "./tutors/tutor";
-// import { Tags, TimeBlock } from "./schedule/time-block";
-// import { Days } from "./days";
-// import * as timeConvert from "./utils/time-convert";
-// import { Course } from "./tutors/course";
-// import { Positions } from "./positions";
-// import { StatusOptions } from "./status-options";
-// import { Room } from "./rooms/room";
 
 document.title = "LSS Auto Scheduler";
 
@@ -59,6 +51,15 @@ console.log(timeEditor);
 console.log(courseEditor);
 console.log(buildingEditor);
 
+// import { Tutor } from "./tutors/tutor";
+// import { Tags, TimeBlock } from "./schedule/time-block";
+// import { Days } from "./days";
+// import * as timeConvert from "./utils/time-convert";
+// import { Course } from "./tutors/course";
+// import { Positions } from "./positions";
+// import { StatusOptions } from "./status-options";
+// import { Room } from "./rooms/room";
+
 // const tutor1 = new Tutor("billy@ucsc.edu", "Billy Bob", true);
 // tutor1.addCourse(Course.buildCourse({
 //     tutor: tutor1,
@@ -67,7 +68,8 @@ console.log(buildingEditor);
 //     status: StatusOptions.inProgress,
 //     preference: Course.noPref,
 //     row: 0,
-//     timestamp: timeConvert.fromTimestamp(1),
+//     timestamp: timeConvert.stampToStr(1),
+//     zoomLink: "abcd",
 //     comments: "",
 //     scheduler: "tony"
 // }));
@@ -79,10 +81,37 @@ console.log(buildingEditor);
 //     day: Days.sun,
 //     start: timeConvert.strToInt("1:00PM"),
 //     end: timeConvert.strToInt("2:00PM"),
-//     scheduleByLSS: true,
+//     scheduleByLSS: false,
+//     isVirtual: true,
 //     tutorEmail: tutor1.email,
 //     roomName: null,
-//     courseID: "CSE 101-02"
+//     courseID: "CSE 101-002"
+// }));
+
+// tutor1.addTime(TimeBlock.buildTimeBlock({
+//     coords: {row: -1, col: -1},
+//     tag: Tags.session,
+//     day: Days.fri,
+//     start: timeConvert.strToInt("12:00PM"),
+//     end: timeConvert.strToInt("1:00PM"),
+//     scheduleByLSS: true,
+//     isVirtual: true,
+//     tutorEmail: tutor1.email,
+//     roomName: null,
+//     courseID: "CSE 101-002"
+// }));
+
+// tutor1.addTime(TimeBlock.buildTimeBlock({
+//     coords: {row: -1, col: -1},
+//     tag: Tags.session,
+//     day: Days.wed,
+//     start: timeConvert.strToInt("12:00PM"),
+//     end: timeConvert.strToInt("1:00PM"),
+//     scheduleByLSS: true,
+//     isVirtual: true,
+//     tutorEmail: tutor1.email,
+//     roomName: null,
+//     courseID: "CSE 101-002"
 // }));
 
 // const room1 = new Room("ARC 116 - Small");

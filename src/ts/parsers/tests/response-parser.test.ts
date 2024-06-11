@@ -29,7 +29,8 @@ describe("parsing - Response Parsing", () => {
     times: [],
     comments: "something something",
     status: StatusOptions.inProgress,
-    scheduler: ""
+    scheduler: "",
+    zoomLink: ""
   };
   
   console.log(testResponse);

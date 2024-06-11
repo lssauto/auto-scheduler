@@ -22,7 +22,8 @@ export class CourseEditor extends Editor {
   // * Rows ======================
   static readonly courseRow = 0;
   static readonly statusRow = 1;
-  static readonly commentsRow = 2;
+  static readonly zoomRow = 2;
+  static readonly commentsRow = 3;
   // * ===========================
 
   // * Titles ====================
@@ -30,6 +31,7 @@ export class CourseEditor extends Editor {
   static readonly position = "Position";
   static readonly status = "Status";
   static readonly preference = "Building Preference";
+  static readonly zoom = "Zoom Link";
   static readonly comments = "Comments";
   // * ===========================
 
@@ -42,6 +44,7 @@ export class CourseEditor extends Editor {
 
     this.buildCourseRow();
     this.buildStatusRow();
+    this.buildZoomRow();
     this.buildCommentsRow();
   }
 
@@ -214,6 +217,25 @@ export class CourseEditor extends Editor {
     );
   }
 
+  private buildZoomRow() {
+    this.addRow();
+
+    this.addTextField(
+      CourseEditor.zoomRow,
+      CourseEditor.zoom,
+      50, 1,
+      () => {
+        return true;
+      },
+      () => {
+        return;
+      },
+      () => {
+        return;
+      }
+    );
+  }
+
   private buildCommentsRow() {
     this.addRow();
 
@@ -251,6 +273,7 @@ export class CourseEditor extends Editor {
       status: newStatus,
       preference: this.getValue(CourseEditor.preference),
       row: this.curCourse?.row ?? -1,
+      zoomLink: this.getValue(CourseEditor.zoom),
       timestamp: timeConvert.stampToStr(this.curCourse?.timestamp ?? (new Date()).getTime()), // either use response form timestamp, or current timestamp for new courses
       comments: this.getValue(CourseEditor.comments),
       scheduler: this.curCourse?.scheduler ?? SchedulerName.name
@@ -305,5 +328,7 @@ export class CourseEditor extends Editor {
 
     this.getField(CourseEditor.preference)!.setValue(course.preference);
     this.getField(CourseEditor.comments)!.setValue(course.comments);
+
+    this.getField(CourseEditor.zoom)!.setValue(course.zoomLink);
   }
 }

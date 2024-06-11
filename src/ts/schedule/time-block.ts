@@ -67,6 +67,7 @@ export interface TimeBlockConfig {
   readonly start: number;
   readonly end: number;
   readonly scheduleByLSS: boolean;
+  readonly isVirtual: boolean;
   readonly tutorEmail: string | null;
   readonly roomName: string | null;
   readonly courseID: string | null;
@@ -109,6 +110,9 @@ export class TimeBlock {
   // If this is a session, then who is responsible for scheduling it
   scheduleByLSS: boolean;
 
+  // If the session is virtual, a zoom link is required
+  isVirtual: boolean;
+
   // These are strings because their actual instances might not exist
   // Use as keys to get the actual instances from Tutors and Rooms singletons
   tutorEmail: string | null;
@@ -133,6 +137,7 @@ export class TimeBlock {
     this.start = 0;
     this.end = 0;
     this.scheduleByLSS = true;
+    this.isVirtual = false;
     this.tutorSchedule = null;
     this.roomSchedule = null;
     this.error = ErrorCodes.success;
@@ -225,6 +230,11 @@ export class TimeBlock {
 
   setScheduleByLSS(scheduleByLSS: boolean): TimeBlock {
     this.scheduleByLSS = scheduleByLSS;
+    return this;
+  }
+
+  setVirtual(virtual: boolean): TimeBlock {
+    this.isVirtual = virtual;
     return this;
   }
 
@@ -484,7 +494,10 @@ export class TimeBlock {
 
     // update text when the time is edited
     this.tutorDivContent = new VariableElement(text, this.onEdited, () => {
-      text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
+      text.innerHTML = `<b>${
+        (this.isVirtual ? "virtual " : "") +
+        this.tag
+      }:</b> ${this.courseID}`;
       if (this.hasRoomAssigned()) {
         text.innerHTML += ` / <b>${this.roomName}</b>`;
       }
@@ -527,14 +540,17 @@ export class TimeBlock {
 
     // update text when the time is edited
     this.roomDivContent = new VariableElement(text, this.onEdited, () => {
-      text.innerHTML = `<b>${this.tag}:</b> ${this.courseID}`;
+      text.innerHTML = `<b>${
+        (this.isVirtual ? "virtual " : "") +
+        this.tag
+      }:</b> ${this.courseID}`;
       let tutorName = "";
       if (this.getTutor()) {
         tutorName = `(${this.getTutor()!.name})`;
       }
       if (this.tutorEmail) {
         text.innerHTML += ` / ${this.tutorEmail} ${tutorName}`;
-      } 
+      }
       text.innerHTML += ` / ${this.getTimeStr()}`;
     });
 
@@ -665,6 +681,9 @@ export class TimeBlock {
     if (config.scheduleByLSS !== this.scheduleByLSS) {
       this.setScheduleByLSS(config.scheduleByLSS);
     }
+    if (config.isVirtual !== this.isVirtual) {
+      this.setVirtual(config.isVirtual);
+    }
     this.onEditedDispatch();
   }
 
@@ -710,6 +729,7 @@ export class TimeBlock {
       .setEnd(config.end)
       .setTag(config.tag)
       .setScheduleByLSS(config.scheduleByLSS)
+      .setVirtual(config.isVirtual)
       .setTutor(config.tutorEmail)
       .setRoom(config.roomName)
       .setCourse(config.courseID);

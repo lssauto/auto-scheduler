@@ -172,7 +172,8 @@ function addResponseData() {
       row: response.row,
       status: response.status,
       comments: response.comments,
-      scheduler: response.scheduler
+      scheduler: response.scheduler,
+      zoomLink: response.zoomLink,
     });
 
     // add times

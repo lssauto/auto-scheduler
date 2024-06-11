@@ -46,6 +46,15 @@ export class ScheduleTableMaker {
       });
       output += "\n";
 
+      // zoom links for each course
+      if (tutor.hasZoomLinks()) {        
+        output += "Zoom Links:\t";
+        tutor.forEachCourse((course) => {
+          output += `${course.id}: ${course.zoomLink}\t`;
+        });
+        output += "\n";
+      }
+
       // schedule rows
       tutor.schedule.forEachDay((dayName, dayObj) => {
         // each row is a day

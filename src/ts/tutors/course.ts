@@ -18,6 +18,7 @@ export interface CourseConfig {
   readonly preference: string;
   readonly row: number;
   readonly timestamp: string;
+  readonly zoomLink: string;
   readonly comments: string;
   readonly scheduler: string;
 }
@@ -40,6 +41,7 @@ export class Course {
   row: number; // might not be needed anymore
   timestamp: number;
   readonly times: Map<Tags, TimeBlock[]>; // maps times by tags instead of days, idk why I did that
+  zoomLink: string;
   comments: string;
   scheduler: string;
 
@@ -60,6 +62,7 @@ export class Course {
     this.preference = Course.noPref;
     this.row = 0;
     this.timestamp = 0;
+    this.zoomLink = "";
 
     // init times with all of the tags
     this.times = new Map<Tags, TimeBlock[]>();
@@ -130,6 +133,11 @@ export class Course {
 
   setRow(row: number): Course {
     this.row = row;
+    return this;
+  }
+
+  setZoomLink(link: string): Course {
+    this.zoomLink = link;
     return this;
   }
 
@@ -259,6 +267,7 @@ export class Course {
     p.style.display = "inline-block";
     this._divContent = new VariableElement(p, this.onEdited, () => {
       p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || <b>Status:</b> ${this.status.title} || <b>Bldg Pref:</b> ${this.preference} || </br>`;
+      p.innerHTML += this.zoomLink !== "" ? `<a href="${this.zoomLink}">Zoom Link</a></br>` : "";
       p.innerHTML += `Comments: ${this.comments !== "" ? "</br>" + this.comments : ""}`;
     });
     div.append(p);
@@ -300,7 +309,8 @@ export class Course {
       .setRow(config.row)
       .setStatus(config.status)
       .setComments(config.comments)
-      .setScheduler(config.scheduler);
+      .setScheduler(config.scheduler)
+      .setZoomLink(config.zoomLink);
     
     if (this.id !== config.id) {
       this.setID(config.id);
@@ -363,7 +373,8 @@ export class Course {
       .setPreference(config.preference)
       .setRow(config.row)
       .setStatus(config.status)
-      .setComments(config.comments);
+      .setComments(config.comments)
+      .setZoomLink(config.zoomLink);
 
       return newCourse;
   }

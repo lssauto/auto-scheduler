@@ -61,7 +61,9 @@ enum EncodingTitles {
   end = "e",
   scheduleByLSS = "byLSS",
   room = "room",
-  courseID = "id"
+  courseID = "id",
+  zoomLink = "zoom",
+  isVirtual = "virtual"
 }
 
 /**
@@ -94,6 +96,7 @@ export interface Response {
   comments: string;
   status: Status;
   scheduler: string;
+  zoomLink: string;
 }
 
 /**
@@ -183,7 +186,8 @@ export class ResponseTableMaker {
         times: [],
         comments: "",
         status: StatusOptions.inProgress,
-        scheduler: ""
+        scheduler: "",
+        zoomLink: "", // TODO: add parsing for zoom link
       };
       this._responses.push(response);
 
@@ -265,7 +269,8 @@ export class ResponseTableMaker {
               roomName: null,
               courseID: response.courseID,
               tag: Tags.lecture,
-              scheduleByLSS: true
+              scheduleByLSS: true,
+              isVirtual: false
             });
           }
         
@@ -281,7 +286,8 @@ export class ResponseTableMaker {
               roomName: null,
               courseID: response.courseID,
               tag: Tags.officeHours,
-              scheduleByLSS: true
+              scheduleByLSS: true,
+              isVirtual: false
             });
           }
         
@@ -297,7 +303,8 @@ export class ResponseTableMaker {
               roomName: null,
               courseID: response.courseID,
               tag: Tags.discord,
-              scheduleByLSS: true
+              scheduleByLSS: true,
+              isVirtual: true
             });
           }
 
@@ -357,10 +364,11 @@ export class ResponseTableMaker {
           
           // not useful anymore ?
           let roomName: string | null = null;
-          if (
-            roomStr.includes(RoomResponses.assignedToTutor) || 
-            (!roomStr.includes(RoomResponses.scheduleByLSS) && 
-            !roomStr.includes(RoomResponses.scheduleByTutor))
+          if (roomStr.includes(Tutor.tutorScheduled.toLowerCase())) {
+            roomName = Tutor.tutorScheduled;
+          } else if (
+            !roomStr.includes(RoomResponses.scheduleByLSS) && 
+            !roomStr.includes(RoomResponses.scheduleByTutor)
           ) {
             roomName = matrix[r][c + 1];
           }
@@ -373,6 +381,7 @@ export class ResponseTableMaker {
             start: timeObj.start,
             end: timeObj.end,
             scheduleByLSS: scheduleByLSS,
+            isVirtual: false, // TODO: add virtual session parsing
             tutorEmail: response.email,
             roomName: roomName,
             courseID: response.courseID
@@ -397,7 +406,8 @@ export class ResponseTableMaker {
     roomName: string | null,
     courseID: string,
     tag: Tags, 
-    scheduleByLSS: boolean
+    scheduleByLSS: boolean,
+    isVirtual: boolean
   }): TimeBlock[] {
     // split string into groups of time ranges
     const sets = args.input.split(",");
@@ -424,6 +434,7 @@ export class ResponseTableMaker {
           start: timeObj.start,
           end: timeObj.end,
           scheduleByLSS: args.scheduleByLSS,
+          isVirtual: args.isVirtual,
           tutorEmail: args.email,
           roomName: args.roomName,
           courseID: args.courseID
@@ -505,6 +516,7 @@ export class ResponseTableMaker {
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.timestamp] = timeConvert.stampToStr(course.timestamp);
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.comments] = course.comments;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.scheduler] = course.scheduler;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.zoomLink] = course.zoomLink;
     });
 
     tutorObj[EncodingTitles.times] = [];
@@ -517,6 +529,7 @@ export class ResponseTableMaker {
       timeObj[EncodingTitles.start] = time.start;
       timeObj[EncodingTitles.end] = time.end;
       timeObj[EncodingTitles.scheduleByLSS] = time.scheduleByLSS;
+      timeObj[EncodingTitles.isVirtual] = time.isVirtual;
       timeObj[EncodingTitles.room] = time.roomName ?? "null";
       timeObj[EncodingTitles.courseID] = time.courseID ?? "null";
       tutorObj[EncodingTitles.times].push(timeObj);
@@ -575,7 +588,8 @@ export class ResponseTableMaker {
         row: 0,
         timestamp: courses[courseID][EncodingTitles.timestamp] as string,
         comments: courses[courseID][EncodingTitles.comments] as string,
-        scheduler: courses[courseID][EncodingTitles.scheduler] as string
+        scheduler: courses[courseID][EncodingTitles.scheduler] as string,
+        zoomLink: (courses[courseID][EncodingTitles.zoomLink] ?? "") as string
       }));
     }
 
@@ -603,6 +617,7 @@ export class ResponseTableMaker {
         start: time[EncodingTitles.start] as number,
         end: time[EncodingTitles.end] as number,
         scheduleByLSS: time[EncodingTitles.scheduleByLSS] as boolean,
+        isVirtual: time[EncodingTitles.isVirtual] as boolean,
         tutorEmail: tutor.email,
         roomName: time[EncodingTitles.room] === "null" ? null : time[EncodingTitles.room] as string,
         courseID: time[EncodingTitles.courseID] === "null" ? null : time[EncodingTitles.courseID] as string
@@ -640,6 +655,7 @@ export class ResponseTableMaker {
         start: time[EncodingTitles.start] as number,
         end: time[EncodingTitles.end] as number,
         scheduleByLSS: time[EncodingTitles.scheduleByLSS] as boolean,
+        isVirtual: time[EncodingTitles.isVirtual] as boolean,
         tutorEmail: tutor.email,
         roomName: time[EncodingTitles.room] == "null" ? null : time[EncodingTitles.room] as string,
         courseID: time[EncodingTitles.courseID] == "null" ? null : time[EncodingTitles.courseID] as string

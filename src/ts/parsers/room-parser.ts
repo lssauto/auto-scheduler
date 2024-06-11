@@ -133,6 +133,7 @@ function buildRooms(matrix: string[][]) {
             end: timeObj.end,
             tag: Tags.session,
             scheduleByLSS: true,
+            isVirtual: false,
             tutorEmail: tutorEmail,
             courseID: course,
             roomName: curRoom!.name

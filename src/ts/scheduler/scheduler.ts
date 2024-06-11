@@ -133,8 +133,8 @@ export class Scheduler {
 
       let sessionsThisDay = 0;
       tutor.schedule.forEachTimeInDay(day, (time) => {
-        // max of 3 sessions per day
-        if (sessionsThisDay >= 3) {
+        // max of 2 sessions per day
+        if (sessionsThisDay >= 2) {
           return;
         }
 
@@ -144,6 +144,10 @@ export class Scheduler {
         if (!StatusOptions.isProgressStatus(time.getCourse()?.status ?? StatusOptions.inProgress)) {
           return;
         }
+        console.log(time.courseID);
+        console.log(sessionCounts);
+        
+        
         if (sessionCounts[time.courseID!].count >= (time.getCourse()?.position.sessionLimit ?? 3)) {
           return;
         }

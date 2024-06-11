@@ -14,6 +14,12 @@ import { Tutors } from "./tutors";
  * Contains info about a tutor. Mapped by email in the Tutors list.
  */
 export class Tutor {
+
+  /**
+   * Special room name used to indicate that the session is scheduled by the tutor.
+   */
+  static readonly tutorScheduled = "Scheduled By Tutor";
+
   readonly email: string;
   readonly name: string;
   readonly returnee: boolean;
@@ -92,10 +98,22 @@ export class Tutor {
   }
 
   /**
+   * Returns true if this tutor has any course with a zoom link assigned.
+   */
+  hasZoomLinks(): boolean {    
+    for (const courseID of this.courses.keys()) {      
+      if (this.courses.get(courseID)!.zoomLink !== "") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Searches for given position in all of this tutor's courses.
    */
   hasPosition(position: Position): boolean {
-    for (const courseID in this.courses) {
+    for (const courseID of this.courses.keys()) {
       if (this.courses.get(courseID)!.position === position) {
         return true;
       }

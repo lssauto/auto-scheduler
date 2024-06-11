@@ -125,7 +125,8 @@ function buildTutors(matrix: string[][]) {
       row: -1,
       timestamp: timeConvert.stampToStr(1),
       comments: "",
-      scheduler: SchedulerName.name
+      scheduler: SchedulerName.name,
+      zoomLink: ""
     }));
 
     // add new tutors to the tutors list

@@ -31,9 +31,10 @@ export class TimeEditor extends Editor {
   client: Schedule | null = null;
 
   // * Rows ======================
-  static readonly courseRow = 0;
-  static readonly ownerRow = 1;
-  static readonly timeRow = 2;
+  static readonly courseRow = 0; // the position and course of the time
+  static readonly ownerRow = 1; // the tutor and room the time belongs to
+  static readonly assignmentRow = 2; // whose responsible for scheduling the time
+  static readonly timeRow = 3; // the actual day and time
   // * ===========================
 
   // * Titles ====================
@@ -41,6 +42,8 @@ export class TimeEditor extends Editor {
   static readonly courseID = "Course ID";
   static readonly email = "Tutor Email";
   static readonly room = "Room Name";
+  static readonly scheduleByLSS = "Schedule By LSS";
+  static readonly virtual = "Is Virtual";
   static readonly day = "Day";
   static readonly start = "Start";
   static readonly end = "End";
@@ -55,6 +58,7 @@ export class TimeEditor extends Editor {
 
     this.buildCourseRow();
     this.buildOwnerRow();
+    this.buildAssignmentRow();
     this.buildTimeRow();
   }
 
@@ -79,6 +83,7 @@ export class TimeEditor extends Editor {
       () => {
         // if the tag changed to or from "session", then the time validation will change
         this.getField(TimeEditor.day)!.validate();
+        this.getField(TimeEditor.scheduleByLSS)!.validate();
       },
       (field: fields.MenuSelectField) => {
         field.setNotice("time must have a type selected");
@@ -273,6 +278,43 @@ export class TimeEditor extends Editor {
     );
   }
 
+  private buildAssignmentRow() {
+    this.addRow();
+
+    this.addCheckboxField(
+      TimeEditor.assignmentRow,
+      TimeEditor.scheduleByLSS,
+      (input: boolean) => {
+        if (input && (this.getValue(TimeEditor.tag) as Tags) !== Tags.session) {
+          this.getField(TimeEditor.scheduleByLSS)?.setNotice("Non sessions are not</br>impacted by this value.");
+        } else {
+          this.getField(TimeEditor.scheduleByLSS)?.setNotice("");
+        }
+        return true;
+      },
+      () => {
+        return;
+      },
+      () => {
+        return;
+      }
+    );
+
+    this.addCheckboxField(
+      TimeEditor.assignmentRow,
+      TimeEditor.virtual,
+      () => {
+        return true;
+      },
+      () => {
+        return;
+      },
+      () => {
+        return;
+      }
+    );
+  }
+
   private buildTimeRow() {
     this.addRow();
 
@@ -409,7 +451,8 @@ export class TimeEditor extends Editor {
   override applyChanges() {
     const changes: TimeBlockConfig = {
       coords: this.curTime?.coords ?? {row: -1, col: -1}, // might not be important anymore
-      scheduleByLSS: this.curTime?.scheduleByLSS ?? true, // default times to be scheduled by LSS
+      scheduleByLSS: (this.getField(TimeEditor.scheduleByLSS) as fields.MenuCheckboxField).getChecked(),
+      isVirtual: (this.getField(TimeEditor.virtual) as fields.MenuCheckboxField).getChecked(),
       tag: this.getValue(TimeEditor.tag) as Tags,
       courseID: this.getValue(TimeEditor.courseID),
       tutorEmail: this.getValue(TimeEditor.email) !== "" ? this.getValue(TimeEditor.email) : null,
@@ -529,5 +572,7 @@ export class TimeEditor extends Editor {
     this.getField(TimeEditor.day)!.setValue(this.curTime.day);
     this.getField(TimeEditor.start)!.setValue(timeConvert.intTo24hr(this.curTime.start));
     this.getField(TimeEditor.end)!.setValue(timeConvert.intTo24hr(this.curTime.end));
+    (this.getField(TimeEditor.scheduleByLSS) as fields.MenuCheckboxField)!.setChecked(this.curTime.scheduleByLSS);
+    (this.getField(TimeEditor.virtual) as fields.MenuCheckboxField)!.setChecked(this.curTime.isVirtual);
   }
 }

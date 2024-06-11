@@ -5,6 +5,7 @@ import { Rooms } from "../rooms/rooms";
 import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock } from "../schedule/time-block";
 import { Course } from "../tutors/course";
+import { Tutor } from "../tutors/tutor";
 import { Tutors } from "../tutors/tutors";
 import { ScheduledState, SessionCounts } from "./scheduler";
 
@@ -62,15 +63,24 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
   // check if tutor wants this session scheduled
   if (!session.scheduleByLSS) {
     Messages.output(Messages.info, `tutor scheduling session: ${session.getDayAndStartStr()}`);
+    session.setRoom(Tutor.tutorScheduled);
     return ScheduledState.tutorScheduled;
   }
 
-  // check if session should default to registrar request
-  if (counts.count - counts.requests >= counts.position.requestLimit && 
-    rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
-    Messages.output(Messages.info, `no space for: ${session.getDayAndStartStr()}, defaulting to ${Rooms.registrarRequest}`);
-    rooms.getRoom(Rooms.registrarRequest)?.pushTime(session);
-    return ScheduledState.request;
+  // check if session should default to registrar request/self-scheduled
+  if (counts.count - counts.requests >= counts.position.requestLimit) {
+    
+    if (!session.isVirtual && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
+      Messages.output(Messages.info, `no space for: ${session.getDayAndStartStr()}, defaulting to ${Rooms.registrarRequest}`);
+      rooms.getRoom(Rooms.registrarRequest)?.pushTime(session);
+      return ScheduledState.request;
+
+    // virtual sessions default to self-scheduled
+    } else if (session.isVirtual) {
+      Messages.output(Messages.info, `no space for: ${session.getDayAndStartStr()}, defaulting to tutor scheduled virtual session.`);
+      session.setRoom(Tutor.tutorScheduled);
+      return ScheduledState.tutorScheduled;
+    }
   }
 
   // schedule for preferred building
@@ -126,7 +136,11 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
         }
 
         // only assign tutors to rooms that match their position
-        if (!course.position.roomFilter.includes(room.type.title)) {
+        // if the session is virtual only schedule in SGT rooms
+        if (
+          !session.isVirtual ? !course.position.roomFilter.includes(room.type.title) :
+          !Positions.sgt.roomFilter.includes(room.type.title)
+        ) {
           continue;
         }
 
@@ -176,7 +190,11 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
     }
 
     // only assign tutors to rooms that match their position
-    if (!course.position.roomFilter.includes(room.type.title)) {
+    // if the session is virtual only schedule in SGT rooms
+    if (
+      !session.isVirtual ? !course.position.roomFilter.includes(room.type.title) :
+      !Positions.sgt.roomFilter.includes(room.type.title)
+    ) {
       continue;
     }
 
@@ -189,10 +207,16 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
   }
 
   // registrar requests
-  if (rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
+  if (!session.isVirtual && rooms.getBuilding(Rooms.registrarRequest)!.isInRange(session)) {
     Messages.output(Messages.info, `no space for: ${session.getDayAndStartStr()}, defaulting to ${Rooms.registrarRequest}`);
     rooms.getRoom(Rooms.registrarRequest)!.pushTime(session);
     return ScheduledState.request;
+    
+  // if the session is virtual, then default to self scheduled
+  } else if (session.isVirtual) {
+    Messages.output(Messages.info, `no space for: ${session.getDayAndStartStr()}, defaulting to tutor scheduled virtual session.`);
+    session.setRoom(Tutor.tutorScheduled);
+    return ScheduledState.tutorScheduled;
   }
 
   Messages.output(Messages.info, "session could not be scheduled");
