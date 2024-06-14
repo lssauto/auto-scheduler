@@ -1,5 +1,7 @@
 import { ParserMenu } from "../../parsers/parser-menu";
 import { Scheduler } from "../../scheduler/scheduler";
+import { SessionTimes } from "../../utils/session-times";
+import { Messages } from "../messages/messages";
 import { SchedulerName } from "./scheduler-name";
 
 const TUTORS_MODE = true;
@@ -26,6 +28,16 @@ export class Header {
   private _tutorTools: Map<string, HTMLElement>;
   private _roomToolsElem: HTMLDivElement;
   private _roomTools: Map<string, HTMLElement>;
+
+  private _quarterElem: HTMLButtonElement;
+  private _quarterToggleMode: SessionTimes;
+
+  /**
+   * Gets the current session times mode scheduling is currently in.
+   */
+  static get sessionTimesMode(): SessionTimes {
+    return this.instance ? this.instance._quarterToggleMode : SessionTimes.schoolYear;
+  }
 
   constructor() {
     if (Header.instance !== null) {
@@ -102,11 +114,31 @@ export class Header {
     const schedulerName = document.createElement("b");
     schedulerName.style.display = "inline-block";
     schedulerName.style.margin = "0px";
-    schedulerName.style.marginLeft = "10px";
+    schedulerName.style.marginLeft = "5px";
     schedulerName.style.marginRight = "10px";
     schedulerName.style.float = "right";
     schedulerName.innerHTML = "Scheduler: " + SchedulerName.name;
     this._headerElem.append(schedulerName);
+
+    // session validation mode toggle
+    this._quarterToggleMode = SessionTimes.schoolYear;
+    this._quarterElem = document.createElement("button");
+    this._quarterElem.style.marginLeft = "5px";
+    this._quarterElem.style.marginRight = "5px";
+    this._quarterElem.style.float = "right";
+    this._quarterElem.innerHTML = "Using School Year";
+    this._quarterElem.addEventListener("click", () => {
+      if (this._quarterToggleMode === SessionTimes.schoolYear) {
+        this._quarterElem.innerHTML = "Using Summer";
+        this._quarterToggleMode = SessionTimes.summer;
+        Messages.output(Messages.info, "Switched to Summer session time validation (8am to 10pm, every 15min).");
+      } else if (this._quarterToggleMode === SessionTimes.summer) {
+        this._quarterElem.innerHTML = "Using School Year";
+        this._quarterToggleMode = SessionTimes.schoolYear;
+        Messages.output(Messages.info, "Switched to regular school year session time validation (following provided UCSC time blocks)");
+      }
+    });
+    this._headerElem.append(this._quarterElem);
   }
 
   toggleModes() {

@@ -74,12 +74,38 @@ sessionTimes.set(Days.sun, [
   { start: "9:00 PM", end: "10:00 PM" },
 ]);
 
+export enum SessionTimes {
+  schoolYear,
+  summer
+}
+
 // checks if a given session time is valid
-export function isValidSessionTime(time: TimeBlock | {day: Days, start: number, end: number}) {
-  for (const block of sessionTimes.get(time.day)!) {
-    const timeBlockStart = timeConvert.strToInt(block.start);
-    const timeBlockEnd = timeConvert.strToInt(block.end);
-    if (timeBlockStart <= time.start && time.end <= timeBlockEnd) {
+export function isValidSessionTime(
+  time: TimeBlock | {day: Days, start: number, end: number}, 
+  quarter: SessionTimes = SessionTimes.schoolYear
+) {
+  // sessions can only be one hour long, 5min buffer just cus
+  if (time.end - time.start > 65) {
+    return false;
+  }
+
+  // compare against session times list during normal school year
+  if (quarter === SessionTimes.schoolYear) {
+    for (const block of sessionTimes.get(time.day)!) {
+      const timeBlockStart = timeConvert.strToInt(block.start);
+      const timeBlockEnd = timeConvert.strToInt(block.end);
+      if (timeBlockStart <= time.start && time.end <= timeBlockEnd) {
+        return true;
+      }
+    }
+  
+  // sessions on 15min marks during the summer
+  } else if (quarter === SessionTimes.summer) {
+    if (
+      timeConvert.strToInt("8:00 AM") <= time.start && 
+      time.end <= timeConvert.strToInt("10:00 PM") &&
+      time.start % 15 === 0
+    ) {
       return true;
     }
   }

@@ -5,7 +5,6 @@ import { Days } from "../days";
 // * times given as "HH:MM [AM/PM]" are converted to an integer representing the number of minutes
 // * from midnight. This means all times will be between 0 (12:00 AM) and 1439 (11:59 PM).
 
-// ! does not work for times from 12:00 AM to 12:59 AM, this is left unfixed since it's not a valid time
 /**
  * Converts a string in the format "HH:MM [AM/PM]" to an integer 
  * for easy comparison.
@@ -18,6 +17,8 @@ export function strToInt(time: string): number {
   let totalMinutes = parseInt(hours, 10) * 60 + parseInt(minutes, 10);
   if (time.includes("PM") && hours !== "12") {
     totalMinutes += 12 * 60; // Add 12 hours if it's PM (except for 12pm)
+  } else if (time.includes("AM") && hours === "12") {
+    totalMinutes -= 12 * 60; // 12am should be considered 0
   }
 
   return totalMinutes;

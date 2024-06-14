@@ -4,6 +4,7 @@ import { Tutor } from "./tutor";
 import { Days } from "../days";
 import { isValidSessionTime } from "../utils/session-times";
 import { TimeEditor } from "../elements/editors/time-editor";
+import { Header } from "../elements/header/header";
 
 export class TutorSchedule extends Schedule {
   tutor: Tutor;
@@ -41,7 +42,7 @@ export class TutorSchedule extends Schedule {
 
   override addTime(time: TimeBlock): ErrorCodes {
     // check if session matches a valid session time
-    if (time.tag === Tags.session && !isValidSessionTime(time)) {
+    if (time.tag === Tags.session && !isValidSessionTime(time, Header.sessionTimesMode)) {
       time.setError(ErrorCodes.invalidSession);
       return ErrorCodes.invalidSession;
     }

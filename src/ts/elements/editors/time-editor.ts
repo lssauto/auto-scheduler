@@ -15,6 +15,7 @@ import { RoomSchedule } from "../../rooms/room-schedule";
 import { isValidSessionTime } from "../../utils/session-times";
 import { Editor } from "./editor";
 import * as fields from "./menu-field.ts";
+import { Header } from "../header/header.ts";
 
 export class TimeEditor extends Editor {
   private static _instance: TimeEditor | null = null;
@@ -431,7 +432,7 @@ export class TimeEditor extends Editor {
     }
 
     // check if the session is in a valid session time block
-    if (this.getValue(TimeEditor.tag) as Tags === Tags.session && !isValidSessionTime(time)) {
+    if (this.getValue(TimeEditor.tag) as Tags === Tags.session && !isValidSessionTime(time, Header.sessionTimesMode)) {
       this.setRowNotice(
         TimeEditor.timeRow, 
         "time is not within a valid block for a session</br><a href='https://registrar.ucsc.edu/soc/archive/html/fall2020/schedule_planner1.pdf' target='_blank'>view time blocks</a>"

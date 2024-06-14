@@ -1,5 +1,5 @@
 import { Days } from "../../days";
-import { isValidSessionTime } from "../session-times";
+import { SessionTimes, isValidSessionTime } from "../session-times";
 import * as timeConvert from "../time-convert";
 
 describe("utils - Test Session Time Validation", () => {
@@ -30,6 +30,36 @@ describe("utils - Test Session Time Validation", () => {
         start: timeConvert.strToInt("3:00 PM"),
         end: timeConvert.strToInt("4:00 PM"),
       })
+    ).toBe(true);
+  });
+
+  test("M 3:00 - 4:00 PM returns true during summer", () => {
+    expect(
+      isValidSessionTime({
+        day: Days.mon,
+        start: timeConvert.strToInt("3:00 PM"),
+        end: timeConvert.strToInt("4:00 PM"),
+      }, SessionTimes.summer)
+    ).toBe(true);
+  });
+
+  test("Tu 8:15 - 9:15 AM returns true during summer", () => {
+    expect(
+      isValidSessionTime({
+        day: Days.mon,
+        start: timeConvert.strToInt("8:15 AM"),
+        end: timeConvert.strToInt("9:15 AM"),
+      }, SessionTimes.summer)
+    ).toBe(true);
+  });
+
+  test("Tu 11:45 - 12:45 PM returns true during summer", () => {
+    expect(
+      isValidSessionTime({
+        day: Days.mon,
+        start: timeConvert.strToInt("11:45 AM"),
+        end: timeConvert.strToInt("12:45 PM"),
+      }, SessionTimes.summer)
     ).toBe(true);
   });
 });
