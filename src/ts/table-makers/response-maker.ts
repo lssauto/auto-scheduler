@@ -37,6 +37,7 @@ export enum Titles {
   sessionOption = "session option",
   scheduler = "scheduler",
   status = "status",
+  zoom = "personal meeting id link"
 }
 
 /**
@@ -230,6 +231,10 @@ export class ResponseTableMaker {
         } else if (title.includes(Titles.returnee)) {
           response.returnee = (matrix[r][c] === "Yes" || matrix[r][c] === "yes");
         
+        // * Zoom Link ================
+        } else if (title.includes(Titles.zoom)) {
+          response.zoomLink = matrix[r][c].trim();
+        
         // * Course ID ================
         } else if (title.includes(Titles.courseID)) {
           // format the id
@@ -381,7 +386,7 @@ export class ResponseTableMaker {
             start: timeObj.start,
             end: timeObj.end,
             scheduleByLSS: scheduleByLSS,
-            isVirtual: false, // TODO: add virtual session parsing
+            isVirtual: response.zoomLink !== "",
             tutorEmail: response.email,
             roomName: roomName,
             courseID: response.courseID
