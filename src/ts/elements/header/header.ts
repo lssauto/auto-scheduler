@@ -128,17 +128,21 @@ export class Header {
     this._quarterElem.style.float = "right";
     this._quarterElem.innerHTML = "Using School Year";
     this._quarterElem.addEventListener("click", () => {
-      if (this._quarterToggleMode === SessionTimes.schoolYear) {
-        this._quarterElem.innerHTML = "Using Summer";
-        this._quarterToggleMode = SessionTimes.summer;
-        Messages.output(Messages.info, "Switched to Summer session time validation (8am to 10pm, every 15min).");
-      } else if (this._quarterToggleMode === SessionTimes.summer) {
-        this._quarterElem.innerHTML = "Using School Year";
-        this._quarterToggleMode = SessionTimes.schoolYear;
-        Messages.output(Messages.info, "Switched to regular school year session time validation (following provided UCSC time blocks)");
-      }
+      this.toggleSessionValidationMode();
     });
     this._headerElem.append(this._quarterElem);
+  }
+
+  toggleSessionValidationMode() {
+    if (this._quarterToggleMode === SessionTimes.schoolYear) {
+      this._quarterElem.innerHTML = "Using Summer";
+      this._quarterToggleMode = SessionTimes.summer;
+      Messages.output(Messages.info, "Switched to Summer session time validation (8am to 10pm, every 15min).");
+    } else if (this._quarterToggleMode === SessionTimes.summer) {
+      this._quarterElem.innerHTML = "Using School Year";
+      this._quarterToggleMode = SessionTimes.schoolYear;
+      Messages.output(Messages.info, "Switched to regular school year session time validation (following provided UCSC time blocks)");
+    }
   }
 
   toggleModes() {

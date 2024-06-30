@@ -73,6 +73,18 @@ tutor1.addCourse(Course.buildCourse({
     comments: "",
     scheduler: "tony"
 }));
+tutor1.addCourse(Course.buildCourse({
+    tutor: tutor1,
+    id: "CSE 102-02",
+    position: Positions.lgt,
+    status: StatusOptions.inProgress,
+    preference: Course.noPref,
+    row: 0,
+    timestamp: timeConvert.stampToStr(1),
+    zoomLink: "",
+    comments: "",
+    scheduler: "tony"
+}));
 tutors.addTutor(tutor1);
 
 tutor1.addTime(TimeBlock.buildTimeBlock({

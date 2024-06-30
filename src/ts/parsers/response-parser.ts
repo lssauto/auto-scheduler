@@ -2,6 +2,8 @@ import { Messages } from "../elements/messages/messages";
 import { Tutors } from "../tutors/tutors";
 import { ResponseTableMaker, Titles } from "../table-makers/response-maker";
 import { ErrorCodes } from "../schedule/schedule";
+import { Header } from "../elements/header/header";
+import { SessionTimes } from "../utils/session-times";
 
 // Procedure for parsing tutor response table, 
 // expects the raw copy & pasted string from the google sheets
@@ -68,6 +70,14 @@ function parseColumnTitles(input: string): number {
 
   // store titles for later use
   ResponseTableMaker.instance!.setColumnTitles(columnTitles);
+
+  for (const title of columnTitles) {
+    if (title.toLowerCase().includes(Titles.zoom) && Header.sessionTimesMode === SessionTimes.schoolYear) {
+      Messages.output(Messages.warn, "These responses look like they're for Summer sessions. Switching session validation mode.");
+      Header.instance!.toggleSessionValidationMode();
+      break;
+    }
+  }
 
   return i;
 }

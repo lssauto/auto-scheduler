@@ -190,6 +190,7 @@ export class Scheduler {
     tutor.forEachCourse((course) => {
       if (StatusOptions.isProgressStatus(course.status)) {
         course.setStatus(StatusOptions.scheduled);
+        course.onEditedDispatch();
       }
     });
 

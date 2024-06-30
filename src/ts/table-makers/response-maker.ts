@@ -73,7 +73,18 @@ enum EncodingTitles {
 export enum RoomResponses {
   scheduleByLSS = "lss will book me space",
   scheduleByTutor = "i'll book my own space",
-  assignedToTutor = "scheduled by tutor" // might not be useful anymore
+  assignedToTutor = "scheduled by tutor", // might not be useful anymore
+  remoteScheduleByLSS = "i want lss to book me",
+  remoteScheduleByTutor = "i'll sign in from my own space"
+}
+
+/**
+ * sub strings used to identify whether or not a tutor wants a time to be in-person or virtual.
+ * Currently only used during summer sessions.
+ */
+export enum VirtualResponses {
+  virtual = "remote via zoom",
+  inPerson = "in person"
 }
 
 /**
@@ -166,6 +177,9 @@ export class ResponseTableMaker {
 
     // ? displayed row number is +2 to account for column titles row, and 0 indexing
     // ? displayed column number is +1 to account for 0 indexing
+
+    // ? if-else chain used to allow for generic table parsing. 
+    // ? It's inefficient and ugly, but makes adding new columns easier.
 
     // for each row in the response matrix
     for (let r = 0; r < matrix.length; r++) {
@@ -364,19 +378,22 @@ export class ResponseTableMaker {
           }
 
           // convert roomStr into a bool
-          const scheduleByLSS = roomStr.includes(RoomResponses.scheduleByLSS) || 
+          const scheduleByLSS = (roomStr.includes(RoomResponses.scheduleByLSS) || roomStr.includes(RoomResponses.remoteScheduleByLSS)) && 
                                   Positions.isSelfSchedulable(response.position);
+
+          const isVirtual = roomStr.includes(VirtualResponses.virtual);
           
           // not useful anymore ?
-          let roomName: string | null = null;
-          if (roomStr.includes(Tutor.tutorScheduled.toLowerCase())) {
-            roomName = Tutor.tutorScheduled;
-          } else if (
-            !roomStr.includes(RoomResponses.scheduleByLSS) && 
-            !roomStr.includes(RoomResponses.scheduleByTutor)
-          ) {
-            roomName = matrix[r][c + 1];
-          }
+          // old style serialization, saving room assignment to roomStr column
+          // let roomName: string | null = null;
+          // if (roomStr.includes(Tutor.tutorScheduled.toLowerCase())) {
+          //   roomName = Tutor.tutorScheduled;
+          // } else if (
+          //   !roomStr.includes(RoomResponses.scheduleByLSS) && 
+          //   !roomStr.includes(RoomResponses.scheduleByTutor)
+          // ) {
+          //   roomName = matrix[r][c + 1];
+          // }
 
           // add new TimeBlock instance representing the parsed submission
           response.times.push(TimeBlock.buildTimeBlock({
@@ -386,9 +403,9 @@ export class ResponseTableMaker {
             start: timeObj.start,
             end: timeObj.end,
             scheduleByLSS: scheduleByLSS,
-            isVirtual: response.zoomLink !== "",
+            isVirtual: isVirtual,
             tutorEmail: response.email,
-            roomName: roomName,
+            roomName: null,
             courseID: response.courseID
           }));
           c++;
