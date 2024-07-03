@@ -31,6 +31,7 @@ export class CourseEditor extends Editor {
   static readonly position = "Position";
   static readonly status = "Status";
   static readonly preference = "Building Preference";
+  static readonly session = "Course Length";
   static readonly zoom = "Zoom Link";
   static readonly comments = "Comments";
   // * ===========================
@@ -220,6 +221,30 @@ export class CourseEditor extends Editor {
   private buildZoomRow() {
     this.addRow();
 
+    // course session just needs to be a valid enum value
+    const options = Object.values(CourseSessions) as string[];
+    this.addSelectField(
+      CourseEditor.zoomRow,
+      CourseEditor.session,
+      options,
+      (value) => {
+        for (const session of options) {
+          if (session === value) {
+            return true;
+          }
+        }
+        return false;
+      },
+      (field) => {
+        field.setNotice("");
+      },
+      (field) => {
+        field.setNotice("A course length must be selected");
+      }
+    );
+
+    // zoom link can be anything, 
+    // could add parsing to make sure the given value is a url but that's extra
     this.addTextField(
       CourseEditor.zoomRow,
       CourseEditor.zoom,
@@ -331,5 +356,6 @@ export class CourseEditor extends Editor {
     this.getField(CourseEditor.comments)!.setValue(course.comments);
 
     this.getField(CourseEditor.zoom)!.setValue(course.zoomLink);
+    this.getField(CourseEditor.session)!.setValue(course.session as string);
   }
 }

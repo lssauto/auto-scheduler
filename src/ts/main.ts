@@ -51,6 +51,8 @@ console.log(timeEditor);
 console.log(courseEditor);
 console.log(buildingEditor);
 
+// * TESTING ===================
+
 // import { Tutor } from "./tutors/tutor";
 // import { Tags, TimeBlock } from "./schedule/time-block";
 // import { Days } from "./days";
