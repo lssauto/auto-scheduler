@@ -3,6 +3,7 @@ import { Tutors } from "../../tutors/tutors";
 import { ResponseTableMaker, Titles, Response } from "../../table-makers/response-maker";
 import { Positions } from "../../positions";
 import { StatusOptions } from "../../status-options";
+import { CourseSessions } from "../../tutors/course";
 
 describe("parsing - Response Parsing", () => {
   // init managers
@@ -30,7 +31,8 @@ describe("parsing - Response Parsing", () => {
     comments: "something something",
     status: StatusOptions.inProgress,
     scheduler: "",
-    zoomLink: ""
+    zoomLink: "",
+    courseSession: CourseSessions.full
   };
   
   console.log(testResponse);

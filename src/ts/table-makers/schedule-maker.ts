@@ -40,20 +40,11 @@ export class ScheduleTableMaker {
       output += tutor.name + " (" + tutor.email + ")\n";
 
       // courses row
-      output += "Courses\t";
+      output += "Course ID\tPosition\tStatus\tCourse Length\tZoom Link\n";
       tutor.forEachCourse((course) => {
-        output += `${course.id} (${course.position.title}): ${course.status.title}\t`;
+        output += `${course.id}\t${course.position.title}\t${course.status.title}\t${course.session}\t${course.zoomLink}\n`;
       });
-      output += "\n";
-
-      // zoom links for each course
-      if (tutor.hasZoomLinks()) {        
-        output += "Zoom Links:\t";
-        tutor.forEachCourse((course) => {
-          output += `${course.id}: ${course.zoomLink}\t`;
-        });
-        output += "\n";
-      }
+      output += "Scheduled Sessions:\n";
 
       // schedule rows
       tutor.schedule.forEachDay((dayName, dayObj) => {

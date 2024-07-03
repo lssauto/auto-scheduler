@@ -18,7 +18,6 @@ export function defaultScheduler(session: TimeBlock, counts: SessionCounts): Sch
   // check for conflicts with already scheduled sessions
   if (session.day !== Days.sat && session.day !== Days.sun) {
     for (const time of tutor.schedule) {
-      console.log(time);
       if (time.tag !== Tags.session || !time.hasRoomAssigned()) continue;
 
       // if the session is for the same course

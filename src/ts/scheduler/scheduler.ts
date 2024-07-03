@@ -144,9 +144,6 @@ export class Scheduler {
         if (!StatusOptions.isProgressStatus(time.getCourse()?.status ?? StatusOptions.inProgress)) {
           return;
         }
-        console.log(time.courseID);
-        console.log(sessionCounts);
-        
         
         if (sessionCounts[time.courseID!].count >= (time.getCourse()?.position.sessionLimit ?? 3)) {
           return;

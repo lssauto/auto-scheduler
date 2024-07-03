@@ -6,6 +6,19 @@ import { CourseEditor } from "../elements/editors/course-editor";
 import * as timeConvert from "../utils/time-convert.ts";
 import { Notify, NotifyEvent } from "../events/notify.ts";
 import { VariableElement } from "../events/var-elem.ts";
+import { Header } from "../elements/header/header.ts";
+import { SessionTimes } from "../utils/session-times.ts";
+
+/**
+ * Length of a course. Currently just used for labelling. 
+ * Normal school year quarters just use 10 week sessions by default.
+ */
+export enum CourseSessions {
+  full = "10 Week Session",
+  eightWeek = "8 Week Session",
+  summer1 = "Summer Session 1",
+  summer2 = "Summer Session 2"
+}
 
 /**
  * Config object used for building and updating courses.
@@ -21,6 +34,7 @@ export interface CourseConfig {
   readonly zoomLink: string;
   readonly comments: string;
   readonly scheduler: string;
+  readonly session: CourseSessions;
 }
 
 /**
@@ -44,6 +58,7 @@ export class Course {
   zoomLink: string;
   comments: string;
   scheduler: string;
+  session: CourseSessions;
 
   // HTML elements
   private _div: HTMLDivElement | null;
@@ -63,6 +78,7 @@ export class Course {
     this.row = 0;
     this.timestamp = 0;
     this.zoomLink = "";
+    this.session = CourseSessions.full;
 
     // init times with all of the tags
     this.times = new Map<Tags, TimeBlock[]>();
@@ -138,6 +154,11 @@ export class Course {
 
   setZoomLink(link: string): Course {
     this.zoomLink = link;
+    return this;
+  }
+
+  setSession(session: CourseSessions): Course {
+    this.session = session;
     return this;
   }
 
@@ -267,6 +288,7 @@ export class Course {
     p.style.display = "inline-block";
     this._divContent = new VariableElement(p, this.onEdited, () => {
       p.innerHTML = `<b>${this.id}: ${this.position.title}</b> || <b>Status:</b> ${this.status.title} || <b>Bldg Pref:</b> ${this.preference} || </br>`;
+      p.innerHTML += this.session !== CourseSessions.full || Header.sessionTimesMode === SessionTimes.summer ? `<b>${this.session}</b></br>` : "";
       p.innerHTML += this.zoomLink !== "" ? `<a href="${this.zoomLink}">Zoom Link</a></br>` : "";
       p.innerHTML += `Comments: ${this.comments !== "" ? "</br>" + this.comments : ""}`;
     });
@@ -310,7 +332,8 @@ export class Course {
       .setStatus(config.status)
       .setComments(config.comments)
       .setScheduler(config.scheduler)
-      .setZoomLink(config.zoomLink);
+      .setZoomLink(config.zoomLink)
+      .setSession(config.session);
     
     if (this.id !== config.id) {
       this.setID(config.id);
@@ -374,7 +397,8 @@ export class Course {
       .setRow(config.row)
       .setStatus(config.status)
       .setComments(config.comments)
-      .setZoomLink(config.zoomLink);
+      .setZoomLink(config.zoomLink)
+      .setSession(config.session);
 
       return newCourse;
   }

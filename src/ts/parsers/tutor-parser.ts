@@ -2,7 +2,7 @@ import { SchedulerName } from "../elements/header/scheduler-name";
 import { Messages } from "../elements/messages/messages";
 import { Positions } from "../positions";
 import { StatusOptions } from "../status-options";
-import { Course } from "../tutors/course";
+import { Course, CourseSessions } from "../tutors/course";
 import { Tutor } from "../tutors/tutor";
 import { Tutors } from "../tutors/tutors";
 import * as timeConvert from "../utils/time-convert";
@@ -126,7 +126,8 @@ function buildTutors(matrix: string[][]) {
       timestamp: timeConvert.stampToStr(1),
       comments: "",
       scheduler: SchedulerName.name,
-      zoomLink: ""
+      zoomLink: "",
+      session: CourseSessions.full
     }));
 
     // add new tutors to the tutors list

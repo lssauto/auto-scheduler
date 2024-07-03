@@ -14,7 +14,7 @@ import { Rooms } from "../rooms/rooms";
 import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock } from "../schedule/time-block";
 import { Status, StatusOptions } from "../status-options";
-import { Course } from "../tutors/course";
+import { Course, CourseSessions } from "../tutors/course";
 import { Tutor } from "../tutors/tutor";
 import { Tutors } from "../tutors/tutors";
 import * as timeConvert from "../utils/time-convert";
@@ -37,7 +37,8 @@ export enum Titles {
   sessionOption = "session option",
   scheduler = "scheduler",
   status = "status",
-  zoom = "personal meeting id link"
+  zoom = "personal meeting id link",
+  courseSession = "i am working during"
 }
 
 /**
@@ -64,7 +65,8 @@ enum EncodingTitles {
   room = "room",
   courseID = "id",
   zoomLink = "zoom",
-  isVirtual = "virtual"
+  isVirtual = "virtual",
+  courseSession = "cs"
 }
 
 /**
@@ -109,6 +111,7 @@ export interface Response {
   status: Status;
   scheduler: string;
   zoomLink: string;
+  courseSession: CourseSessions;
 }
 
 /**
@@ -202,7 +205,8 @@ export class ResponseTableMaker {
         comments: "",
         status: StatusOptions.inProgress,
         scheduler: "",
-        zoomLink: "", // TODO: add parsing for zoom link
+        zoomLink: "",
+        courseSession: CourseSessions.full
       };
       this._responses.push(response);
 
@@ -245,6 +249,22 @@ export class ResponseTableMaker {
         } else if (title.includes(Titles.returnee)) {
           response.returnee = (matrix[r][c] === "Yes" || matrix[r][c] === "yes");
         
+          // * Course Length ==========
+        } else if (title.includes(Titles.courseSession)) {
+          const session = matrix[r][c].trim().toLowerCase();
+          if (session.includes("10")) {
+            response.courseSession = CourseSessions.full;
+
+          } else if (session.includes("8")) {
+            response.courseSession = CourseSessions.eightWeek;
+
+          } else if (session.includes("summer session 1")) {
+            response.courseSession = CourseSessions.summer1;
+            
+          } else if (session.includes("summer session 2")) {
+            response.courseSession = CourseSessions.summer2;
+          }
+      
         // * Zoom Link ================
         } else if (title.includes(Titles.zoom)) {
           response.zoomLink = matrix[r][c].trim();
@@ -288,7 +308,7 @@ export class ResponseTableMaker {
               roomName: null,
               courseID: response.courseID,
               tag: Tags.lecture,
-              scheduleByLSS: true,
+              scheduleByLSS: false,
               isVirtual: false
             });
           }
@@ -305,7 +325,7 @@ export class ResponseTableMaker {
               roomName: null,
               courseID: response.courseID,
               tag: Tags.officeHours,
-              scheduleByLSS: true,
+              scheduleByLSS: false,
               isVirtual: false
             });
           }
@@ -381,19 +401,8 @@ export class ResponseTableMaker {
           const scheduleByLSS = (roomStr.includes(RoomResponses.scheduleByLSS) || roomStr.includes(RoomResponses.remoteScheduleByLSS)) && 
                                   Positions.isSelfSchedulable(response.position);
 
+          // determine if tutor wants this session to be virtual or not
           const isVirtual = roomStr.includes(VirtualResponses.virtual);
-          
-          // not useful anymore ?
-          // old style serialization, saving room assignment to roomStr column
-          // let roomName: string | null = null;
-          // if (roomStr.includes(Tutor.tutorScheduled.toLowerCase())) {
-          //   roomName = Tutor.tutorScheduled;
-          // } else if (
-          //   !roomStr.includes(RoomResponses.scheduleByLSS) && 
-          //   !roomStr.includes(RoomResponses.scheduleByTutor)
-          // ) {
-          //   roomName = matrix[r][c + 1];
-          // }
 
           // add new TimeBlock instance representing the parsed submission
           response.times.push(TimeBlock.buildTimeBlock({
@@ -539,6 +548,7 @@ export class ResponseTableMaker {
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.comments] = course.comments;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.scheduler] = course.scheduler;
       tutorObj[EncodingTitles.courses][course.id][EncodingTitles.zoomLink] = course.zoomLink;
+      tutorObj[EncodingTitles.courses][course.id][EncodingTitles.courseSession] = course.session;
     });
 
     tutorObj[EncodingTitles.times] = [];
@@ -611,7 +621,8 @@ export class ResponseTableMaker {
         timestamp: courses[courseID][EncodingTitles.timestamp] as string,
         comments: courses[courseID][EncodingTitles.comments] as string,
         scheduler: courses[courseID][EncodingTitles.scheduler] as string,
-        zoomLink: (courses[courseID][EncodingTitles.zoomLink] ?? "") as string
+        zoomLink: (courses[courseID][EncodingTitles.zoomLink] ?? "") as string,
+        session: courses[courseID][EncodingTitles.courseSession] as CourseSessions
       }));
     }
 

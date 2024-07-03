@@ -184,6 +184,7 @@ function addResponseData() {
       comments: response.comments,
       scheduler: response.scheduler,
       zoomLink: response.zoomLink,
+      session: response.courseSession
     });
 
     // add times

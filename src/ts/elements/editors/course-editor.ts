@@ -1,7 +1,7 @@
 import { Positions } from "../../positions.ts";
 import { Rooms } from "../../rooms/rooms.ts";
 import { StatusOptions } from "../../status-options.ts";
-import { Course, CourseConfig } from "../../tutors/course.ts";
+import { Course, CourseConfig, CourseSessions } from "../../tutors/course.ts";
 import { Tutor } from "../../tutors/tutor.ts";
 import { Editor } from "./editor";
 import * as fields from "./menu-field.ts";
@@ -276,7 +276,8 @@ export class CourseEditor extends Editor {
       zoomLink: this.getValue(CourseEditor.zoom),
       timestamp: timeConvert.stampToStr(this.curCourse?.timestamp ?? (new Date()).getTime()), // either use response form timestamp, or current timestamp for new courses
       comments: this.getValue(CourseEditor.comments),
-      scheduler: this.curCourse?.scheduler ?? SchedulerName.name
+      scheduler: this.curCourse?.scheduler ?? SchedulerName.name,
+      session: this.curCourse?.session ?? CourseSessions.full
     };
 
     // if this is course being edited
