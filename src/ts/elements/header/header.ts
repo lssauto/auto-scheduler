@@ -83,7 +83,7 @@ export class Header {
     // open parser button
     this._parseButton = document.createElement("button");
     this._parseButton.style.marginLeft = "10px";
-    this._parseButton.innerHTML = "Open Table Parser";
+    this._parseButton.innerHTML = "Table Parser";
     this._parseButton.addEventListener("click", () => {
       ParserMenu.instance!.openMenu();
     });
