@@ -231,6 +231,13 @@ export class Course {
     return false;
   }
 
+  /**
+   * Returns true if this course has any sessions associated to it.
+   */
+  hasSessions(): boolean {
+    return this.times.get(Tags.session)!.length > 0;
+  }
+
   addTime(time: TimeBlock) {
     this.times.get(time.tag)!.push(time);
   }

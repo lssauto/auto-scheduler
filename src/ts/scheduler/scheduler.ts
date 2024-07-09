@@ -185,7 +185,8 @@ export class Scheduler {
 
     // set course statuses to scheduled
     tutor.forEachCourse((course) => {
-      if (StatusOptions.isProgressStatus(course.status)) {
+      // only set a course as scheduled if it actually had times scheduled
+      if (StatusOptions.isProgressStatus(course.status) && course.hasSessions()) {
         course.setStatus(StatusOptions.scheduled);
         course.onEditedDispatch();
       }
