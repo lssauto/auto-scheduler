@@ -414,7 +414,7 @@ export class Course {
    * "N/A" course id used to signal the course doesn't exist, or couldn't be 
    * formatted properly.
    */
-  static readonly na = "N/A";
+  static readonly na = "All Disciplines";
 
   /**
    * Ensures that course IDs follow specific formatting 

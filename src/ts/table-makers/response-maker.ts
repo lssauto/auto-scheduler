@@ -38,7 +38,8 @@ export enum Titles {
   scheduler = "scheduler",
   status = "status",
   zoom = "personal meeting id link",
-  courseSession = "i am working during"
+  courseSession = "i am working during",
+  bookingPlan = "i am booking my space in"
 }
 
 /**
@@ -349,7 +350,25 @@ export class ResponseTableMaker {
 
         // * Comments =================
         } else if (title.includes(Titles.comments)) {
-          response.comments = matrix[r][c];
+          // reformat booking plans now that all responses have been read
+          if (response.comments !== "") {
+            const plans = response.comments.split('\n');
+            response.comments = "Planning to book in ";
+            for (const place of plans) {
+              if (place === "") continue;
+              if (place === plans[plans.length - 2] && place !== plans[0]) {
+                response.comments += "and ";
+              }
+              response.comments += place;
+              if (place === plans[plans.length - 2]) {
+                response.comments += ". \n";
+              } else {
+                response.comments += ", ";
+              }
+            }
+          }
+
+          response.comments += matrix[r][c];
 
         // * Scheduler ================
         } else if (title.includes(Titles.scheduler)) {
@@ -418,6 +437,17 @@ export class ResponseTableMaker {
             courseID: response.courseID
           }));
           c++;
+
+          // writing tutor form has 3rd column for saying planned booking space
+          const nextTitle = this.columnTitles[c + 1].trim().toLowerCase();
+          if (nextTitle.includes(Titles.bookingPlan)) {
+            const plannedSpace = matrix[r][c + 1].trim();
+            // put planned space in comments if it hasn't been added already
+            if (plannedSpace !== "" && !response.comments.includes(plannedSpace)) {
+              response.comments += plannedSpace + "\n";
+            }
+            c++;
+          }
         }
       }
     }
