@@ -407,7 +407,7 @@ export class ResponseTableMaker {
           // skip time if parsing failed
           if (timeObj === null) {
             Messages.output(Messages.warn, {
-              message: `The time "${timeStr}" could not be parsed properly.`,
+              message: `The time "${timeStr}" for ${response.name} (${response.email}) supporting ${response.courseID} could not be parsed properly.`,
               expected: "[M/Tu/W/Th/F/Sat/Sun] ##:## [AM/PM] - ##:## [AM/PM]",
               solution: "This time can be manually added to the tutor's schedule using the 'Add Time' button.",
               cell: `(row: ${r + 2}, col: ${Messages.getColumnName(c + 1)})` 

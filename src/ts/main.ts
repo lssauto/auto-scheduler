@@ -133,6 +133,18 @@ console.log(buildingEditor);
 // const room1 = new Room("ARC 116 - Small");
 // rooms.addRoom(room1);
 
+// Messages.output(Messages.error, {
+//     message: `Too many columns counted in row: 10.`,
+//     solution: "A tab character was likely input in a response. Remove the tab, and try again. Multiple empty columns might have also been included."
+// });
+
+// Messages.output(Messages.warn, {
+//     message: `The time "Thu 2:40" for Billy Bob (billy@ucsc.edu) supporting CSE 101-001 could not be parsed properly.`,
+//     expected: "[M/Tu/W/Th/F/Sat/Sun] ##:## [AM/PM] - ##:## [AM/PM]",
+//     solution: "This time can be manually added to the tutor's schedule using the 'Add Time' button.",
+//     cell: `(row: ${13}, col: ${Messages.getColumnName(12)})` 
+// });
+
 // const encoding = ResponseTableMaker.encodeTutor(tutor1);
 // console.log(encoding);
 
