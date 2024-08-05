@@ -34,7 +34,7 @@ export class StatusOptions {
 
   static readonly invalidTimes: Status = {
     title: "Has Invalid Times",
-    match: "conflicts",
+    match: "invalid",
     color: {
       backgroundColor: "#E6BBC1",
       borderColor: "#D31F38"

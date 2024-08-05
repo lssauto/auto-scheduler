@@ -6,4 +6,9 @@ describe("enums - Positions Static Class", () => {
       expect(StatusOptions.match(status.match)).toBe(status);
     });
   });
+
+  test("Match invalid times", () => {
+    expect(StatusOptions.match(StatusOptions.invalidTimes.title))
+      .toBe(StatusOptions.invalidTimes);
+  });
 });

@@ -12,7 +12,7 @@ The most important class is `TimeBlock`. It's purpose is to represent any sort o
 
 This isn't the full dependency tree, but shows the rough structure that's followed. One of the biggest difficulties you'll likely face is dealing with the `Tutors` and `Rooms` singletons, and they interact with `TimeBlock`s. The setter and getter methods on `TimeBlock` will reference these singletons to access data about the `Tutor`s, `Room`s, and `Course`s the time is associated with. This makes unit testing difficult, since any tests you make will likely require these to initialized. 
 
-Each of the core data-holding classes will have a `getDiv()` method to create the actual HTML used to display that class. 
+Each of the core data-holding classes will have a `getDiv()` method to create the actual HTML used to display that class.
 
 - [**Editors**](editors.md)
 - [**I/O**](io.md)
