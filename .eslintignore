@@ -1,3 +1,4 @@
 dist
+docs
 vite.config.js
 jest.config.cjs
