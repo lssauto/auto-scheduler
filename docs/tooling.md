@@ -6,4 +6,4 @@ After cloning this repo, run `npm install` to get all dependencies. To build a l
 
 When you try to commit any changes eslint and jest will run to pre-check changes. If eslint raises any errors, or any of the unit tests fail, then the commit cannot be pushed. Once a change is pushed, a workflow is used to build and deploy the website automatically.
 
-Always make sure that the deployment was successful. There are times when the deployment will fail for one reason or another.
+Always make sure that the deployment was successful. There are times when the deployment will fail for one reason or another. In which just run the "deploy to static pages" github action to redeploy.

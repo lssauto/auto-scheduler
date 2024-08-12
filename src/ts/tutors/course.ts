@@ -24,17 +24,17 @@ export enum CourseSessions {
  * Config object used for building and updating courses.
  */
 export interface CourseConfig {
-  readonly tutor: Tutor;
-  readonly id: string;
-  readonly position: Position;
-  readonly status: Status;
-  readonly preference: string;
-  readonly row: number;
-  readonly timestamp: string;
-  readonly zoomLink: string;
-  readonly comments: string;
-  readonly scheduler: string;
-  readonly session: CourseSessions;
+  readonly tutor: Tutor; // reference to the tutor this course belongs to
+  readonly id: string; // this course's id, uniquely identifies this course
+  readonly position: Position; // the position the tutor holds for this course
+  readonly status: Status; // the course's scheduling status
+  readonly preference: string; // the name of the building the tutor would prefer sessions to be scheduled in
+  readonly row: number; // the row in the response for this course was read from, not needed anymore
+  readonly timestamp: string; // the timestamp this submission was made at
+  readonly zoomLink: string; // the tutor's zoom link
+  readonly comments: string; // comments left on the tutor's submission
+  readonly scheduler: string; // the staff member who scheduled this course
+  readonly session: CourseSessions; // the length of the course
 }
 
 /**
@@ -219,12 +219,10 @@ export class Course {
    */
   hasTime(time: TimeBlock): boolean {
     if (this.times.get(time.tag)!.indexOf(time) !== -1) {
-      console.log("found exact time");
       return true;
     }
     for (const t of this.times.get(time.tag)!) {
       if (t.isEqual(time)) {
-        console.log("comparison matched");
         return true;
       }
     }
