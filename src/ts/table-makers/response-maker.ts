@@ -514,7 +514,7 @@ export class ResponseTableMaker {
       const rowObj = this.responses[r];
 
       // If tutor was deleted
-      if (!tutors.hasTutor(rowObj.email) || !(tutors.getTutor(rowObj.email)?.hasCourse(rowObj.courseID) ?? true)) {
+      if (!tutors.hasTutor(rowObj.email)) {
         for (let c = 0; c < this.columnTitles.length; c++) {
           const title = this.columnTitles[c].trim().toLowerCase();
 
@@ -539,7 +539,7 @@ export class ResponseTableMaker {
         for (let c = 0; c < this.columnTitles.length; c++) {
           const title = this.columnTitles[c].trim().toLowerCase();
 
-          if (title.includes(Titles.status)) {
+          if (title.includes(Titles.status) && tutor.getCourse(rowObj.courseID)) {
             this.responseMatrix[r][c] = tutor.getCourse(rowObj.courseID)!.status.title;
 
           } else if (title.includes(Titles.scheduler)) {
