@@ -226,7 +226,7 @@ export class Rooms implements Iterable<Room> {
     // set the room's building
     const building = this.getBuildingName(room);
     room.setBuilding(building);
-    if (building !== Rooms.unknown) {
+    if (building !== Rooms.unknown && !room.isRequestRoom) {
       this.buildings.get(building)!.addRoom(room);
     }
 

@@ -1,5 +1,5 @@
 import { TutorSchedule } from "./tutor-schedule";
-import { Status } from "../status-options";
+import { Status, StatusOptions } from "../status-options";
 import { Course } from "./course";
 import { ErrorCodes } from "../schedule/schedule";
 import { Tags, TimeBlock, TimeBlockMatcher } from "../schedule/time-block";
@@ -140,7 +140,7 @@ export class Tutor {
   hasErrors(): boolean {
     let hasErrors = false;
     this.forEachCourse(course => {
-      if (course.getErrors().length > 0) {
+      if (course.getErrors().length > 0 || StatusOptions.isErrorStatus(course.status)) {
         hasErrors = true;
       }
     });

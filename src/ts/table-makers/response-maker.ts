@@ -417,8 +417,7 @@ export class ResponseTableMaker {
           }
 
           // convert roomStr into a bool
-          const scheduleByLSS = (roomStr.includes(RoomResponses.scheduleByLSS) || roomStr.includes(RoomResponses.remoteScheduleByLSS)) && 
-                                  Positions.isSelfSchedulable(response.position);
+          const scheduleByLSS = roomStr.includes(RoomResponses.scheduleByLSS) || roomStr.includes(RoomResponses.remoteScheduleByLSS);
 
           // determine if tutor wants this session to be virtual or not
           const isVirtual = roomStr.includes(VirtualResponses.virtual);

@@ -4,6 +4,7 @@ import { ResponseTableMaker, Titles } from "../table-makers/response-maker";
 import { ErrorCodes } from "../schedule/schedule";
 import { Header } from "../elements/header/header";
 import { SessionTimes } from "../utils/session-times";
+import { Course } from "../tutors/course";
 
 // Procedure for parsing tutor response table, 
 // expects the raw copy & pasted string from the google sheets
@@ -157,35 +158,54 @@ function addResponseData() {
     // if tutor or course can't be found, then this is a bad submission
     const tutor = tutors.getTutor(response.email);
     if (tutor === undefined) continue;
-    const course = tutor.getCourse(response.courseID);
-    if (course === undefined) continue;
+    let course = tutor.getCourse(response.courseID);
+    if (course === undefined) {
+      // add missing course
+      tutor.addCourse(Course.buildCourse({
+        tutor: tutor,
+        id: response.courseID,
+        position: response.position,
+        timestamp: response.timestamp,
+        preference: Course.noPref,
+        row: response.row,
+        status: response.status,
+        comments: response.comments,
+        scheduler: response.scheduler,
+        zoomLink: response.zoomLink,
+        session: response.courseSession
+      }));
 
-    // skip old submissions
-    if (!course.isOlderThan(response.timestamp)) {
-      continue;
+      course = tutor.getCourse(response.courseID)!;
+
+    } else {
+      // skip old submissions
+      if (!course.isOlderThan(response.timestamp)) {
+        continue;
+      }
+  
+      course.onDeletedDispatch(); // used to remove all previously loaded times
+  
+      // add tutor back to errors event listener
+      course.addErrorsListener(tutor, () => {
+        tutor.onErrorsDispatch();
+      });
+  
+      // rebuild course
+      course.update({
+        tutor: tutor,
+        id: course.id,
+        position: response.position,
+        timestamp: response.timestamp,
+        preference: course.preference,
+        row: response.row,
+        status: response.status,
+        comments: response.comments,
+        scheduler: response.scheduler,
+        zoomLink: response.zoomLink,
+        session: response.courseSession
+      });
     }
 
-    course.onDeletedDispatch(); // used to remove all previously loaded times
-
-    // add tutor back to errors event listener
-    course.addErrorsListener(tutor, () => {
-      tutor.onErrorsDispatch();
-    });
-
-    // rebuild course
-    course.update({
-      tutor: tutor,
-      id: course.id,
-      position: response.position,
-      timestamp: response.timestamp,
-      preference: course.preference,
-      row: response.row,
-      status: response.status,
-      comments: response.comments,
-      scheduler: response.scheduler,
-      zoomLink: response.zoomLink,
-      session: response.courseSession
-    });
 
     // add times
 
@@ -199,6 +219,8 @@ function addResponseData() {
 
       const errorCode = tutor.addTime(lecture);
 
+      // make sure time block is subscribed to course events
+      lecture.setCourse(course.id);
       // add time to errors, but should only happen for sessions
       if (errorCode !== ErrorCodes.success) {
         course.addError(lecture);
@@ -215,6 +237,9 @@ function addResponseData() {
       }
 
       const errorCode = tutor.addTime(officeHour);
+
+      // make sure time block is subscribed to course events
+      officeHour.setCourse(course.id);
       if (errorCode !== ErrorCodes.success) {
         course.addError(officeHour);
       }
@@ -229,6 +254,9 @@ function addResponseData() {
       }
 
       const errorCode = tutor.addTime(discord);
+
+      // make sure time block is subscribed to course events
+      discord.setCourse(course.id);
       if (errorCode !== ErrorCodes.success) {
         course.addError(discord);
       }
@@ -243,6 +271,8 @@ function addResponseData() {
       }
 
       const errorCode = tutor.addTime(time);
+      // make sure time block is subscribed to course events
+      time.setCourse(course.id);
       if (errorCode !== ErrorCodes.success) {
         Messages.output(Messages.error, {
           message: `"${errorCode}" error encountered for one of ${tutor.name}'s (${tutor.email}) sessions.`,

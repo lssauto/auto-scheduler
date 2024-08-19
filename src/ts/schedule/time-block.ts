@@ -342,15 +342,16 @@ export class TimeBlock {
     }
     this.courseID = id;
     // If this course ID connects to an actual course instance
-    if (this.getCourse()) {
+    const course = this.getCourse();
+    if (course && !course.hasTime(this)) {
       // Add this time to the course
-      this.getCourse()!.addTime(this);
-      this.getCourse()!.addEditedListener(this, (event) => {
+      course.addTime(this);
+      course.addEditedListener(this, (event) => {
         const course = event as Course;
         this.courseID = course.id;
         this.onEditedDispatch();
       });
-      this.getCourse()!.addDeletedListener(this, () => {
+      course.addDeletedListener(this, () => {
         this.delete();
       });
     }
