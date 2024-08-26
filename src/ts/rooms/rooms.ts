@@ -249,7 +249,11 @@ export class Rooms implements Iterable<Room> {
   removeRoom(room: Room | string) {
     const ref = room instanceof Room ? room : this.getRoom(room);
     if (ref) {
-      this.rooms.delete(ref.name);
+      if (ref.isRequestRoom) {
+        this.requestRooms.delete(ref.name);
+      } else {
+        this.rooms.delete(ref.name);
+      }
       this.getBuilding(ref.building)?.removeRoom(ref);
       ref.delete();
     }
